@@ -33,11 +33,23 @@ namespace Ecc {
             };
         }
 
+        public static ECPrivateKey ParseHex(string hex, ECCurve curve) {
+            return new ECPrivateKey {
+                Curve = curve,
+                D = ParseInt(hex)
+            };
+        }
+
         private static BigInteger RandomInt(ECCurve curve) {
             var cng = System.Security.Cryptography.RandomNumberGenerator.Create();
             var privData = new byte[curve.Order.ToByteArray().Length];
             cng.GetBytes(privData);
             return new BigInteger(privData).ModAbs(curve.Order);
+        }
+
+        private static BigInteger ParseInt(string val) {
+            if (val.StartsWith("0x")) val = "0" + val.Substring(2);
+            return BigInteger.Parse(val, System.Globalization.NumberStyles.AllowHexSpecifier);
         }
 
     }

@@ -55,6 +55,10 @@ namespace Ecc {
             return ECPrivateKey.Create(this);
         }
 
+        public ECPrivateKey ParsePrivateKeyHex(string hex) {
+            return ECPrivateKey.ParseHex(hex, this);
+        }
+
         public static ECCurve Secp256k1 {
             get {
                 return new ECHexInfo {
