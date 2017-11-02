@@ -16,6 +16,21 @@ namespace Ecc {
             return (a % modulus) == (b % modulus);
         }
 
+        public static long Log2(this BigInteger val) {
+            var n = val.ToByteArray();
+            var keySize = n.Length * 8;
+            for (var i = n.Length - 1; i >= 0; i--) {
+                var bt = n[i];
+                for (var j = 7; j >= 0; j--) {
+                    if ((bt & (1 << j)) != 0) {
+                        return keySize;
+                    }
+                    keySize--;
+                }
+            }
+            return keySize;
+        }
+
         public static string ToHexUnsigned(this BigInteger val) {
             var res = val.ToString("x");
             if (res.Length % 2 == 0) return res;

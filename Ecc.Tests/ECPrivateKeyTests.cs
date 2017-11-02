@@ -3,6 +3,7 @@ using System.Numerics;
 
 namespace Ecc.Tests {
     [TestFixture]
+    [TestOf(typeof(ECPrivateKey))]
     public class ECPrivateKeyTests {
 
         [Test]

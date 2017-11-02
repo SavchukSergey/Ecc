@@ -3,6 +3,7 @@ using NUnit.Framework;
 
 namespace Ecc.Tests {
     [TestFixture]
+    [TestOf(typeof(BigIntegerExt))]
     public class BigIntegerExtTests {
 
         [TestCase(-5, 23, 18)]

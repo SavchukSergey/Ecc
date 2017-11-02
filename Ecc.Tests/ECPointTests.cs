@@ -2,6 +2,7 @@
 
 namespace Ecc.Tests {
     [TestFixture]
+    [TestOf(typeof(ECPoint))]
     public class ECPointTests {
 
         [Test]
