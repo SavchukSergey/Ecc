@@ -20,13 +20,27 @@ namespace Ecc {
 
         public bool Singluar => ((4 * A * A * A + 27 * B * B) % Modulus) == 0;
 
-        public bool Has(ECPoint p) {
-            var modulus = Modulus;
+        public long KeySize {
+            get {
+                var n = Modulus.ToByteArray();
+                var keySize = n.Length * 8;
+                for (var i = n.Length - 1; i >= 0; i--) {
+                    var bt = n[i];
+                    for (var j = 7; j >= 0; j--) {
+                        if ((bt & (1 << j)) != 0) {
+                            return keySize;
+                        }
+                        keySize--;
+                    }
+                }
+                return keySize;
+            }
+        }
 
+        public bool Has(ECPoint p) {
             var left = p.Y * p.Y;
             var right = p.X * p.X * p.X + A * p.X + B;
-
-            return (left - right) % modulus == 0;
+            return BigIntegerExt.ModEqual(left, right, Modulus);
         }
 
         public ECPoint CreatePoint(BigInteger x, BigInteger y) {

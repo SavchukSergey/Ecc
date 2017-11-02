@@ -13,7 +13,7 @@ namespace Ecc.Tests {
 
         [TestCase(7, 40832, 34999)]
         public void ModInverseTest(int a, int n, int expected) {
-            var actual = BigIntegerExt.ModInverse(a, n).ModAbs(n);
+            var actual = BigIntegerExt.ModInverse(a, n);
             Assert.AreEqual(new BigInteger(expected), actual);
             Assert.IsTrue(BigIntegerExt.ModEqual(1, actual * a, n));
         }

@@ -9,7 +9,7 @@ namespace Ecc {
         }
 
         public static BigInteger ModInverse(this BigInteger val, BigInteger modulus) {
-            return EuclidExtended(val.ModAbs(modulus), modulus).X;
+            return EuclidExtended(val.ModAbs(modulus), modulus).X.ModAbs(modulus);
         }
 
         public static bool ModEqual(BigInteger a, BigInteger b, BigInteger modulus) {
