@@ -68,7 +68,7 @@ namespace Ecc {
             return acc;
         }
 
-        public override string ToString() => $"{{X: {X}, Y: {Y}}}";
+        public override string ToString() => $"{{X: {X.ToHexUnsigned()}, Y: {Y.ToHexUnsigned()}}}";
 
     }
 }

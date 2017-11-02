@@ -16,6 +16,13 @@ namespace Ecc {
             return (a % modulus) == (b % modulus);
         }
 
+        public static string ToHexUnsigned(this BigInteger val) {
+            var res = val.ToString("x");
+            if (res.Length % 2 == 0) return res;
+            if (res.StartsWith("0")) return res.Substring(1);
+            return "f" + res;
+        }
+
         public static BezoutIdentity EuclidExtended(BigInteger a, BigInteger b) {
             var s0 = new BigInteger(1);
             var t0 = new BigInteger(0);

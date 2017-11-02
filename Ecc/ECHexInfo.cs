@@ -38,6 +38,7 @@ namespace Ecc {
 
         private static BigInteger ParseInt(string val) {
             if (val.StartsWith("0x")) val = "0" + val.Substring(2);
+            else val = "00" + val;
             return BigInteger.Parse(val, System.Globalization.NumberStyles.AllowHexSpecifier);
         }
 

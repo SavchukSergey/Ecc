@@ -8,7 +8,7 @@ namespace Ecc {
             var sb = new StringBuilder();
             if (point.Y.IsEven) sb.Append("02");
             else sb.Append("03");
-            sb.Append(point.X.ToString("x"));
+            sb.Append(point.X.ToHexUnsigned());
             return sb.ToString();
         }
 
