@@ -22,24 +22,18 @@ namespace Ecc {
         public ECCurve Build() {
             var ecc = new ECCurve {
                 Name = Name,
-                A = ParseInt(A),
-                B = ParseInt(B),
-                Modulus = ParseInt(P),
-                Order = ParseInt(N),
-                Cofactor = ParseInt(H),
+                A = BigIntegerExt.ParseHexUnsigned(A),
+                B = BigIntegerExt.ParseHexUnsigned(B),
+                Modulus = BigIntegerExt.ParseHexUnsigned(P),
+                Order = BigIntegerExt.ParseHexUnsigned(N),
+                Cofactor = BigIntegerExt.ParseHexUnsigned(H),
             };
             ecc.G = new ECPoint {
-                X = ParseInt(Gx),
-                Y = ParseInt(Gy),
+                X = BigIntegerExt.ParseHexUnsigned(Gx),
+                Y = BigIntegerExt.ParseHexUnsigned(Gy),
                 Curve = ecc
             };
             return ecc;
-        }
-
-        private static BigInteger ParseInt(string val) {
-            if (val.StartsWith("0x")) val = "0" + val.Substring(2);
-            else val = "00" + val;
-            return BigInteger.Parse(val, System.Globalization.NumberStyles.AllowHexSpecifier);
         }
 
     }

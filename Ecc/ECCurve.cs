@@ -38,12 +38,33 @@ namespace Ecc {
             };
         }
 
+        public ECPoint CreatePoint(BigInteger x, bool yOdd) {
+            var right = x * x * x + A * x + B;
+            var y = right.ModSqrt(Modulus);
+            return CreatePoint(x, y);
+        }
+
+        public BigInteger TruncateHash(byte[] hash) {
+            var maxLength = OrderSize;
+            var num = new BigInteger(hash);
+            var len = hash.Length * 8;
+            while (len > maxLength) {
+                num >>= 1;
+                len--;
+            }
+            return num;
+        }
+
         public ECPrivateKey CreateKeyPair() {
             return ECPrivateKey.Create(this);
         }
 
         public ECPrivateKey ParsePrivateKeyHex(string hex) {
             return ECPrivateKey.ParseHex(hex, this);
+        }
+
+        public ECPublicKey ParsePublicKeyHex(string hex) {
+            return ECPublicKey.ParseHex(hex, this);
         }
 
         public static ECCurve Secp256k1 {

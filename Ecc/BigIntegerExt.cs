@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace Ecc {
     public static class BigIntegerExt {
@@ -16,6 +17,14 @@ namespace Ecc {
             return (a % modulus) == (b % modulus);
         }
 
+        public static BigInteger ModMul(this BigInteger a, BigInteger b, BigInteger modulus) {
+            return (a * b) % modulus;
+        }
+
+        public static BigInteger ModDiv(this BigInteger a, BigInteger b, BigInteger modulus) {
+            return a.ModMul(b.ModInverse(modulus), modulus);
+        }
+
         public static long Log2(this BigInteger val) {
             var n = val.ToByteArray();
             var keySize = n.Length * 8;
@@ -31,11 +40,22 @@ namespace Ecc {
             return keySize;
         }
 
+        public static BigInteger ModSqrt(this BigInteger val, BigInteger modulus) {
+            var exp = (modulus + 1).ModDiv(4, modulus);
+            return BigInteger.ModPow(val, exp, modulus);
+        }
+
         public static string ToHexUnsigned(this BigInteger val) {
             var res = val.ToString("x");
             if (res.Length % 2 == 0) return res;
             if (res.StartsWith("0")) return res.Substring(1);
             return "f" + res;
+        }
+
+        public static BigInteger ParseHexUnsigned(string val) {
+            if (val.StartsWith("0x")) val = "0" + val.Substring(2);
+            else val = "00" + val;
+            return BigInteger.Parse(val, System.Globalization.NumberStyles.AllowHexSpecifier);
         }
 
         public static BezoutIdentity EuclidExtended(BigInteger a, BigInteger b) {

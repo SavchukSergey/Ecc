@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace Ecc {
     public class ECPoint {
@@ -68,6 +69,20 @@ namespace Ecc {
             return acc;
         }
 
+        public static ECPoint ParseCompressedHex(string hex, ECCurve curve) {
+            if (hex == "00") return null;
+            if (hex.StartsWith("02")) {
+                var x = BigIntegerExt.ParseHexUnsigned(hex.Substring(2));
+                return curve.CreatePoint(x, false);
+            } else if (hex.StartsWith("03")) {
+                var x = BigIntegerExt.ParseHexUnsigned(hex.Substring(2));
+                return curve.CreatePoint(x, true);
+            } else if (hex.StartsWith("04")) {
+                throw new NotImplementedException();
+            }
+            throw new FormatException();
+        }
+      
         public override string ToString() => $"{{X: {X.ToHexUnsigned()}, Y: {Y.ToHexUnsigned()}}}";
 
     }

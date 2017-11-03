@@ -19,5 +19,12 @@ namespace Ecc {
             return Point.GetCompressedHex();
         }
 
+        public static ECPublicKey ParseHex(string hex, ECCurve curve) {
+            return new ECPublicKey {
+                Curve = curve,
+                Point = ECPoint.ParseCompressedHex(hex, curve)
+            };
+        }
+
     }
 }

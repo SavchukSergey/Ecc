@@ -21,8 +21,23 @@ namespace Ecc.Tests {
 
         [TestCase(1, 24, 23, true)]
         [TestCase(2, 24, 23, false)]
-        public void ModEqual(int a, int b, int n, bool res) {
+        public void ModEqualTest(int a, int b, int n, bool res) {
             Assert.AreEqual(res, BigIntegerExt.ModEqual(a, b, n));
+        }
+
+        [TestCase(10, 3, 17, 9)]
+        public void ModDivTest(int a, int b, int n, int res) {
+            Assert.AreEqual(new BigInteger(res), BigIntegerExt.ModDiv(a, b, n));
+        }
+
+        [TestCase(10, 6, 17, 9)]
+        public void ModMulTest(int a, int b, int n, int res) {
+            Assert.AreEqual(new BigInteger(res), BigIntegerExt.ModMul(a, b, n));
+        }
+
+        [TestCase(5, 11, 4)]
+        public void ModSqrtTest(int a, int n, int res) {
+            Assert.AreEqual(new BigInteger(res), BigIntegerExt.ModSqrt(a, n));
         }
 
         [Test]

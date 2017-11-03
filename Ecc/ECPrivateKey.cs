@@ -9,6 +9,11 @@ namespace Ecc {
 
         public ECPublicKey PublicKey => new ECPublicKey { Curve = Curve, Point = Curve.G * D };
 
+        public ECSignature Sign(byte[] hash) {
+            var num = Curve.TruncateHash(hash);
+            return Sign(num);
+        }
+
         public ECSignature Sign(BigInteger message) {
             BigInteger r = new BigInteger(0);
             BigInteger s = new BigInteger(0);

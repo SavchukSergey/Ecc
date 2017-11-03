@@ -41,5 +41,11 @@ namespace Ecc.Tests {
             }
         }
 
+        [Test, Ignore("to implement")]
+        public void ParseCompressedHexTest() {
+            //todo: implement
+            throw new System.NotImplementedException();
+        }
+
     }
 }
