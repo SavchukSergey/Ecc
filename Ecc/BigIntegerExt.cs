@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.Text;
 
 namespace Ecc {
     public static class BigIntegerExt {
@@ -45,11 +46,22 @@ namespace Ecc {
             return BigInteger.ModPow(val, exp, modulus);
         }
 
-        public static string ToHexUnsigned(this BigInteger val) {
-            var res = val.ToString("x");
-            if (res.Length % 2 == 0) return res;
-            if (res.StartsWith("0")) return res.Substring(1);
-            return "f" + res;
+        public static string ToHexUnsigned(this BigInteger val, long length) {
+            var sbLength = (int)length * 2;
+            var sb = new StringBuilder(sbLength, sbLength);
+            var data = val.ToByteArray();
+            var dataLength = data.Length;
+            const string hex = "0123456789abcdef";
+            for (var i = length - 1; i >= 0; i--) {
+                if (i < dataLength) {
+                    var ch = data[i];
+                    sb.Append(hex[ch >> 4]);
+                    sb.Append(hex[ch & 0x0f]);
+                } else {
+                    sb.Append("00");
+                }
+            }
+            return sb.ToString();
         }
 
         public static BigInteger ParseHexUnsigned(string val) {

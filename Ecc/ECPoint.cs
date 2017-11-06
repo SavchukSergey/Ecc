@@ -4,11 +4,17 @@ using System.Numerics;
 namespace Ecc {
     public class ECPoint {
 
-        public BigInteger X;
+        public readonly BigInteger X;
 
-        public BigInteger Y;
+        public readonly BigInteger Y;
 
-        public ECCurve Curve;
+        public readonly ECCurve Curve;
+
+        public ECPoint(BigInteger x, BigInteger y, ECCurve curve) {
+            X = x;
+            Y = y;
+            Curve = curve;
+        }
 
         public bool Valid {
             get {
@@ -34,11 +40,7 @@ namespace Ecc {
                 var rx = (m * m - p.X - q.X) % modulus;
                 var ry = (m * (p.X - rx) - p.Y) % modulus;
 
-                return new ECPoint {
-                    X = rx.ModAbs(modulus),
-                    Y = ry.ModAbs(modulus),
-                    Curve = curve
-                };
+                return new ECPoint(rx.ModAbs(modulus), ry.ModAbs(modulus), curve);
             } else {
                 if (p.Y == 0 && q.Y == 0) {
                     return null;
@@ -46,11 +48,7 @@ namespace Ecc {
                     var m = (3 * p.X * p.X + curve.A) * ((2 * p.Y).ModInverse(modulus));
                     var rx = m * m - 2 * p.X;
                     var ry = (m * (p.X - rx) - p.Y) % modulus;
-                    return new ECPoint {
-                        X = rx.ModAbs(modulus),
-                        Y = ry.ModAbs(modulus),
-                        Curve = curve
-                    };
+                    return new ECPoint(rx.ModAbs(modulus), ry.ModAbs(modulus), curve);
                 } else {
                     return null;
                 }
@@ -69,21 +67,7 @@ namespace Ecc {
             return acc;
         }
 
-        public static ECPoint ParseCompressedHex(string hex, ECCurve curve) {
-            if (hex == "00") return null;
-            if (hex.StartsWith("02")) {
-                var x = BigIntegerExt.ParseHexUnsigned(hex.Substring(2));
-                return curve.CreatePoint(x, false);
-            } else if (hex.StartsWith("03")) {
-                var x = BigIntegerExt.ParseHexUnsigned(hex.Substring(2));
-                return curve.CreatePoint(x, true);
-            } else if (hex.StartsWith("04")) {
-                throw new NotImplementedException();
-            }
-            throw new FormatException();
-        }
-      
-        public override string ToString() => $"{{X: {X.ToHexUnsigned()}, Y: {Y.ToHexUnsigned()}}}";
+        public override string ToString() => $"{{X: {X.ToHexUnsigned(Curve.KeySize8)}, Y: {Y.ToHexUnsigned(Curve.KeySize8)}}}";
 
     }
 }

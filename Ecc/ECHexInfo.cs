@@ -28,11 +28,8 @@ namespace Ecc {
                 Order = BigIntegerExt.ParseHexUnsigned(N),
                 Cofactor = BigIntegerExt.ParseHexUnsigned(H),
             };
-            ecc.G = new ECPoint {
-                X = BigIntegerExt.ParseHexUnsigned(Gx),
-                Y = BigIntegerExt.ParseHexUnsigned(Gy),
-                Curve = ecc
-            };
+            var g = ecc.CreatePoint(BigIntegerExt.ParseHexUnsigned(Gx), BigIntegerExt.ParseHexUnsigned(Gy));
+            ecc.G = g;
             return ecc;
         }
 

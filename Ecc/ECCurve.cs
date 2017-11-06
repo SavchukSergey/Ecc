@@ -22,6 +22,8 @@ namespace Ecc {
 
         public long KeySize => Modulus.Log2();
 
+        public long KeySize8 => (KeySize + 7) >> 3;
+
         public long OrderSize => Order.Log2();
 
         public bool Has(ECPoint p) {
@@ -31,17 +33,43 @@ namespace Ecc {
         }
 
         public ECPoint CreatePoint(BigInteger x, BigInteger y) {
-            return new ECPoint {
-                X = x,
-                Y = y,
-                Curve = this
-            };
+            return new ECPoint(x, y, this);
         }
 
         public ECPoint CreatePoint(BigInteger x, bool yOdd) {
             var right = x * x * x + A * x + B;
             var y = right.ModSqrt(Modulus);
             return CreatePoint(x, y);
+        }
+
+        public ECPoint CreatePoint(string hex) {
+            if (hex == "00") return null;
+            if (hex.StartsWith("02")) {
+                var x = BigIntegerExt.ParseHexUnsigned(hex.Substring(2));
+                return CreatePoint(x, false);
+            } else if (hex.StartsWith("03")) {
+                var x = BigIntegerExt.ParseHexUnsigned(hex.Substring(2));
+                return CreatePoint(x, true);
+            } else if (hex.StartsWith("04")) {
+                var keySize = (int)KeySize8 * 2;
+                var x = BigIntegerExt.ParseHexUnsigned(hex.Substring(2, keySize));
+                var y = BigIntegerExt.ParseHexUnsigned(hex.Substring(keySize + 2));
+                return CreatePoint(x, y);
+            }
+            throw new System.FormatException();
+        }
+
+        public ECPrivateKey CreateKeyPair() {
+            return ECPrivateKey.Create(this);
+        }
+
+        public ECPrivateKey CreatePrivateKey(string hex) {
+            return ECPrivateKey.ParseHex(hex, this);
+        }
+
+        public ECPublicKey CreatePublicKey(string hex) {
+            var point = CreatePoint(hex);
+            return new ECPublicKey(point, this);
         }
 
         public BigInteger TruncateHash(byte[] hash) {
@@ -53,18 +81,6 @@ namespace Ecc {
                 len--;
             }
             return num;
-        }
-
-        public ECPrivateKey CreateKeyPair() {
-            return ECPrivateKey.Create(this);
-        }
-
-        public ECPrivateKey ParsePrivateKeyHex(string hex) {
-            return ECPrivateKey.ParseHex(hex, this);
-        }
-
-        public ECPublicKey ParsePublicKeyHex(string hex) {
-            return ECPublicKey.ParseHex(hex, this);
         }
 
         public static ECCurve Secp256k1 {

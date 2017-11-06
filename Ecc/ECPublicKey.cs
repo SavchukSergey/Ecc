@@ -3,9 +3,14 @@
 namespace Ecc {
     public class ECPublicKey {
 
-        public ECCurve Curve;
+        public readonly ECCurve Curve;
 
-        public ECPoint Point;
+        public readonly ECPoint Point;
+
+        public ECPublicKey(ECPoint point, ECCurve curve) {
+            Point = point;
+            Curve = curve;
+        }
 
         public bool VerifySignature(BigInteger message, ECSignature signature) {
             var w = signature.S.ModInverse(Curve.Order);
@@ -17,13 +22,6 @@ namespace Ecc {
 
         public string GetCompressedHex() {
             return Point.GetCompressedHex();
-        }
-
-        public static ECPublicKey ParseHex(string hex, ECCurve curve) {
-            return new ECPublicKey {
-                Curve = curve,
-                Point = ECPoint.ParseCompressedHex(hex, curve)
-            };
         }
 
     }

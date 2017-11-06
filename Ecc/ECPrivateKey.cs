@@ -3,11 +3,16 @@
 namespace Ecc {
     public class ECPrivateKey {
 
-        public ECCurve Curve;
+        public readonly ECCurve Curve;
 
-        public BigInteger D;
+        public readonly BigInteger D;
 
-        public ECPublicKey PublicKey => new ECPublicKey { Curve = Curve, Point = Curve.G * D };
+        public ECPublicKey PublicKey => new ECPublicKey(Curve.G * D, Curve);
+
+        public ECPrivateKey(BigInteger d, ECCurve curve) {
+            D = d;
+            Curve = curve;
+        }
 
         public ECSignature Sign(byte[] hash) {
             var num = Curve.TruncateHash(hash);
@@ -32,17 +37,11 @@ namespace Ecc {
         public static ECPrivateKey Create(ECCurve curve) {
             var priv = RandomInt(curve);
             //todo: check not zero
-            return new ECPrivateKey {
-                D = priv,
-                Curve = curve
-            };
+            return new ECPrivateKey(priv, curve);
         }
 
         public static ECPrivateKey ParseHex(string hex, ECCurve curve) {
-            return new ECPrivateKey {
-                Curve = curve,
-                D = ParseInt(hex)
-            };
+            return new ECPrivateKey(ParseInt(hex), curve);
         }
 
         private static BigInteger RandomInt(ECCurve curve) {
