@@ -27,6 +27,8 @@ namespace Ecc {
         public long OrderSize => Order.Log2();
 
         public bool Has(ECPoint p) {
+            if (p == ECPoint.Infinity) return true;
+
             var left = p.Y * p.Y;
             var right = p.X * p.X * p.X + A * p.X + B;
             return BigIntegerExt.ModEqual(left, right, Modulus);

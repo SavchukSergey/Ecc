@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace Ecc {
+﻿namespace Ecc {
     public struct ECHexInfo {
 
         public string Name;

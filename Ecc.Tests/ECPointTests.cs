@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System.Numerics;
 
 namespace Ecc.Tests {
     [TestFixture]
@@ -15,8 +16,8 @@ namespace Ecc.Tests {
             var p = curve.CreatePoint(16, 20);
             var q = curve.CreatePoint(41, 120);
             var r = p + q;
-            Assert.IsTrue(r.X == 86);
-            Assert.IsTrue(r.Y == 81);
+            Assert.AreEqual(new BigInteger(86), r.X);
+            Assert.AreEqual(new BigInteger(81), r.Y);
         }
 
         [TestCase(1, 3, 6)]
@@ -33,18 +34,23 @@ namespace Ecc.Tests {
             };
             var p1 = curve.CreatePoint(3, 6);
             var p2 = p1 * mul;
-            if (p2 == null) {
+            if (p2 == ECPoint.Infinity) {
                 Assert.IsTrue(x == int.MaxValue && y == int.MaxValue);
             } else {
-                Assert.IsTrue(p2.X == x);
-                Assert.IsTrue(p2.Y == y);
+                Assert.AreEqual(new BigInteger(x), p2.X);
+                Assert.AreEqual(new BigInteger(y), p2.Y);
             }
         }
 
-        [Test, Ignore("to implement")]
-        public void ParseCompressedHexTest() {
-            //todo: implement
-            throw new System.NotImplementedException();
+        [Test]
+        public void GetHexTest() {
+            Assert.AreEqual("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798", ECCurve.Secp256k1.G.GetHex());
+            Assert.AreEqual("0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8", ECCurve.Secp256k1.G.GetHex(false));
+        }
+
+        [Test]
+        public void InfinityGetHexTest() {
+            Assert.AreEqual("00", ECPoint.Infinity.GetHex());
         }
 
     }

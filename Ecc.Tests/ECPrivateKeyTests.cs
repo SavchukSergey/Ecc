@@ -36,7 +36,7 @@ namespace Ecc.Tests {
             var curve = ECCurve.Secp256k1;
             var privateKey = curve.CreatePrivateKey(privateKeyHex);
             var publicKey = privateKey.PublicKey;
-            Assert.AreEqual(publicKeyHex, publicKey.GetCompressedHex());
+            Assert.AreEqual(publicKeyHex, publicKey.ToString());
         }
 
     }

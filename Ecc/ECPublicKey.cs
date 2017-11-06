@@ -20,9 +20,7 @@ namespace Ecc {
             return BigIntegerExt.ModEqual(signature.R, p.X, Curve.Order);
         }
 
-        public string GetCompressedHex() {
-            return Point.GetCompressedHex();
-        }
+        public override string ToString() => Point.GetHex();
 
     }
 }

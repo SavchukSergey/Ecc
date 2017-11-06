@@ -1,5 +1,5 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
+using System.Text;
 
 namespace Ecc {
     public class ECPoint {
@@ -23,8 +23,8 @@ namespace Ecc {
         }
 
         public static ECPoint operator +(ECPoint p, ECPoint q) {
-            if (p == null) return q;
-            if (q == null) return p;
+            if (p == Infinity) return q;
+            if (q == Infinity) return p;
 
             var curve = p.Curve;
             var modulus = curve.Modulus;
@@ -37,28 +37,28 @@ namespace Ecc {
                 var check = (dx * invDx).ModAbs(modulus);
                 var m = dy * invDx;
 
-                var rx = (m * m - p.X - q.X) % modulus;
-                var ry = (m * (p.X - rx) - p.Y) % modulus;
+                var rx = (m * m - p.X - q.X);
+                var ry = (m * (p.X - rx) - p.Y);
 
                 return new ECPoint(rx.ModAbs(modulus), ry.ModAbs(modulus), curve);
             } else {
                 if (p.Y == 0 && q.Y == 0) {
-                    return null;
+                    return Infinity;
                 } else if (dy == 0) {
                     var m = (3 * p.X * p.X + curve.A) * ((2 * p.Y).ModInverse(modulus));
                     var rx = m * m - 2 * p.X;
-                    var ry = (m * (p.X - rx) - p.Y) % modulus;
+                    var ry = (m * (p.X - rx) - p.Y);
                     return new ECPoint(rx.ModAbs(modulus), ry.ModAbs(modulus), curve);
                 } else {
-                    return null;
+                    return Infinity;
                 }
             }
 
         }
 
         public static ECPoint operator *(ECPoint p, BigInteger k) {
-            ECPoint acc = null;
-            ECPoint add = p;
+            var acc = Infinity;
+            var add = p;
             while (k != 0) {
                 if (!k.IsEven) acc += add;
                 add = add + add;
@@ -67,7 +67,22 @@ namespace Ecc {
             return acc;
         }
 
+        public string GetHex(bool compress = true) {
+            if (this == Infinity) return "00";
+            var keySize = Curve.KeySize8;
+            if (compress) {
+                var sb = new StringBuilder();
+                if (Y.IsEven) sb.Append("02");
+                else sb.Append("03");
+                sb.Append(X.ToHexUnsigned(keySize));
+                return sb.ToString();
+            }
+            return $"04{X.ToHexUnsigned(keySize)}{Y.ToHexUnsigned(keySize)}";
+        }
+
         public override string ToString() => $"{{X: {X.ToHexUnsigned(Curve.KeySize8)}, Y: {Y.ToHexUnsigned(Curve.KeySize8)}}}";
+
+        public static readonly ECPoint Infinity = new ECPoint(0, 0, null);
 
     }
 }
