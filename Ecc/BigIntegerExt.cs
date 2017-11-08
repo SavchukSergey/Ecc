@@ -46,6 +46,15 @@ namespace Ecc {
             return BigInteger.ModPow(val, exp, modulus);
         }
 
+        public static BigInteger ModRandom(BigInteger modulus) {
+            var cng = System.Security.Cryptography.RandomNumberGenerator.Create();
+            var data = new byte[modulus.ToByteArray().Length];
+            cng.GetBytes(data);
+            return new BigInteger(data).ModAbs(modulus);
+        }
+
+
+
         public static string ToHexUnsigned(this BigInteger val, long length) {
             var sbLength = (int)length * 2;
             var sb = new StringBuilder(sbLength, sbLength);
