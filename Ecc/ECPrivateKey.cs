@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace Ecc {
     public class ECPrivateKey {
@@ -10,6 +11,7 @@ namespace Ecc {
         public ECPublicKey PublicKey => new ECPublicKey(Curve.G * D, Curve);
 
         public ECPrivateKey(BigInteger d, ECCurve curve) {
+            if (d.Sign < 0) throw new ArgumentOutOfRangeException();
             D = d;
             Curve = curve;
         }
