@@ -2,8 +2,8 @@
 
 ```c#
 var curve = ECCurve.Secp256k1;
-var privateKey = curve.CreateKeyPair();
+var keyPair = curve.CreateKeyPair();
 var msg = new BigInteger(4579485729345);
-var signature = privateKey.Sign(msg);
-var valid = privateKey.PublicKey.VerifySignature(msg, signature);
+var signature = keyPair.Sign(msg);
+var valid = keyPair.PublicKey.VerifySignature(msg, signature);
 ```
