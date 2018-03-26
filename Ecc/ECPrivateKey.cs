@@ -17,11 +17,12 @@ namespace Ecc {
         }
 
         public ECSignature Sign(byte[] hash) {
-            var num = Curve.TruncateHash(hash);
+            var num = new BigInteger(hash); //todo: big-endian?
             return Sign(num);
         }
 
         public ECSignature Sign(BigInteger message) {
+            message = Curve.TruncateHash(message);
             ECSignature signature = null;
             do {
                 var random = BigIntegerExt.ModRandom(Curve.Order);
@@ -49,13 +50,7 @@ namespace Ecc {
         }
 
         public static ECPrivateKey ParseHex(string hex, ECCurve curve) {
-            return new ECPrivateKey(ParseInt(hex), curve);
-        }
-
-        private static BigInteger ParseInt(string val) {
-            if (val.StartsWith("0x")) val = "0" + val.Substring(2);
-            else val = "00" + val;
-            return BigInteger.Parse(val, System.Globalization.NumberStyles.AllowHexSpecifier);
+            return new ECPrivateKey(BigIntegerExt.ParseHexUnsigned(hex), curve);
         }
 
     }

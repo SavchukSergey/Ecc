@@ -53,8 +53,6 @@ namespace Ecc {
             return new BigInteger(data).ModAbs(modulus);
         }
 
-
-
         public static string ToHexUnsigned(this BigInteger val, long length) {
             var sbLength = (int)length * 2;
             var sb = new StringBuilder(sbLength, sbLength);
