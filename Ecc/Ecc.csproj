@@ -8,6 +8,7 @@
     <Description>Elliptic Curve Cryptography</Description>
     <PackageTags>ecc</PackageTags>
     <LangVersion>latest</LangVersion>
+    <Version>1.0.5</Version>
   </PropertyGroup>
 
 </Project>

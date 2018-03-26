@@ -43,8 +43,7 @@ namespace Ecc {
 
         public static BigInteger FromBigEndianBytes(byte[] data) {
             var len = data.Length;
-            // todo: prepend 00 to make it positive?
-            var reverse = new byte[len];
+            var reverse = new byte[len + 1];
             for (var i = 0; i < len; i++) {
                 reverse[i] = data[len - i - 1];
             }

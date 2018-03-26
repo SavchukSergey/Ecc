@@ -47,10 +47,7 @@ namespace Ecc {
             if (r == 0) return null;
             var s = ((message + r * D) * BigIntegerExt.ModInverse(random, Curve.Order)) % Curve.Order;
             if (s == 0) return null;
-            return new ECSignature {
-                R = r,
-                S = s
-            };
+            return new ECSignature(r, s, Curve);
         }
 
         public static ECPrivateKey Create(ECCurve curve) {

@@ -54,11 +54,10 @@ namespace Ecc.Tests {
                 var signature = privateKey.Sign(msg);
                 var valid = privateKey.PublicKey.VerifySignature(msg, signature);
                 Assert.IsTrue(valid, $"curve {curve.Name}, r and s are valid");
-                signature.R += 5;
+                signature = new ECSignature(signature.R + 5, signature.S, signature.Curve);
                 valid = privateKey.PublicKey.VerifySignature(msg, signature);
                 Assert.IsFalse(valid, $"curve {curve.Name}, r is invalid");
-                signature.R -= 5;
-                signature.S += 5;
+                signature = new ECSignature(signature.R, signature.S + 5, signature.Curve);
                 valid = privateKey.PublicKey.VerifySignature(msg, signature);
                 Assert.IsFalse(valid, $"curve {curve.Name}, s is invalid");
             }

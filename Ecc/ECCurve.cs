@@ -69,6 +69,14 @@ namespace Ecc {
             return ECPrivateKey.ParseHex(hex, this);
         }
 
+        public ECPrivateKey CreatePrivateKey(byte[] data) {
+            return new ECPrivateKey(BigIntegerExt.FromBigEndianBytes(data), this);
+        }
+
+        public ECPrivateKey CreatePrivateKey(BigInteger data) {
+            return new ECPrivateKey(data, this);
+        }
+
         public ECPublicKey CreatePublicKey(string hex) {
             var point = CreatePoint(hex);
             return new ECPublicKey(point, this);
@@ -138,11 +146,27 @@ namespace Ecc {
             }
         }
 
+        public static ECCurve NistP256 {
+            get {
+                return new ECHexInfo {
+                    Name = "nistP256",
+                    P = "0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff",
+                    A = "0xffffffff00000001000000000000000000000000fffffffffffffffffffffffc",
+                    B = "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b",
+                    Gx = "0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296",
+                    Gy = "0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5",
+                    N = "0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551",
+                    H = "0x1"
+                }.Build();
+            }
+        }
+
         public static ECCurve GetNamedCurve(string name) {
             switch (name) {
                 case "secp256k1": return Secp256k1;
                 case "secp384r1": return Secp384r1;
                 case "secp521r1": return Secp521r1;
+                case "nistP256": return NistP256;
                 default: return null;
             }
         }
@@ -151,6 +175,7 @@ namespace Ecc {
             yield return Secp256k1;
             yield return Secp384r1;
             yield return Secp521r1;
+            yield return NistP256;
         }
     }
 }
