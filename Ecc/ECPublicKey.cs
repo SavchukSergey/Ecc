@@ -12,12 +12,17 @@ namespace Ecc {
             Curve = curve;
         }
 
-        public bool VerifySignature(BigInteger message, ECSignature signature) {
+        public bool VerifySignature(BigInteger hash, ECSignature signature) {
+            hash  = Curve.TruncateHash(hash);
             var w = signature.S.ModInverse(Curve.Order);
-            var u1 = (message * w) % Curve.Order;
+            var u1 = (hash * w) % Curve.Order;
             var u2 = (signature.R * w) % Curve.Order;
             var p = Curve.G * u1 + Point * u2;
             return BigIntegerExt.ModEqual(signature.R, p.X, Curve.Order);
+        }
+
+        public bool VerifySignature(byte[] hash, ECSignature signature) {
+            return VerifySignature(BigIntegerExt.FromBigEndianBytes(hash), signature);
         }
 
         public override string ToString() => Point.GetHex();

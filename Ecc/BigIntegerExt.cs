@@ -41,6 +41,26 @@ namespace Ecc {
             return keySize;
         }
 
+        public static BigInteger FromBigEndianBytes(byte[] data) {
+            var len = data.Length;
+            // todo: prepend 00 to make it positive?
+            var reverse = new byte[len];
+            for (var i = 0; i < len; i++) {
+                reverse[i] = data[len - i - 1];
+            }
+            return new BigInteger(reverse);
+        }
+
+        public static byte[] ToBigEndianBytes(this BigInteger val) {
+            var data = val.ToByteArray();
+            var len = data.Length;
+            var reverse = new byte[len];
+            for (var i = 0; i < len; i++) {
+                reverse[i] = data[len - i - 1];
+            }
+            return reverse;
+        }
+
         public static BigInteger ModSqrt(this BigInteger val, BigInteger modulus) {
             var exp = (modulus + 1).ModDiv(4, modulus);
             return BigInteger.ModPow(val, exp, modulus);

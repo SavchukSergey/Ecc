@@ -55,7 +55,7 @@ namespace Ecc.Tests {
             var curve = ECCurve.Secp256k1;
             var res = curve.TruncateHash(hash);
             var actual = res.ToHexUnsigned(curve.KeySize8);
-            Assert.AreEqual("6e149fadd977b2572ba3cd0bbf652cd690b1b7cf3317014a4020f40bd4a691a5", actual);
+            Assert.AreEqual("a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e", actual);
         }
 
     }

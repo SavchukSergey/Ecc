@@ -75,18 +75,22 @@ namespace Ecc {
         }
 
         public BigInteger TruncateHash(byte[] hash) {
-            var num = new BigInteger(hash); //todo: big-endian?
-            return TruncateHash(num);
+            return TruncateHash(hash, BigIntegerExt.FromBigEndianBytes(hash));
         }
 
         public BigInteger TruncateHash(BigInteger hash) {
+            var arr = hash.ToBigEndianBytes();
+            return TruncateHash(arr, hash);
+        }
+
+        private BigInteger TruncateHash(byte[] data, BigInteger num) {
             var maxLength = OrderSize;
-            var len = hash.Log2() + 7 / 8;
-            while (len > maxLength) {
-                hash >>= 1;
-                len--;
+            var len = data.Length * 8;
+            var extra = maxLength - len;
+            if (extra > 0) {
+                num >>= (int)extra;
             }
-            return hash;
+            return num;
         }
 
         public static ECCurve Secp256k1 {
