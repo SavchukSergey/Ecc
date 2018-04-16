@@ -21,27 +21,27 @@ namespace Ecc {
             return Sign(num);
         }
 
-        public ECSignature Sign(byte[] hash, BigInteger random) {
+        public ECSignature? Sign(byte[] hash, BigInteger random) {
             var num = BigIntegerExt.FromBigEndianBytes(hash);
             return Sign(num, random);
         }
 
         public ECSignature Sign(BigInteger message) {
-            message = Curve.TruncateHash(message);
-            ECSignature signature = null;
+            var truncated = Curve.TruncateHash(message);
+            ECSignature? signature = null;
             do {
                 var random = BigIntegerExt.ModRandom(Curve.Order);
-                signature = SignTruncated(message, random);
+                signature = SignTruncated(truncated, random);
             } while (signature == null);
-            return signature;
+            return signature.Value;
         }
 
-        public ECSignature Sign(BigInteger message, BigInteger random) {
-            message = Curve.TruncateHash(message);
-            return SignTruncated(message, random);
+        public ECSignature? Sign(BigInteger message, BigInteger random) {
+            var truncated = Curve.TruncateHash(message);
+            return SignTruncated(truncated, random);
         }
 
-        private ECSignature SignTruncated(BigInteger message, BigInteger random) {
+        private ECSignature? SignTruncated(BigInteger message, BigInteger random) {
             var p = Curve.G * random;
             var r = p.X % Curve.Order;
             if (r == 0) return null;

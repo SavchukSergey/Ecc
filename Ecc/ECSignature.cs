@@ -1,8 +1,10 @@
 ﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Ecc {
-    public class ECSignature {
+    public struct ECSignature {
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ECSignature(BigInteger r, BigInteger s, ECCurve curve) {
             R = r;
             S = s;
@@ -29,7 +31,11 @@ namespace Ecc {
                 res[i + order8] = s[sstart + i];
             }
             return res;
+        }
 
+        public string ToHexString() {
+            var arr = ToByteArray();
+            return arr.ToHexString();
         }
 
     }

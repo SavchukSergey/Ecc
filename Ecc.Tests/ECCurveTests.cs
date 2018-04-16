@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Security.Cryptography;
 using NUnit.Framework;
 
@@ -5,6 +6,14 @@ namespace Ecc.Tests {
     [TestFixture]
     [TestOf(typeof(ECCurve))]
     public class ECCurveTests {
+
+        public void DocSample() {
+            var curve = ECCurve.Secp256k1;
+            var keyPair = curve.CreateKeyPair();
+            var msg = new BigInteger(4579485729345);
+            var signature = keyPair.Sign(msg);
+            var valid = keyPair.PublicKey.VerifySignature(msg, signature);
+        }
 
         [Test]
         public void KeySizeTest() {
@@ -60,7 +69,7 @@ namespace Ecc.Tests {
 
         [Test]
         public void GetNamedCurvesTest() {
-            foreach(var curve in ECCurve.GetNamedCurves()) {
+            foreach (var curve in ECCurve.GetNamedCurves()) {
                 Assert.IsTrue(curve.G.Valid, $"{curve.Name}");
             }
         }

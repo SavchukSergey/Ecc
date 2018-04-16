@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Ecc {
-    public class ECPoint {
+    public struct ECPoint {
 
         public readonly BigInteger X;
 
@@ -10,6 +11,7 @@ namespace Ecc {
 
         public readonly ECCurve Curve;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ECPoint(BigInteger x, BigInteger y, ECCurve curve) {
             X = x;
             Y = y;
@@ -22,9 +24,9 @@ namespace Ecc {
             }
         }
 
-        public static ECPoint operator +(ECPoint p, ECPoint q) {
-            if (p == Infinity) return q;
-            if (q == Infinity) return p;
+        public static ECPoint operator +(in ECPoint p, in ECPoint q) {
+            if (p.IsInfinity) return q;
+            if (q.IsInfinity) return p;
 
             var curve = p.Curve;
             var modulus = curve.Modulus;
@@ -32,7 +34,7 @@ namespace Ecc {
             var dy = p.Y - q.Y;
             var dx = p.X - q.X;
 
-            if (dx != 0) {
+            if (!dx.IsZero) {
                 var invDx = dx.ModInverse(modulus);
                 var check = (dx * invDx).ModAbs(modulus);
                 var m = dy * invDx;
@@ -42,7 +44,7 @@ namespace Ecc {
 
                 return new ECPoint(rx.ModAbs(modulus), ry.ModAbs(modulus), curve);
             } else {
-                if (p.Y == 0 && q.Y == 0) {
+                if (p.Y.IsZero && q.Y.IsZero) {
                     return Infinity;
                 } else if (dy == 0) {
                     var m = (3 * p.X * p.X + curve.A) * ((2 * p.Y).ModInverse(modulus));
@@ -53,10 +55,19 @@ namespace Ecc {
                     return Infinity;
                 }
             }
-
         }
 
-        public static ECPoint operator *(ECPoint p, BigInteger k) {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(in ECPoint a, in ECPoint b) {
+            return a.X == b.X && a.Y == b.Y;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(in ECPoint a, in ECPoint b) {
+            return a.X != b.X || a.Y != b.Y;
+        }
+
+        public static ECPoint operator *(in ECPoint p, BigInteger k) {
             var acc = Infinity;
             var add = p;
             while (k != 0) {
@@ -68,7 +79,7 @@ namespace Ecc {
         }
 
         public string GetHex(bool compress = true) {
-            if (this == Infinity) return "00";
+            if (IsInfinity) return "00";
             var keySize = Curve.KeySize8;
             if (compress) {
                 var sb = new StringBuilder();
@@ -78,6 +89,13 @@ namespace Ecc {
                 return sb.ToString();
             }
             return $"04{X.ToHexUnsigned(keySize)}{Y.ToHexUnsigned(keySize)}";
+        }
+
+        public bool IsInfinity {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get {
+                return X.IsZero && Y.IsZero;
+            }
         }
 
         public override string ToString() => $"{{X: {X.ToHexUnsigned(Curve.KeySize8)}, Y: {Y.ToHexUnsigned(Curve.KeySize8)}}}";

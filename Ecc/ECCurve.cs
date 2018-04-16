@@ -26,7 +26,7 @@ namespace Ecc {
 
         public long OrderSize => Order.Log2();
 
-        public bool Has(ECPoint p) {
+        public bool Has(in ECPoint p) {
             if (p == ECPoint.Infinity) return true;
 
             var left = p.Y * p.Y;
@@ -45,7 +45,7 @@ namespace Ecc {
         }
 
         public ECPoint CreatePoint(string hex) {
-            if (hex == "00") return null;
+            if (hex == "00") return ECPoint.Infinity;
             if (hex.StartsWith("02")) {
                 var x = BigIntegerExt.ParseHexUnsigned(hex.Substring(2));
                 return CreatePoint(x, false);
