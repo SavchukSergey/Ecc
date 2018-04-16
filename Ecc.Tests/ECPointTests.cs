@@ -8,11 +8,7 @@ namespace Ecc.Tests {
 
         [Test]
         public void AddTest() {
-            var curve = new ECCurve {
-                A = -1,
-                B = 3,
-                Modulus = 127
-            };
+            var curve = new ECCurve(name: null, a: -1, b: 3, modulus: 127, order: default, cofactor: default, gx: default, gy: default);
             var p = curve.CreatePoint(16, 20);
             var q = curve.CreatePoint(41, 120);
             var r = p + q;
@@ -27,14 +23,10 @@ namespace Ecc.Tests {
         [TestCase(5, int.MaxValue, int.MaxValue)]
         [TestCase(6, 3, 6)]
         public void MulTest(int mul, int x, int y) {
-            var curve = new ECCurve {
-                A = 2,
-                B = 3,
-                Modulus = 97
-            };
+            var curve = new ECCurve(name: null, a: 2, b: 3, modulus: 97, order: default, cofactor: default, gx: default, gy: default);
             var p1 = curve.CreatePoint(3, 6);
             var p2 = p1 * mul;
-            if (p2 == ECPoint.Infinity) {
+            if (p2.IsInfinity) {
                 Assert.IsTrue(x == int.MaxValue && y == int.MaxValue);
             } else {
                 Assert.AreEqual(new BigInteger(x), p2.X);

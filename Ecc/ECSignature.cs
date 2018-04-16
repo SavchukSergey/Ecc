@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 
 namespace Ecc {
-    public struct ECSignature {
+    public readonly struct ECSignature {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ECSignature(BigInteger r, BigInteger s, ECCurve curve) {

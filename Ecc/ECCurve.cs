@@ -4,30 +4,44 @@ using System.Numerics;
 namespace Ecc {
     public class ECCurve {
 
-        public string Name;
+        public readonly string Name;
 
-        public BigInteger A;
+        public readonly BigInteger A;
 
-        public BigInteger B;
+        public readonly BigInteger B;
 
-        public BigInteger Modulus;
+        public readonly BigInteger Modulus;
 
-        public BigInteger Order;
+        public readonly BigInteger Order;
 
-        public BigInteger Cofactor;
+        public readonly BigInteger Cofactor;
 
-        public ECPoint G;
+        public readonly ECPoint G;
 
-        public bool Singluar => ((4 * A * A * A + 27 * B * B) % Modulus) == 0;
+        public readonly bool Singluar;
 
-        public long KeySize => Modulus.Log2();
+        public readonly long KeySize;
 
-        public long KeySize8 => (KeySize + 7) >> 3;
+        public readonly long KeySize8;
 
-        public long OrderSize => Order.Log2();
+        public readonly long OrderSize;
+
+        public ECCurve(string name, BigInteger a, BigInteger b, BigInteger modulus, BigInteger order, BigInteger cofactor, BigInteger gx, BigInteger gy) {
+            Name = name;
+            A = a;
+            B = b;
+            Modulus = modulus;
+            Order = order;
+            Cofactor = cofactor;
+            G = CreatePoint(gx, gy);
+            OrderSize = Order.Log2();
+            KeySize = Modulus.Log2();
+            KeySize8 = (KeySize + 7) >> 3;
+            Singluar = ((4 * A * A * A + 27 * B * B) % Modulus) == 0;
+        }
 
         public bool Has(in ECPoint p) {
-            if (p == ECPoint.Infinity) return true;
+            if (p.IsInfinity) return true;
 
             var left = p.Y * p.Y;
             var right = p.X * p.X * p.X + A * p.X + B;
@@ -176,6 +190,13 @@ namespace Ecc {
             yield return Secp384r1;
             yield return Secp521r1;
             yield return NistP256;
+        }
+
+        public override int GetHashCode() {
+            if (!string.IsNullOrWhiteSpace(Name)) {
+                return Name.GetHashCode();
+            }
+            return Modulus.GetHashCode() ^ A.GetHashCode() ^ B.GetHashCode() ^ G.X.GetHashCode() ^ G.Y.GetHashCode() ^ Order.GetHashCode() ^ Cofactor.GetHashCode();
         }
     }
 }

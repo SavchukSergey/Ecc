@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Ecc {
-    public struct ECPoint {
+    public readonly struct ECPoint {
 
         public readonly BigInteger X;
 
@@ -67,6 +67,17 @@ namespace Ecc {
             return a.X != b.X || a.Y != b.Y;
         }
 
+        public override int GetHashCode() {
+            return X.GetHashCode() ^ Y.GetHashCode() ^ Curve.GetHashCode();
+        }
+
+        public override bool Equals(object obj) {
+            if (obj is ECPoint other) {
+                return X == other.X && Y == other.Y;
+            }
+            return false;
+        }
+
         public static ECPoint operator *(in ECPoint p, BigInteger k) {
             var acc = Infinity;
             var add = p;
@@ -100,7 +111,9 @@ namespace Ecc {
 
         public override string ToString() => $"{{X: {X.ToHexUnsigned(Curve.KeySize8)}, Y: {Y.ToHexUnsigned(Curve.KeySize8)}}}";
 
-        public static readonly ECPoint Infinity = new ECPoint(0, 0, null);
+        private static readonly ECPoint _infinity = new ECPoint(0, 0, null);
+
+        public static ref readonly ECPoint Infinity => ref _infinity;
 
     }
 }

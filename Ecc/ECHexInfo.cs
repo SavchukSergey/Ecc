@@ -18,16 +18,16 @@
         public string H;
 
         public ECCurve Build() {
-            var ecc = new ECCurve {
-                Name = Name,
-                A = BigIntegerExt.ParseHexUnsigned(A),
-                B = BigIntegerExt.ParseHexUnsigned(B),
-                Modulus = BigIntegerExt.ParseHexUnsigned(P),
-                Order = BigIntegerExt.ParseHexUnsigned(N),
-                Cofactor = BigIntegerExt.ParseHexUnsigned(H),
-            };
-            var g = ecc.CreatePoint(BigIntegerExt.ParseHexUnsigned(Gx), BigIntegerExt.ParseHexUnsigned(Gy));
-            ecc.G = g;
+            var ecc = new ECCurve(
+                name: Name,
+                a: BigIntegerExt.ParseHexUnsigned(A),
+                b: BigIntegerExt.ParseHexUnsigned(B),
+                modulus: BigIntegerExt.ParseHexUnsigned(P),
+                order: BigIntegerExt.ParseHexUnsigned(N),
+                cofactor: BigIntegerExt.ParseHexUnsigned(H),
+                gx: BigIntegerExt.ParseHexUnsigned(Gx),
+                gy: BigIntegerExt.ParseHexUnsigned(Gy)
+            );
             return ecc;
         }
 
