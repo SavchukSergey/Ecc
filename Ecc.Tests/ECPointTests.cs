@@ -16,6 +16,16 @@ namespace Ecc.Tests {
             Assert.AreEqual(new BigInteger(81), r.Y);
         }
 
+        [TestCase(16, 20, 97, 81)]
+        [TestCase(41, 120, 42, 95)]
+        public void AddSameTest(int sx, int sy, int tx, int ty) {
+            var curve = new ECCurve(name: null, a: -1, b: 3, modulus: 127, order: default, cofactor: default, gx: default, gy: default);
+            var p = curve.CreatePoint(sx, sy);
+            var r = p + p;
+            Assert.AreEqual(new BigInteger(tx), r.X);
+            Assert.AreEqual(new BigInteger(ty), r.Y);
+        }
+
         [TestCase(1, 3, 6)]
         [TestCase(2, 80, 10)]
         [TestCase(3, 80, 87)]

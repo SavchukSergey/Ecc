@@ -35,7 +35,6 @@ namespace Ecc.Tests {
             var privateKey = curve.CreateKeyPair();
             var publicKey = curve.GetPublicKey(privateKey.D);
             Assert.AreEqual(privateKey.PublicKey.Point.GetHex(), publicKey.Point.GetHex());
-
         }
 
         public void DocSample() {

@@ -51,8 +51,7 @@ namespace Ecc {
         }
 
         public static ECPrivateKey Create(ECCurve curve) {
-            var priv = BigIntegerExt.ModRandom(curve.Order);
-            //todo: check not zero
+            var priv = BigIntegerExt.ModRandomNonZero(curve.Order);
             return new ECPrivateKey(priv, curve);
         }
 

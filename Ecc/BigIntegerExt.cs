@@ -86,6 +86,16 @@ namespace Ecc {
             return new BigInteger(data).ModAbs(modulus);
         }
 
+        public static BigInteger ModRandomNonZero(in BigInteger modulus) {
+            for (var i = 0; i < 1000; i++) {
+                var rnd = ModRandom(modulus);
+                if (!rnd.IsZero) {
+                    return rnd;
+                }
+            }
+            throw new Exception("Unable to generate random");
+        }
+
         public static string ToHexUnsigned(this in BigInteger val, long length) {
             var sbLength = (int)length * 2;
             var sb = new StringBuilder(sbLength, sbLength);

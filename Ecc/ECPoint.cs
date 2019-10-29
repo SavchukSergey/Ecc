@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace Ecc {
     public readonly struct ECPoint {
