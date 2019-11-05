@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RepositoryUrl>https://github.com/SavchukSergey/Ecc</RepositoryUrl>
     <Authors>Sergey Savchuk</Authors>
-    <Copyright>Copyright © 2018</Copyright>
+    <Copyright>Copyright © 2019</Copyright>
     <Description>Elliptic Curve Cryptography</Description>
     <PackageTags>ecc</PackageTags>
     <LangVersion>latest</LangVersion>
