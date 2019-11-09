@@ -176,13 +176,13 @@ namespace Ecc {
         }
 
         public static ECCurve GetNamedCurve(string name) {
-            switch (name) {
-                case "secp256k1": return Secp256k1;
-                case "secp384r1": return Secp384r1;
-                case "secp521r1": return Secp521r1;
-                case "nistP256": return NistP256;
-                default: return null;
-            }
+            return name switch {
+                "secp256k1" => Secp256k1,
+                "secp384r1" => Secp384r1,
+                "secp521r1" => Secp521r1,
+                "nistP256" => NistP256,
+                _ => null,
+            };
         }
 
         public static IEnumerable<ECCurve> GetNamedCurves() {

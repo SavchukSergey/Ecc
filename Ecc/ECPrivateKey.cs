@@ -28,7 +28,7 @@ namespace Ecc {
 
         public ECSignature Sign(BigInteger message) {
             var truncated = Curve.TruncateHash(message);
-            ECSignature? signature = null;
+            ECSignature? signature;
             do {
                 var random = BigIntegerExt.ModRandom(Curve.Order);
                 signature = SignTruncated(truncated, random);

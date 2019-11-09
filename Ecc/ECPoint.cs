@@ -24,37 +24,28 @@ namespace Ecc {
             }
         }
 
-        public static ECPoint operator +(in ECPoint p, in ECPoint q) {
-            if (p.IsInfinity) return q;
-            if (q.IsInfinity) return p;
+        public static ECPoint operator +(in ECPoint left, in ECPoint right) {
+            if (left.IsInfinity) return right;
+            if (right.IsInfinity) return left;
 
-            var curve = p.Curve;
+            var curve = left.Curve;
             var modulus = curve.Modulus;
 
-            var dy = p.Y - q.Y;
-            var dx = p.X - q.X;
+            var dy = right.Y - left.Y;
+            var dx = right.X - left.X;
 
-            if (!dx.IsZero) {
-                var invDx = dx.ModInverse(modulus);
-                var check = (dx * invDx).ModAbs(modulus);
-                var m = dy * invDx;
-
-                var rx = (m * m - p.X - q.X);
-                var ry = (m * (p.X - rx) - p.Y);
-
-                return new ECPoint(rx.ModAbs(modulus), ry.ModAbs(modulus), curve);
-            } else {
-                if (p.Y.IsZero && q.Y.IsZero) {
-                    return Infinity;
-                } else if (dy == 0) {
-                    var m = (3 * p.X * p.X + curve.A) * ((2 * p.Y).ModInverse(modulus));
-                    var rx = m * m - 2 * p.X;
-                    var ry = (m * (p.X - rx) - p.Y);
-                    return new ECPoint(rx.ModAbs(modulus), ry.ModAbs(modulus), curve);
-                } else {
-                    return Infinity;
-                }
+            if (dx.IsZero && !dy.IsZero) {
+                return Infinity;
             }
+
+            var m = dx.IsZero ?
+                ((3 * left.X * left.X + curve.A) * ((2 * left.Y).ModInverse(modulus))).ModAbs(modulus) :
+                (dy * dx.ModInverse(modulus)).ModAbs(modulus);
+
+            var rx = (m * m - left.X - right.X);
+            var ry = (m * (left.X - rx) - left.Y);
+
+            return new ECPoint(rx.ModAbs(modulus), ry.ModAbs(modulus), curve);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -83,8 +74,8 @@ namespace Ecc {
             var add = p;
             while (k != 0) {
                 if (!k.IsEven) acc += add;
-                add = add + add;
-                k = k >> 1;
+                add += add;
+                k >>= 1;
             }
             return acc;
         }

@@ -5,7 +5,9 @@ namespace Ecc {
     public static class BigIntegerExt {
 
         public static BigInteger ModAbs(this BigInteger val, BigInteger modulus) {
-            if (val < 0) return modulus - ((-val) % modulus);
+            if (val < 0) {
+                return modulus - ((-val) % modulus);
+            }
             return val % modulus;
         }
 
@@ -87,6 +89,16 @@ namespace Ecc {
                 }
             }
             return sb.ToString();
+        }
+
+        public static string ToBase64UrlUnsigned(this BigInteger val, long length) {
+            var data = val.ToBigEndianBytes();
+            return Base64Url.Encode(data, data.Length - length, length);
+        }
+
+        public static BigInteger ParseBase64UrlUnsigned(string val) {
+            var data = Base64Url.Decode(val);
+            return FromBigEndianBytes(data);
         }
 
         public static BigInteger ParseHexUnsigned(string val) {

@@ -18,7 +18,11 @@ namespace Ecc {
         }
 
         public static string Encode(byte[] data) {
-            var s = Convert.ToBase64String(data); // Regular base64 encoder
+            return Encode(data, 0, data.Length);
+        }
+
+        public static string Encode(byte[] data, long offset, long length) {
+            var s = Convert.ToBase64String(data, (int)offset, (int)length); // Regular base64 encoder
             s = s.Split('=')[0]; // Remove any trailing '='s
             s = s.Replace('+', '-'); // 62nd char of encoding
             s = s.Replace('/', '_'); // 63rd char of encoding
