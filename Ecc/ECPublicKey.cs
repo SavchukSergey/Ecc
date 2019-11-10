@@ -7,9 +7,9 @@ namespace Ecc {
 
         public readonly ECPoint Point;
 
-        public ECPublicKey(in ECPoint point, ECCurve curve) {
+        public ECPublicKey(in ECPoint point) {
             Point = point;
-            Curve = curve;
+            Curve = point.Curve;
         }
 
         public bool VerifySignature(BigInteger hash, in ECSignature signature) {

@@ -93,7 +93,7 @@ namespace Ecc {
 
         public ECPublicKey CreatePublicKey(string hex) {
             var point = CreatePoint(hex);
-            return new ECPublicKey(point, this);
+            return new ECPublicKey(point);
         }
 
         public BigInteger TruncateHash(byte[] hash) {

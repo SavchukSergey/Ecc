@@ -8,7 +8,7 @@ namespace Ecc {
 
         public readonly BigInteger D;
 
-        public ECPublicKey PublicKey => new ECPublicKey(Curve.G * D, Curve);
+        public ECPublicKey PublicKey => new ECPublicKey(Curve.G * D);
 
         public ECPrivateKey(BigInteger d, ECCurve curve) {
             if (d.Sign < 0) throw new ArgumentOutOfRangeException(nameof(d), "d must be positive");
