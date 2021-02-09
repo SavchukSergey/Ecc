@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using System.Numerics;
 using System.Security.Cryptography;
 using NUnit.Framework;
@@ -6,6 +8,35 @@ namespace Ecc.Tests {
     [TestFixture]
     [TestOf(typeof(ECCurve))]
     public class ECCurveTests {
+
+        [Test]
+        public void PeformanceTest() {
+            var curve = ECCurve.Secp256k1;
+            var count = 100;
+            var watch = new Stopwatch();
+            var memStart = GC.GetTotalAllocatedBytes();
+            watch.Start();
+            for (var i = 0; i < count; i++) {
+                var keyPair = curve.CreateKeyPair();
+                var pubKey = keyPair.PublicKey;
+                Assert.NotNull(pubKey);
+            }
+            watch.Stop();
+            var memEnd = GC.GetTotalAllocatedBytes();
+            var kps = (double)count / watch.Elapsed.TotalSeconds;
+            var bpk = (double)(memEnd - memStart) / (double)count;
+            Console.WriteLine($"keys per second: {kps}");
+            Console.WriteLine($"bytes per key  : {bpk}");
+        }
+
+        [Test]
+        public void GetPublicKeyTest() {
+            var curve = ECCurve.Secp256k1;
+            var privateKey = curve.CreateKeyPair();
+            var publicKey = curve.GetPublicKey(privateKey.D);
+            Assert.AreEqual(privateKey.PublicKey.Point.GetHex(), publicKey.Point.GetHex());
+
+        }
 
         public void DocSample() {
             var curve = ECCurve.Secp256k1;
@@ -49,7 +80,7 @@ namespace Ecc.Tests {
         }
 
         [TestCase(
-            "870MB6gfuTJ4HtUnUvYMyJpr5eUZNP4Bk43bVdj3eAE", 
+            "870MB6gfuTJ4HtUnUvYMyJpr5eUZNP4Bk43bVdj3eAE",
             "MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
             "4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM")]
         public void CreateBase64XTest(string dString, string xString, string yString) {

@@ -12,7 +12,7 @@ namespace Ecc {
         public readonly ECCurve Curve;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ECPoint(BigInteger x, BigInteger y, ECCurve curve) {
+        public ECPoint(in BigInteger x, in BigInteger y, ECCurve curve) {
             X = x;
             Y = y;
             Curve = curve;
@@ -72,25 +72,39 @@ namespace Ecc {
         public static ECPoint operator *(in ECPoint p, BigInteger k) {
             var acc = Infinity;
             var add = p;
-            while (k != 0) {
-                if (!k.IsEven) acc += add;
-                add += add;
-                k >>= 1;
+            var data = k.ToByteArray();
+            for (var i = 0; i < data.Length; i++) {
+                var bt = data[i];
+                for (var bit = 1; bit < 256; bit <<= 1) {
+                    if ((bt & bit) != 0) {
+                        acc += add;
+                    }
+                    add += add;
+                }
             }
             return acc;
         }
 
-        public string GetHex(bool compress = true) {
-            if (IsInfinity) return "00";
+        public byte[] GetBytes(bool compress = true) {
+            if (IsInfinity) return new byte[] { 0 };
             var keySize = Curve.KeySize8;
             if (compress) {
-                var sb = new StringBuilder();
-                if (Y.IsEven) sb.Append("02");
-                else sb.Append("03");
-                sb.Append(X.ToHexUnsigned(keySize));
-                return sb.ToString();
+                var res = new byte[keySize + 1];
+                res[0] = Y.IsEven ? 2 : 3;
+                X.ToBigEndianBytes(res, 1, keySize);
+                return res;
+            } else {
+                var res = new byte[2 * keySize + 1];
+                res[0] = 4;
+                X.ToBigEndianBytes(res, 1, keySize);
+                Y.ToBigEndianBytes(res, 1 + keySize, keySize);
+                return res;
             }
-            return $"04{X.ToHexUnsigned(keySize)}{Y.ToHexUnsigned(keySize)}";
+        }
+
+        public string GetHex(bool compress = true) {
+            var bytes = GetBytes(compress);
+            return bytes.ToHexString();
         }
 
         public bool IsInfinity {

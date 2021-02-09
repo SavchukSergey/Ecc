@@ -20,13 +20,18 @@ namespace Ecc {
 
         public readonly bool Singluar;
 
-        public readonly long KeySize;
+        public readonly int KeySize;
 
-        public readonly long KeySize8;
+        public readonly int KeySize8;
 
         public readonly long OrderSize;
 
-        public ECCurve(string name, BigInteger a, BigInteger b, BigInteger modulus, BigInteger order, BigInteger cofactor, BigInteger gx, BigInteger gy) {
+        private readonly ECPointCache _cache;
+
+        public ECCurve(string name,
+            in BigInteger a, in BigInteger b,
+            in BigInteger modulus, in BigInteger order,
+            in BigInteger cofactor, in BigInteger gx, in BigInteger gy) {
             Name = name;
             A = a;
             B = b;
@@ -35,9 +40,10 @@ namespace Ecc {
             Cofactor = cofactor;
             G = CreatePoint(gx, gy);
             OrderSize = Order.Log2();
-            KeySize = Modulus.Log2();
+            KeySize = (int)Modulus.Log2();
             KeySize8 = (KeySize + 7) >> 3;
             Singluar = ((4 * A * A * A + 27 * B * B) % Modulus) == 0;
+            _cache = new ECPointCache(G, KeySize);
         }
 
         public bool Has(in ECPoint p) {
@@ -48,11 +54,27 @@ namespace Ecc {
             return BigIntegerExt.ModEqual(left, right, Modulus);
         }
 
-        public ECPoint CreatePoint(BigInteger x, BigInteger y) {
+        public ECPublicKey GetPublicKey(in BigInteger k) {
+            var acc = ECPoint.Infinity;
+            var data = k.ToByteArray();
+            var exp = 0;
+            for (var i = 0; i < data.Length; i++) {
+                var bt = data[i];
+                for (var bit = 1; bit < 256; bit <<= 1) {
+                    if ((bt & bit) != 0) {
+                        acc += _cache.Pow2(exp);
+                    }
+                    exp++;
+                }
+            }
+            return new ECPublicKey(acc);
+        }
+
+        public ECPoint CreatePoint(in BigInteger x, in BigInteger y) {
             return new ECPoint(x, y, this);
         }
 
-        public ECPoint CreatePoint(BigInteger x, bool yOdd) {
+        public ECPoint CreatePoint(in BigInteger x, bool yOdd) {
             var right = x * x * x + A * x + B;
             var y = right.ModSqrt(Modulus);
             return CreatePoint(x, y);
@@ -67,7 +89,7 @@ namespace Ecc {
                 var x = BigIntegerExt.ParseHexUnsigned(hex.Substring(2));
                 return CreatePoint(x, true);
             } else if (hex.StartsWith("04")) {
-                var keySize = (int)KeySize8 * 2;
+                var keySize = KeySize8 * 2;
                 var x = BigIntegerExt.ParseHexUnsigned(hex.Substring(2, keySize));
                 var y = BigIntegerExt.ParseHexUnsigned(hex.Substring(keySize + 2));
                 return CreatePoint(x, y);
@@ -87,7 +109,7 @@ namespace Ecc {
             return new ECPrivateKey(BigIntegerExt.FromBigEndianBytes(data), this);
         }
 
-        public ECPrivateKey CreatePrivateKey(BigInteger data) {
+        public ECPrivateKey CreatePrivateKey(in BigInteger data) {
             return new ECPrivateKey(data, this);
         }
 
@@ -100,7 +122,7 @@ namespace Ecc {
             return TruncateHash(hash, BigIntegerExt.FromBigEndianBytes(hash));
         }
 
-        public BigInteger TruncateHash(BigInteger hash) {
+        public BigInteger TruncateHash(in BigInteger hash) {
             var arr = hash.ToBigEndianBytes();
             return TruncateHash(arr, hash);
         }

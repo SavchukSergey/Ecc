@@ -2,15 +2,15 @@
 using System.Numerics;
 
 namespace Ecc {
-    public class ECPrivateKey {
+    public readonly struct ECPrivateKey {
 
         public readonly ECCurve Curve;
 
         public readonly BigInteger D;
 
-        public ECPublicKey PublicKey => new ECPublicKey(Curve.G * D);
+        public ECPublicKey PublicKey => Curve.GetPublicKey(D);
 
-        public ECPrivateKey(BigInteger d, ECCurve curve) {
+        public ECPrivateKey(in BigInteger d, ECCurve curve) {
             if (d.Sign < 0) throw new ArgumentOutOfRangeException(nameof(d), "d must be positive");
             D = d;
             Curve = curve;
@@ -21,12 +21,12 @@ namespace Ecc {
             return Sign(num);
         }
 
-        public ECSignature? Sign(byte[] hash, BigInteger random) {
+        public ECSignature? Sign(byte[] hash, in BigInteger random) {
             var num = BigIntegerExt.FromBigEndianBytes(hash);
             return Sign(num, random);
         }
 
-        public ECSignature Sign(BigInteger message) {
+        public ECSignature Sign(in BigInteger message) {
             var truncated = Curve.TruncateHash(message);
             ECSignature? signature;
             do {
@@ -36,12 +36,12 @@ namespace Ecc {
             return signature.Value;
         }
 
-        public ECSignature? Sign(BigInteger message, BigInteger random) {
+        public ECSignature? Sign(in BigInteger message, in BigInteger random) {
             var truncated = Curve.TruncateHash(message);
             return SignTruncated(truncated, random);
         }
 
-        private ECSignature? SignTruncated(BigInteger message, BigInteger random) {
+        private ECSignature? SignTruncated(in BigInteger message, in BigInteger random) {
             var p = Curve.G * random;
             var r = p.X % Curve.Order;
             if (r == 0) return null;

@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using System.Numerics;
 
 namespace Ecc.Tests {
     [TestFixture]

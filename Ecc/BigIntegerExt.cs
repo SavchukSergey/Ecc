@@ -1,33 +1,34 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Text;
 
 namespace Ecc {
     public static class BigIntegerExt {
 
-        public static BigInteger ModAbs(this BigInteger val, BigInteger modulus) {
+        public static BigInteger ModAbs(this in BigInteger val, in BigInteger modulus) {
             if (val < 0) {
                 return modulus - ((-val) % modulus);
             }
             return val % modulus;
         }
 
-        public static BigInteger ModInverse(this BigInteger val, BigInteger modulus) {
+        public static BigInteger ModInverse(this in BigInteger val, in BigInteger modulus) {
             return EuclidExtended(val.ModAbs(modulus), modulus).X.ModAbs(modulus);
         }
 
-        public static bool ModEqual(BigInteger a, BigInteger b, BigInteger modulus) {
+        public static bool ModEqual(in BigInteger a, in BigInteger b, in BigInteger modulus) {
             return (a % modulus) == (b % modulus);
         }
 
-        public static BigInteger ModMul(this BigInteger a, BigInteger b, BigInteger modulus) {
+        public static BigInteger ModMul(this in BigInteger a, in BigInteger b, in BigInteger modulus) {
             return (a * b) % modulus;
         }
 
-        public static BigInteger ModDiv(this BigInteger a, BigInteger b, BigInteger modulus) {
+        public static BigInteger ModDiv(this in BigInteger a, in BigInteger b, in BigInteger modulus) {
             return a.ModMul(b.ModInverse(modulus), modulus);
         }
 
-        public static long Log2(this BigInteger val) {
+        public static long Log2(this in BigInteger val) {
             var n = val.ToByteArray();
             var keySize = n.Length * 8;
             for (var i = n.Length - 1; i >= 0; i--) {
@@ -51,7 +52,7 @@ namespace Ecc {
             return new BigInteger(reverse);
         }
 
-        public static byte[] ToBigEndianBytes(this BigInteger val) {
+        public static byte[] ToBigEndianBytes(this in BigInteger val) {
             var data = val.ToByteArray();
             var len = data.Length;
             var reverse = new byte[len];
@@ -61,19 +62,31 @@ namespace Ecc {
             return reverse;
         }
 
-        public static BigInteger ModSqrt(this BigInteger val, BigInteger modulus) {
+        public static byte[] ToBigEndianBytes(this in BigInteger val, byte[] data, int offset, int length) {
+            var src = val.ToByteArray();
+            var actualLength = Math.Min(src.Length, length);
+            for (var i = 0; i < actualLength; i++) {
+                data[i + offset] = src[actualLength - i - 1];
+            }
+            for (var i = actualLength; i < length; i++) {
+                data[i + offset] = 0;
+            }
+            return data;
+        }
+
+        public static BigInteger ModSqrt(this in BigInteger val, in BigInteger modulus) {
             var exp = (modulus + 1).ModDiv(4, modulus);
             return BigInteger.ModPow(val, exp, modulus);
         }
 
-        public static BigInteger ModRandom(BigInteger modulus) {
+        public static BigInteger ModRandom(in BigInteger modulus) {
             var cng = System.Security.Cryptography.RandomNumberGenerator.Create();
             var data = new byte[modulus.ToByteArray().Length];
             cng.GetBytes(data);
             return new BigInteger(data).ModAbs(modulus);
         }
 
-        public static string ToHexUnsigned(this BigInteger val, long length) {
+        public static string ToHexUnsigned(this in BigInteger val, long length) {
             var sbLength = (int)length * 2;
             var sb = new StringBuilder(sbLength, sbLength);
             var data = val.ToByteArray();
@@ -91,7 +104,7 @@ namespace Ecc {
             return sb.ToString();
         }
 
-        public static string ToBase64UrlUnsigned(this BigInteger val, long length) {
+        public static string ToBase64UrlUnsigned(this in BigInteger val, long length) {
             var data = val.ToBigEndianBytes();
             return Base64Url.Encode(data, data.Length - length, length);
         }
@@ -107,7 +120,7 @@ namespace Ecc {
             return BigInteger.Parse(val, System.Globalization.NumberStyles.AllowHexSpecifier);
         }
 
-        public static BezoutIdentity EuclidExtended(BigInteger a, BigInteger b) {
+        public static BezoutIdentity EuclidExtended(in BigInteger a, in BigInteger b) {
             var s0 = new BigInteger(1);
             var t0 = new BigInteger(0);
             var s1 = new BigInteger(0);

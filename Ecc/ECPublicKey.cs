@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 
 namespace Ecc {
-    public class ECPublicKey {
+    public readonly struct ECPublicKey {
 
         public readonly ECCurve Curve;
 
@@ -12,7 +12,7 @@ namespace Ecc {
             Curve = point.Curve;
         }
 
-        public bool VerifySignature(BigInteger hash, in ECSignature signature) {
+        public bool VerifySignature(in BigInteger hash, in ECSignature signature) {
             var truncated = Curve.TruncateHash(hash);
             var w = signature.S.ModInverse(Curve.Order);
             var u1 = (truncated * w) % Curve.Order;
