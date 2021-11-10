@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Ecc {
@@ -17,7 +17,7 @@ namespace Ecc {
 
         public readonly ECCurve Curve;
 
-        public byte[] ToByteArray() {
+        public readonly byte[] ToByteArray() {
             var order8 = (Curve.OrderSize + 7) / 8;
             var r = R.ToBigEndianBytes();
             var s = S.ToBigEndianBytes();
@@ -33,7 +33,7 @@ namespace Ecc {
             return res;
         }
 
-        public string ToHexString() {
+        public readonly string ToHexString() {
             var arr = ToByteArray();
             return arr.ToHexString();
         }

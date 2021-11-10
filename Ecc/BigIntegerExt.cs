@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Numerics;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Ecc {
     public static class BigIntegerExt {
 
+        private static RandomNumberGenerator _cng = RandomNumberGenerator.Create();
+
         public static BigInteger ModAbs(this in BigInteger val, in BigInteger modulus) {
-            if (val < 0) {
+            if (val.Sign == -1) {
                 return modulus - ((-val) % modulus);
+            }
+            if (val < modulus) {
+                return val;
             }
             return val % modulus;
         }
@@ -17,6 +23,9 @@ namespace Ecc {
         }
 
         public static bool ModEqual(in BigInteger a, in BigInteger b, in BigInteger modulus) {
+            if (a.Sign == 1 && b.Sign == 1 && a < modulus & b < modulus) {
+                return a == b;
+            }
             return (a % modulus) == (b % modulus);
         }
 
@@ -80,10 +89,25 @@ namespace Ecc {
         }
 
         public static BigInteger ModRandom(in BigInteger modulus) {
-            var cng = System.Security.Cryptography.RandomNumberGenerator.Create();
-            var data = new byte[modulus.ToByteArray().Length];
-            cng.GetBytes(data);
-            return new BigInteger(data).ModAbs(modulus);
+            var size = modulus.GetByteCount(isUnsigned: true);
+            Span<byte> data = stackalloc byte[size];
+            Span<byte> modulusData = stackalloc byte[size];
+            modulus.TryWriteBytes(modulusData, out var _, isUnsigned: true);
+
+            var m = new BigRefInteger {
+                Data = modulusData
+            };
+
+            for (var i = 0; i < 1000; i++) {
+                _cng.GetBytes(data);
+                var walker = new BigRefInteger {
+                    Data = data
+                };
+                if (BigRefInteger.Compare(walker, m) == -1) {
+                    return m.ToBigInteger();
+                }
+            }
+            throw new Exception("Unable to generate random");
         }
 
         public static BigInteger ModRandomNonZero(in BigInteger modulus) {
@@ -131,14 +155,14 @@ namespace Ecc {
         }
 
         public static BezoutIdentity EuclidExtended(in BigInteger a, in BigInteger b) {
-            var s0 = new BigInteger(1);
-            var t0 = new BigInteger(0);
-            var s1 = new BigInteger(0);
-            var t1 = new BigInteger(1);
+            var s0 = BigInteger.One;
+            var t0 = BigInteger.Zero;
+            var s1 = BigInteger.Zero;
+            var t1 = BigInteger.One;
             var r0 = a;
             var r1 = b;
 
-            while (r1 != 0) {
+            while (!r1.IsZero) {
                 var quotient = BigInteger.DivRem(r0, r1, out BigInteger r2);
                 var s2 = s0 - quotient * s1;
                 var t2 = t0 - quotient * t1;

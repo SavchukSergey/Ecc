@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 
 namespace Ecc {
@@ -8,7 +8,7 @@ namespace Ecc {
 
         public readonly BigInteger D;
 
-        public ECPublicKey PublicKey => Curve.GetPublicKey(D);
+        public readonly ECPublicKey PublicKey => Curve.GetPublicKey(D);
 
         public ECPrivateKey(in BigInteger d, ECCurve curve) {
             if (d.Sign < 0) throw new ArgumentOutOfRangeException(nameof(d), "d must be positive");
@@ -16,17 +16,17 @@ namespace Ecc {
             Curve = curve;
         }
 
-        public ECSignature Sign(byte[] hash) {
+        public readonly ECSignature Sign(byte[] hash) {
             var num = BigIntegerExt.FromBigEndianBytes(hash);
             return Sign(num);
         }
 
-        public ECSignature? Sign(byte[] hash, in BigInteger random) {
+        public readonly ECSignature? Sign(byte[] hash, in BigInteger random) {
             var num = BigIntegerExt.FromBigEndianBytes(hash);
             return Sign(num, random);
         }
 
-        public ECSignature Sign(in BigInteger message) {
+        public readonly ECSignature Sign(in BigInteger message) {
             var truncated = Curve.TruncateHash(message);
             ECSignature? signature;
             do {
@@ -36,12 +36,12 @@ namespace Ecc {
             return signature.Value;
         }
 
-        public ECSignature? Sign(in BigInteger message, in BigInteger random) {
+        public readonly ECSignature? Sign(in BigInteger message, in BigInteger random) {
             var truncated = Curve.TruncateHash(message);
             return SignTruncated(truncated, random);
         }
 
-        private ECSignature? SignTruncated(in BigInteger message, in BigInteger random) {
+        private readonly ECSignature? SignTruncated(in BigInteger message, in BigInteger random) {
             var p = Curve.G * random;
             var r = p.X % Curve.Order;
             if (r == 0) return null;

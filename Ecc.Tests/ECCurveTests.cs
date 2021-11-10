@@ -12,17 +12,18 @@ namespace Ecc.Tests {
         [Test]
         public void PeformanceTest() {
             var curve = ECCurve.Secp256k1;
-            var count = 100;
+            var count = 500;
             var watch = new Stopwatch();
-            var memStart = GC.GetTotalAllocatedBytes();
+            curve.CreateKeyPair(); // warm up
+            var memStart = GC.GetAllocatedBytesForCurrentThread();
             watch.Start();
             for (var i = 0; i < count; i++) {
                 var keyPair = curve.CreateKeyPair();
                 var pubKey = keyPair.PublicKey;
-                Assert.NotNull(pubKey);
+                Assert.NotNull(pubKey.Curve != null);
             }
             watch.Stop();
-            var memEnd = GC.GetTotalAllocatedBytes();
+            var memEnd = GC.GetAllocatedBytesForCurrentThread();
             var kps = (double)count / watch.Elapsed.TotalSeconds;
             var bpk = (double)(memEnd - memStart) / (double)count;
             Console.WriteLine($"keys per second: {kps}");

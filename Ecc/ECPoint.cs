@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Ecc {
@@ -17,7 +18,7 @@ namespace Ecc {
             Curve = curve;
         }
 
-        public bool Valid {
+        public readonly bool Valid {
             get {
                 return Curve.Has(this);
             }
@@ -68,10 +69,11 @@ namespace Ecc {
             return false;
         }
 
-        public static ECPoint operator *(in ECPoint p, BigInteger k) {
+        public static ECPoint operator *(in ECPoint p, in BigInteger k) {
             var acc = Infinity;
             var add = p;
-            var data = k.ToByteArray();
+            Span<byte> data = stackalloc byte[k.GetByteCount(isUnsigned: true)];
+            k.TryWriteBytes(data, out var _, isUnsigned: true);
             for (var i = 0; i < data.Length; i++) {
                 var bt = data[i];
                 for (var bit = 1; bit < 256; bit <<= 1) {
@@ -84,12 +86,12 @@ namespace Ecc {
             return acc;
         }
 
-        public byte[] GetBytes(bool compress = true) {
+        public readonly byte[] GetBytes(bool compress = true) {
             if (IsInfinity) return new byte[] { 0 };
             var keySize = Curve.KeySize8;
             if (compress) {
                 var res = new byte[keySize + 1];
-                res[0] = Y.IsEven ? 2 : 3;
+                res[0] = Y.IsEven ? (byte)2 : (byte)3;
                 X.ToBigEndianBytes(res, 1, keySize);
                 return res;
             } else {
@@ -101,12 +103,12 @@ namespace Ecc {
             }
         }
 
-        public string GetHex(bool compress = true) {
+        public readonly string GetHex(bool compress = true) {
             var bytes = GetBytes(compress);
             return bytes.ToHexString();
         }
 
-        public bool IsInfinity {
+        public readonly bool IsInfinity {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get {
                 return X.IsZero && Y.IsZero;

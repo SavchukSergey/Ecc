@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace Ecc {
@@ -56,7 +57,8 @@ namespace Ecc {
 
         public ECPublicKey GetPublicKey(in BigInteger k) {
             var acc = ECPoint.Infinity;
-            var data = k.ToByteArray();
+            Span<byte> data = stackalloc byte[k.GetByteCount()];
+            k.TryWriteBytes(data, out var _);
             var exp = 0;
             for (var i = 0; i < data.Length; i++) {
                 var bt = data[i];

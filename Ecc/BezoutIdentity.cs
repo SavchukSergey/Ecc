@@ -1,17 +1,17 @@
 ﻿using System.Numerics;
 
 namespace Ecc {
-    public struct BezoutIdentity {
+    public readonly struct BezoutIdentity {
 
-        public BigInteger X;
+        public readonly BigInteger X { get; init; }
 
-        public BigInteger Y;
+        public readonly BigInteger Y { get; init; }
 
-        public BigInteger A;
+        public readonly BigInteger A { get; init; }
 
-        public BigInteger B;
+        public readonly BigInteger B { get; init; }
 
-        public BigInteger Gcd => A * X + B * Y;
+        public readonly BigInteger Gcd => A * X + B * Y;
 
     }
 }
