@@ -6,9 +6,9 @@ namespace Ecc.Math {
         public const int BITS_SIZE = 256;
         public const int BYTES_SIZE = BITS_SIZE / 8;
         private const int ITEM_BITS_SIZE = 32;
-        private const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
+        internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
 
-        private fixed uint Data[ITEMS_SIZE];
+        internal fixed uint Data[ITEMS_SIZE];
 
         public BigInteger256() {
             for (var i = 0; i < ITEMS_SIZE; i++) {
@@ -31,6 +31,10 @@ namespace Ecc.Math {
             }
         }
 
+        public BigInteger256(in BigInteger128 value) {
+            ZeroExtendFrom(value);
+        }
+
         public readonly bool IsZero {
             get {
                 for (var i = 0; i < ITEMS_SIZE; i++) {
@@ -48,16 +52,49 @@ namespace Ecc.Math {
             }
         }
 
-        public uint Add(in BigInteger256 other) {
+        public bool Add(in BigInteger256 other) {
+            bool carry = false;
+            for (var i = 0; i < ITEMS_SIZE; i++) {
+                ulong acc = Data[i];
+                acc += other.Data[i];
+                acc += carry ? 1ul : 0ul;
+                Data[i] = (uint)acc;
+                carry = acc > uint.MaxValue;
+            }
+            return carry;
+        }
+
+        public bool Sub(in BigInteger256 other) {
+            bool carry = false;
+            for (var i = 0; i < ITEMS_SIZE; i++) {
+                ulong acc = Data[i];
+                acc -= other.Data[i];
+                acc -= carry ? 1ul : 0ul;
+                Data[i] = (uint)acc;
+                carry = acc > uint.MaxValue;
+            }
+            return carry;
+        }
+
+        public uint ShiftLeft() {
             uint carry = 0;
             for (var i = 0; i < ITEMS_SIZE; i++) {
                 var sum = (ulong)carry;
                 sum += Data[i];
-                sum += other.Data[i];
+                sum += Data[i];
                 Data[i] = (uint)sum;
                 carry = (uint)(sum >> 32);
             }
             return carry;
+        }
+
+        public void ZeroExtendFrom(in BigInteger128 source) {
+            for (var i = 0; i < BigInteger128.ITEMS_SIZE; i++) {
+                Data[i] = source.Data[i];
+            }
+            for (var i = BigInteger128.ITEMS_SIZE; i < ITEMS_SIZE; i++) {
+                Data[i] = 0;
+            }
         }
 
         public readonly int Compare(in BigInteger256 other) {
