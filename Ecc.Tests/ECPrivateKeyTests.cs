@@ -77,7 +77,7 @@ namespace Ecc.Tests {
                 var signature = privateKey.Sign(msg, random);
             }
             watch.Stop();
-            var performance = Math.Round(1000 * count / watch.Elapsed.TotalMilliseconds, 3);
+            var performance = System.Math.Round(1000 * count / watch.Elapsed.TotalMilliseconds, 3);
             Console.WriteLine($"{performance} signatures per second");
         }
 

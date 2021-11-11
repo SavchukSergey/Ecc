@@ -35,7 +35,7 @@ namespace Ecc {
         public static int Compare(in BigRefInteger left, in BigRefInteger right) {
             var leftLen = left.Data.Length;
             var rightLen = right.Data.Length;
-            var len = Math.Max(leftLen, rightLen);
+            var len = System.Math.Max(leftLen, rightLen);
             for (var i = len - 1; i >= 0; i--) {
                 var leftBt = i < leftLen ? left.Data[i] : 0;
                 var rightBt = i < rightLen ? right.Data[i] : 0;

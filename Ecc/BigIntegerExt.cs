@@ -73,7 +73,7 @@ namespace Ecc {
 
         public static byte[] ToBigEndianBytes(this in BigInteger val, byte[] data, int offset, int length) {
             var src = val.ToByteArray();
-            var actualLength = Math.Min(src.Length, length);
+            var actualLength = System.Math.Min(src.Length, length);
             for (var i = 0; i < actualLength; i++) {
                 data[i + offset] = src[actualLength - i - 1];
             }
