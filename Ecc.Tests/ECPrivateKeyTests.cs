@@ -11,7 +11,7 @@ namespace Ecc.Tests {
         public void CreateTest() {
             var curve = new ECCurve(name: null, a: 2, b: 3, modulus: 97, order: 100, cofactor: default, gx: default, gy: default);
             var privateKey = ECPrivateKey.Create(curve);
-            Assert.IsNotNull(privateKey);
+            Assert.IsNotNull(privateKey.Curve);
         }
 
         [Test]

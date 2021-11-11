@@ -98,13 +98,14 @@ namespace Ecc {
                 Data = modulusData
             };
 
+            var walker = new BigRefInteger {
+                Data = data
+            };
+
             for (var i = 0; i < 1000; i++) {
                 _cng.GetBytes(data);
-                var walker = new BigRefInteger {
-                    Data = data
-                };
                 if (BigRefInteger.Compare(walker, m) == -1) {
-                    return m.ToBigInteger();
+                    return walker.ToBigInteger();
                 }
             }
             throw new Exception("Unable to generate random");
