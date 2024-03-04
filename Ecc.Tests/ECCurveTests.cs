@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Security.Cryptography;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace Ecc.Tests {
     [TestFixture]
@@ -20,7 +21,7 @@ namespace Ecc.Tests {
             for (var i = 0; i < count; i++) {
                 var keyPair = curve.CreateKeyPair();
                 var pubKey = keyPair.PublicKey;
-                Assert.NotNull(pubKey.Curve != null);
+                ClassicAssert.NotNull(pubKey.Curve != null);
             }
             watch.Stop();
             var memEnd = GC.GetAllocatedBytesForCurrentThread();
@@ -35,7 +36,7 @@ namespace Ecc.Tests {
             var curve = ECCurve.Secp256k1;
             var privateKey = curve.CreateKeyPair();
             var publicKey = curve.GetPublicKey(privateKey.D);
-            Assert.AreEqual(privateKey.PublicKey.Point.GetHex(), publicKey.Point.GetHex());
+            ClassicAssert.AreEqual(privateKey.PublicKey.Point.GetHex(), publicKey.Point.GetHex());
         }
 
         public void DocSample() {
@@ -48,16 +49,16 @@ namespace Ecc.Tests {
 
         [Test]
         public void KeySizeTest() {
-            Assert.AreEqual(256, ECCurve.Secp256k1.KeySize);
-            Assert.AreEqual(384, ECCurve.Secp384r1.KeySize);
-            Assert.AreEqual(521, ECCurve.Secp521r1.KeySize);
+            ClassicAssert.AreEqual(256, ECCurve.Secp256k1.KeySize);
+            ClassicAssert.AreEqual(384, ECCurve.Secp384r1.KeySize);
+            ClassicAssert.AreEqual(521, ECCurve.Secp521r1.KeySize);
         }
 
         [Test]
         public void OrderSizeTest() {
-            Assert.AreEqual(256, ECCurve.Secp256k1.OrderSize);
-            Assert.AreEqual(384, ECCurve.Secp384r1.OrderSize);
-            Assert.AreEqual(521, ECCurve.Secp521r1.OrderSize);
+            ClassicAssert.AreEqual(256, ECCurve.Secp256k1.OrderSize);
+            ClassicAssert.AreEqual(384, ECCurve.Secp384r1.OrderSize);
+            ClassicAssert.AreEqual(521, ECCurve.Secp521r1.OrderSize);
         }
 
         [TestCase("0420319526ae7bb161eb650486c9c4ff80ab4f9e18d04d9da3651000d0ac335f169212d9fa5ab405e86985c20c8c1668612c73b441f1e10d8d728f844841455139")]
@@ -66,7 +67,7 @@ namespace Ecc.Tests {
         public void CreatePointXYTest(string hex) {
             var curve = ECCurve.Secp256k1;
             var point = curve.CreatePoint(hex);
-            Assert.IsTrue(point.Valid);
+            ClassicAssert.IsTrue(point.Valid);
         }
 
         [TestCase("20319526ae7bb161eb650486c9c4ff80ab4f9e18d04d9da3651000d0ac335f16", true)]
@@ -76,7 +77,7 @@ namespace Ecc.Tests {
             var x = BigIntegerExt.ParseHexUnsigned(xHex);
             var curve = ECCurve.Secp256k1;
             var point = curve.CreatePoint(x, yOdd);
-            Assert.IsTrue(point.Valid);
+            ClassicAssert.IsTrue(point.Valid);
         }
 
         [TestCase(
@@ -88,13 +89,13 @@ namespace Ecc.Tests {
             var x = BigIntegerExt.ParseBase64UrlUnsigned(xString);
             var y = BigIntegerExt.ParseBase64UrlUnsigned(yString);
             var curve = ECCurve.NistP256;
-            Assert.IsTrue(curve.Has(new ECPoint(x, y, curve)));
+            ClassicAssert.IsTrue(curve.Has(new ECPoint(x, y, curve)));
             var point = curve.G * d;
             var mod = curve.Modulus.ToBase64UrlUnsigned(curve.KeySize8);
             var actualX = point.X.ToBase64UrlUnsigned(curve.KeySize8);
             var actualY = point.Y.ToBase64UrlUnsigned(curve.KeySize8);
-            Assert.AreEqual(xString, actualX);
-            Assert.AreEqual(yString, actualY);
+            ClassicAssert.AreEqual(xString, actualX);
+            ClassicAssert.AreEqual(yString, actualY);
         }
 
         [TestCase("0320319526ae7bb161eb650486c9c4ff80ab4f9e18d04d9da3651000d0ac335f16")]
@@ -103,7 +104,7 @@ namespace Ecc.Tests {
         public void ParseKeyTest(string publicKeyHex) {
             var curve = ECCurve.Secp256k1;
             var publicKey = curve.CreatePublicKey(publicKeyHex);
-            Assert.IsTrue(publicKey.Point.Valid);
+            ClassicAssert.IsTrue(publicKey.Point.Valid);
         }
 
         [Test]
@@ -113,13 +114,13 @@ namespace Ecc.Tests {
             var curve = ECCurve.Secp256k1;
             var res = curve.TruncateHash(hash);
             var actual = res.ToHexUnsigned(curve.KeySize8);
-            Assert.AreEqual("a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e", actual);
+            ClassicAssert.AreEqual("a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e", actual);
         }
 
         [Test]
         public void GetNamedCurvesTest() {
             foreach (var curve in ECCurve.GetNamedCurves()) {
-                Assert.IsTrue(curve.G.Valid, $"{curve.Name}");
+                ClassicAssert.IsTrue(curve.G.Valid, $"{curve.Name}");
             }
         }
 

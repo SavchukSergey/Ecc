@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace Ecc.Tests {
     [TestFixture]
@@ -13,7 +14,7 @@ namespace Ecc.Tests {
             var publicKey = curve.G;
             for (var i = 0; i < 13; i++) {
                 var publicKeyCached = cache.Pow2(i);
-                Assert.AreEqual(publicKey.GetHex(), publicKeyCached.GetHex());
+                ClassicAssert.AreEqual(publicKey.GetHex(), publicKeyCached.GetHex());
                 publicKey *= 2;
             }
         }

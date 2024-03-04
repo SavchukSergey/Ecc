@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace Ecc.Tests {
     [TestFixture]
@@ -17,7 +18,7 @@ namespace Ecc.Tests {
                 curve
             );
             var result = publicKey.VerifySignature(msg, signature);
-            Assert.IsTrue(result);
+            ClassicAssert.IsTrue(result);
         }
 
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace Ecc.Tests {
     [TestFixture]
@@ -11,7 +12,7 @@ namespace Ecc.Tests {
         public void CreateTest() {
             var curve = new ECCurve(name: null, a: 2, b: 3, modulus: 97, order: 100, cofactor: default, gx: default, gy: default);
             var privateKey = ECPrivateKey.Create(curve);
-            Assert.IsNotNull(privateKey.Curve);
+            ClassicAssert.IsNotNull(privateKey.Curve);
         }
 
         [Test]
@@ -21,12 +22,12 @@ namespace Ecc.Tests {
             var msg = BigIntegerExt.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
             var random = BigIntegerExt.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var signature = privateKey.Sign(msg, random);
-            Assert.IsNotNull(signature, "signature must not be null");
+            ClassicAssert.IsNotNull(signature, "signature must not be null");
             var rhex = signature.Value.R.ToHexUnsigned(32);
             var shex = signature.Value.S.ToHexUnsigned(32);
-            Assert.AreEqual("2794dd08b1dfa958552bc37916515a3accb0527e40f9291d62cc4316047d24dd", rhex);
-            Assert.AreEqual("5dd1f95f962bb6871967dc17b22217100daa00a3756feb1e16be3e6936fd8594", shex);
-            Assert.AreEqual("2794dd08b1dfa958552bc37916515a3accb0527e40f9291d62cc4316047d24dd5dd1f95f962bb6871967dc17b22217100daa00a3756feb1e16be3e6936fd8594", signature.Value.ToHexString());
+            ClassicAssert.AreEqual("2794dd08b1dfa958552bc37916515a3accb0527e40f9291d62cc4316047d24dd", rhex);
+            ClassicAssert.AreEqual("5dd1f95f962bb6871967dc17b22217100daa00a3756feb1e16be3e6936fd8594", shex);
+            ClassicAssert.AreEqual("2794dd08b1dfa958552bc37916515a3accb0527e40f9291d62cc4316047d24dd5dd1f95f962bb6871967dc17b22217100daa00a3756feb1e16be3e6936fd8594", signature.Value.ToHexString());
         }
 
         [Test]
@@ -37,12 +38,12 @@ namespace Ecc.Tests {
             var msg = GetBytes(msgHex);
             var random = BigIntegerExt.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var signature = privateKey.Sign(msg, random);
-            Assert.IsNotNull(signature, "signature must not be null");
+            ClassicAssert.IsNotNull(signature, "signature must not be null");
             var rhex = signature.Value.R.ToHexUnsigned(32);
             var shex = signature.Value.S.ToHexUnsigned(32);
-            Assert.AreEqual("2794dd08b1dfa958552bc37916515a3accb0527e40f9291d62cc4316047d24dd", rhex);
-            Assert.AreEqual("5dd1f95f962bb6871967dc17b22217100daa00a3756feb1e16be3e6936fd8594", shex);
-            Assert.AreEqual("2794dd08b1dfa958552bc37916515a3accb0527e40f9291d62cc4316047d24dd5dd1f95f962bb6871967dc17b22217100daa00a3756feb1e16be3e6936fd8594", signature.Value.ToHexString());
+            ClassicAssert.AreEqual("2794dd08b1dfa958552bc37916515a3accb0527e40f9291d62cc4316047d24dd", rhex);
+            ClassicAssert.AreEqual("5dd1f95f962bb6871967dc17b22217100daa00a3756feb1e16be3e6936fd8594", shex);
+            ClassicAssert.AreEqual("2794dd08b1dfa958552bc37916515a3accb0527e40f9291d62cc4316047d24dd5dd1f95f962bb6871967dc17b22217100daa00a3756feb1e16be3e6936fd8594", signature.Value.ToHexString());
         }
 
         [Test]
@@ -52,13 +53,13 @@ namespace Ecc.Tests {
                 var msg = BigIntegerExt.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
                 var signature = privateKey.Sign(msg);
                 var valid = privateKey.PublicKey.VerifySignature(msg, signature);
-                Assert.IsTrue(valid, $"curve {curve.Name}, r and s are valid");
+                ClassicAssert.IsTrue(valid, $"curve {curve.Name}, r and s are valid");
                 signature = new ECSignature(signature.R + 5, signature.S, signature.Curve);
                 valid = privateKey.PublicKey.VerifySignature(msg, signature);
-                Assert.IsFalse(valid, $"curve {curve.Name}, r is invalid");
+                ClassicAssert.IsFalse(valid, $"curve {curve.Name}, r is invalid");
                 signature = new ECSignature(signature.R, signature.S + 5, signature.Curve);
                 valid = privateKey.PublicKey.VerifySignature(msg, signature);
-                Assert.IsFalse(valid, $"curve {curve.Name}, s is invalid");
+                ClassicAssert.IsFalse(valid, $"curve {curve.Name}, s is invalid");
             }
         }
 
@@ -89,7 +90,7 @@ namespace Ecc.Tests {
             var curve = ECCurve.Secp256k1;
             var privateKey = curve.CreatePrivateKey(privateKeyHex);
             var publicKey = privateKey.PublicKey;
-            Assert.AreEqual(publicKeyHex, publicKey.ToString());
+            ClassicAssert.AreEqual(publicKeyHex, publicKey.ToString());
         }
 
         private static byte[] GetBytes(string hex) {

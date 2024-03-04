@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace Ecc.Tests {
     [TestFixture]
@@ -11,7 +12,7 @@ namespace Ecc.Tests {
             var right = new BigUnsignedInteger(4567, 80);
             left.Add(right);
             var native = left.ToNative().ToString();
-            Assert.AreEqual("5801", native);
+            ClassicAssert.AreEqual("5801", native);
         }
 
     }
