@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -27,7 +27,7 @@ namespace Ecc {
 
         public readonly long OrderSize;
 
-        private readonly ECPointCache _cache;
+        private readonly ECPointBitCache _cache;
 
         public ECCurve(string name,
             in BigInteger a, in BigInteger b,
@@ -44,7 +44,7 @@ namespace Ecc {
             KeySize = (int)Modulus.Log2();
             KeySize8 = (KeySize + 7) >> 3;
             Singluar = ((4 * A * A * A + 27 * B * B) % Modulus) == 0;
-            _cache = new ECPointCache(G, KeySize);
+            _cache = new ECPointBitCache(G, KeySize);
         }
 
         public bool Has(in ECPoint p) {

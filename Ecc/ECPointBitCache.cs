@@ -1,9 +1,9 @@
 namespace Ecc {
-    public class ECPointCache {
+    public class ECPointBitCache {
 
         private readonly ECPoint[] _points;
 
-        public ECPointCache(in ECPoint generator, int keySize) {
+        public ECPointBitCache(in ECPoint generator, int keySize) {
             _points = new ECPoint[keySize];
             var point = generator;
             for (var i = 0; i < keySize; i++) {
@@ -12,7 +12,7 @@ namespace Ecc {
             }
         }
 
-        public ref ECPoint Pow2(int exp) {
+        public ref readonly ECPoint Pow2(int exp) {
             return ref _points[exp];
         }
 
