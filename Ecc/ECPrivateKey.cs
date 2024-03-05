@@ -45,7 +45,7 @@ namespace Ecc {
             var p = Curve.G * random;
             var r = p.X % Curve.Order;
             if (r == 0) return null;
-            var s = ((message + r * D) * BigIntegerExt.ModInverse(random, Curve.Order)) % Curve.Order;
+            var s = (message + r * D) * BigIntegerExt.ModInverse(random, Curve.Order) % Curve.Order;
             if (s == 0) return null;
             return new ECSignature(r, s, Curve);
         }

@@ -120,7 +120,7 @@ namespace Ecc.Math {
             for (var i = 0; i < ITEMS_SIZE; i++) {
                 uint part = 0;
                 for (var j = 0; j < 32 && charPtr >= 0; j += 4) {
-                    var hd = ParseHexChar(str[charPtr]);
+                    var hd = StringUtils.GetHexDigit(str[charPtr]);
                     part |= ((uint)hd << j);
                     charPtr--;
                 }
@@ -144,19 +144,6 @@ namespace Ecc.Math {
                 buffer[ptr++] = (byte)val;
             }
             return true;
-        }
-
-        private static byte ParseHexChar(char ch) {
-            if (ch >= '0' && ch <= '9') {
-                return (byte)(ch - '0');
-            }
-            if (ch >= 'a' && ch <= 'f') {
-                return (byte)(ch - 'a' + 10);
-            }
-            if (ch >= 'A' && ch <= 'F') {
-                return (byte)(ch - 'A' + 10);
-            }
-            throw new ArgumentException("Invalid hex character");
         }
 
     }

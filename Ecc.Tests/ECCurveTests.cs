@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Numerics;
 using System.Security.Cryptography;
+using Ecc.Math;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
@@ -29,6 +30,27 @@ namespace Ecc.Tests {
             var bpk = (double)(memEnd - memStart) / (double)count;
             Console.WriteLine($"keys per second: {kps}");
             Console.WriteLine($"bytes per key  : {bpk}");
+        }
+
+        [Test]
+        public void Peformance256Test() {
+            var curve = ECCurve256.Secp256k1;
+            var count = 500;
+            var watch = new Stopwatch();
+            curve.CreateKeyPair(); // warm up
+            var memStart = GC.GetAllocatedBytesForCurrentThread();
+            watch.Start();
+            for (var i = 0; i < count; i++) {
+                var keyPair = curve.CreateKeyPair();
+                var pubKey = keyPair.PublicKey;
+                ClassicAssert.NotNull(pubKey.Curve != null);
+            }
+            watch.Stop();
+            var memEnd = GC.GetAllocatedBytesForCurrentThread();
+            var kps = (double)count / watch.Elapsed.TotalSeconds;
+            var bpk = (double)(memEnd - memStart) / (double)count;
+            Console.WriteLine($"ec256: keys per second: {kps}");
+            Console.WriteLine($"ec256: bytes per key  : {bpk}");
         }
 
         [Test]
@@ -110,7 +132,7 @@ namespace Ecc.Tests {
         [Test]
         public void TruncateHashTest() {
             var msg = "Hello World";
-            var hash = SHA256.Create().ComputeHash(System.Text.Encoding.UTF8.GetBytes(msg));
+            var hash = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(msg));
             var curve = ECCurve.Secp256k1;
             var res = curve.TruncateHash(hash);
             var actual = res.ToHexUnsigned(curve.KeySize8);

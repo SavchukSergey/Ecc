@@ -3,11 +3,12 @@ using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Ecc {
-    public static class BigIntegerExt {
+namespace Ecc.Math {
+    public static class BigInteger256Ext {
 
         private static RandomNumberGenerator _cng = RandomNumberGenerator.Create();
 
+        [Obsolete]
         public static BigInteger ModAbs(this in BigInteger val, in BigInteger modulus) {
             if (val.Sign == -1) {
                 return modulus - ((-val) % modulus);
@@ -18,12 +19,30 @@ namespace Ecc {
             return val % modulus;
         }
 
+        public static BigInteger256 ModAbs(this in BigInteger256 val, in BigInteger256 modulus) {
+            // if (val.Sign == -1) {
+            //     return modulus - ((-val) % modulus);
+            // }
+            if (val < modulus) {
+                return val;
+            }
+            return val % modulus;
+        }
+
+        [Obsolete]
         public static BigInteger ModInverse(this in BigInteger val, in BigInteger modulus) {
             return EuclidExtended(val.ModAbs(modulus), modulus).X.ModAbs(modulus);
         }
 
-        public static bool ModEqual(in BigInteger a, in BigInteger b, in BigInteger modulus) {
-            if (a.Sign == 1 && b.Sign == 1 && a < modulus & b < modulus) {
+        //todo: use out param instead on return
+        public static BigInteger256 ModInverse(this in BigInteger256 val, in BigInteger256 modulus) {
+            var mn = modulus.ToNative();
+            return new BigInteger256(EuclidExtended(val.ToNative().ModAbs(mn), mn).X.ModAbs(mn));
+        }
+
+        public static bool ModEqual(in BigInteger256 a, in BigInteger256 b, in BigInteger256 modulus) {
+            //todo: remove extra check
+            if (a < modulus & b < modulus) {
                 return a == b;
             }
             return (a % modulus) == (b % modulus);
@@ -37,36 +56,40 @@ namespace Ecc {
             return a.ModMul(b.ModInverse(modulus), modulus);
         }
 
-        public static long Log2(this in BigInteger val) {
-            var n = val.ToByteArray();
-            var keySize = n.Length * 8;
-            for (var i = n.Length - 1; i >= 0; i--) {
-                var bt = n[i];
-                for (var j = 7; j >= 0; j--) {
-                    if ((bt & (1 << j)) != 0) {
-                        return keySize;
+        public static long Log2(this in BigInteger256 val) {
+            var res = BigInteger256.BITS_SIZE;
+            for (var i = BigInteger256.ITEMS_SIZE - 1; i >= 0; i--) {
+                var item = val.GetItem(i);
+                var mask = 0x8000_0000;
+                while (mask != 0) {
+                    if ((item & mask) != 0) {
+                        return res;
                     }
-                    keySize--;
+                    mask >>= 1;
+                    res--;
                 }
             }
-            return keySize;
+            return res;
         }
 
-        public static BigInteger FromBigEndianBytes(byte[] data) {
-            var len = data.Length;
-            var reverse = new byte[len + 1];
+        public static BigInteger256 FromBigEndianBytes(byte[] data) {
+            Span<byte> reverse = stackalloc byte[BigInteger256.BYTES_SIZE];
+            var len = System.Math.Min(data.Length, BigInteger256.BYTES_SIZE);
+            var ptr = data.Length - 1;
             for (var i = 0; i < len; i++) {
-                reverse[i] = data[len - i - 1];
+                reverse[i] = data[ptr--];
             }
-            return new BigInteger(reverse);
+            for (var i = len; i < BigInteger256.BYTES_SIZE; i++) {
+                reverse[i] = 0;
+            }
+            return new BigInteger256(reverse);
         }
 
-        public static byte[] ToBigEndianBytes(this in BigInteger val) {
-            var data = val.ToByteArray();
-            var len = data.Length;
-            var reverse = new byte[len];
-            for (var i = 0; i < len; i++) {
-                reverse[i] = data[len - i - 1];
+        public static byte[] ToBigEndianBytes(this in BigInteger256 val) {
+            var ptr = BigInteger256.BYTES_SIZE - 1;
+            var reverse = new byte[BigInteger256.BYTES_SIZE];
+            for (var i = 0; i < BigInteger256.BYTES_SIZE; i++) {
+                reverse[i] = val.GetByte(ptr--);
             }
             return reverse;
         }
@@ -88,30 +111,20 @@ namespace Ecc {
             return BigInteger.ModPow(val, exp, modulus);
         }
 
-        public static BigInteger ModRandom(in BigInteger modulus) {
-            var size = modulus.GetByteCount(isUnsigned: true);
-            Span<byte> data = stackalloc byte[size];
-            Span<byte> modulusData = stackalloc byte[size];
-            modulus.TryWriteBytes(modulusData, out var _, isUnsigned: true);
-
-            var m = new BigRefInteger {
-                Data = modulusData
-            };
-
-            var walker = new BigRefInteger {
-                Data = data
-            };
+        public static BigInteger256 ModRandom(in BigInteger256 modulus) {
+            Span<byte> data = stackalloc byte[BigInteger256.BYTES_SIZE];
 
             for (var i = 0; i < 1000; i++) {
                 _cng.GetBytes(data);
-                if (BigRefInteger.Compare(walker, m) == -1) {
-                    return walker.ToBigInteger();
+                var walker = new BigInteger256(data);
+                if (BigInteger256.Compare(walker, modulus) == -1) {
+                    return walker;
                 }
             }
             throw new Exception("Unable to generate random");
         }
 
-        public static BigInteger ModRandomNonZero(in BigInteger modulus) {
+        public static BigInteger256 ModRandomNonZero(in BigInteger256 modulus) {
             for (var i = 0; i < 1000; i++) {
                 var rnd = ModRandom(modulus);
                 if (!rnd.IsZero) {
@@ -121,19 +134,14 @@ namespace Ecc {
             throw new Exception("Unable to generate random");
         }
 
-        public static BigInteger ToNative(this BigInteger val) {
-            return val;
-        }
-
-        public static string ToHexUnsigned(this in BigInteger val, long length) {
+        public static string ToHexUnsigned(this in BigInteger256 val, int length) {
             var sbLength = (int)length * 2;
             var sb = new StringBuilder(sbLength, sbLength);
-            var data = val.ToByteArray();
-            var dataLength = data.Length;
+            var dataLength = BigInteger256.BYTES_SIZE;
             const string hex = "0123456789abcdef";
             for (var i = length - 1; i >= 0; i--) {
                 if (i < dataLength) {
-                    var ch = data[i];
+                    var ch = val.GetByte(i);
                     sb.Append(hex[ch >> 4]);
                     sb.Append(hex[ch & 0x0f]);
                 } else {
@@ -148,15 +156,18 @@ namespace Ecc {
             return Base64Url.Encode(data, data.Length - length, length);
         }
 
-        public static BigInteger ParseBase64UrlUnsigned(string val) {
+        public static BigInteger256 ParseBase64UrlUnsigned(string val) {
             var data = Base64Url.Decode(val);
             return FromBigEndianBytes(data);
         }
 
-        public static BigInteger ParseHexUnsigned(string val) {
-            if (val.StartsWith("0x")) val = "0" + val.Substring(2);
-            else val = "00" + val;
-            return BigInteger.Parse(val, System.Globalization.NumberStyles.AllowHexSpecifier);
+        public static BigInteger256 ParseHexUnsigned(string val) {
+            if (val.StartsWith("0x")) {
+                val = val.Substring(2);
+            }
+            var res = new BigInteger256();
+            res.ReadFromHex(val);
+            return res;
         }
 
         public static BezoutIdentity EuclidExtended(in BigInteger a, in BigInteger b) {

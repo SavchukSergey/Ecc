@@ -73,7 +73,7 @@ namespace Ecc.Tests.Math {
         public void AddTest() {
             var left = new BigInteger256(0x80000000);
             var right = new BigInteger256(0x84000001);
-            left.Add(right);
+            left.AssignAdd(right);
             Span<byte> buffer = stackalloc byte[BigInteger256.BYTES_SIZE];
             left.TryWrite(buffer);
             ClassicAssert.AreEqual(0x01, buffer[0]);
@@ -87,7 +87,7 @@ namespace Ecc.Tests.Math {
         public void SubPosTest() {
             var left = new BigInteger256(0x284000001);
             var right = new BigInteger256(0x180000000);
-            left.Sub(right);
+            left.AssignSub(right);
             Span<byte> buffer = stackalloc byte[BigInteger256.BYTES_SIZE];
             left.TryWrite(buffer);
             ClassicAssert.AreEqual(0x01, buffer[0]);
@@ -102,7 +102,7 @@ namespace Ecc.Tests.Math {
         public void SubNegTest() {
             var left = new BigInteger256(0x180000000);
             var right = new BigInteger256(0x284000001);
-            left.Sub(right);
+            left.AssignSub(right);
             Span<byte> buffer = stackalloc byte[BigInteger256.BYTES_SIZE];
             left.TryWrite(buffer);
             ClassicAssert.AreEqual(0xff, buffer[0]);
@@ -116,7 +116,7 @@ namespace Ecc.Tests.Math {
         [Test]
         public void ShiftLeftTest() {
             var bi = new BigInteger256(0x123456789abcdef);
-            bi.ShiftLeft();
+            bi.AssignShiftLeft();
             Span<byte> buffer = stackalloc byte[BigInteger256.BYTES_SIZE];
             bi.TryWrite(buffer);
             ClassicAssert.AreEqual(0xde, buffer[0]);

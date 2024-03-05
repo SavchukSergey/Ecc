@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Ecc.Math {
-    public unsafe ref struct BigInteger256 {
+    public unsafe struct BigInteger256 {
 
         public const int BITS_SIZE = 256;
         public const int BYTES_SIZE = BITS_SIZE / 8;
@@ -35,6 +37,39 @@ namespace Ecc.Math {
             ZeroExtendFrom(value);
         }
 
+        [Obsolete]
+        public BigInteger256(in BigInteger value) {
+            var data = value.ToByteArray(isBigEndian: false);
+            var si = 0;
+            for (var i = 0; i < ITEMS_SIZE; i++) {
+                var bt0 = si < data.Length ? data[si++] : 0;
+                var bt1 = si < data.Length ? data[si++] : 0;
+                var bt2 = si < data.Length ? data[si++] : 0;
+                var bt3 = si < data.Length ? data[si++] : 0;
+                Data[i] = (uint)(bt3 << 24 | bt2 << 16 | bt1 << 8 | bt0);
+            }
+        }
+
+        public BigInteger256(Span<byte> data) {
+            var si = 0;
+            for (var i = 0; i < ITEMS_SIZE; i++) {
+                var bt0 = si < data.Length ? data[si++] : 0;
+                var bt1 = si < data.Length ? data[si++] : 0;
+                var bt2 = si < data.Length ? data[si++] : 0;
+                var bt3 = si < data.Length ? data[si++] : 0;
+                Data[i] = (uint)(bt3 << 24 | bt2 << 16 | bt1 << 8 | bt0);
+            }
+        }
+
+        public readonly byte GetByte(int index) {
+            var btIndex = index >> 2;
+            return (byte)(Data[btIndex] >> (8 * (index & 0x03)));
+        }
+
+        public readonly uint GetItem(int index) {
+            return Data[index];
+        }
+
         public readonly bool IsZero {
             get {
                 for (var i = 0; i < ITEMS_SIZE; i++) {
@@ -46,13 +81,20 @@ namespace Ecc.Math {
             }
         }
 
+        public readonly bool IsEven {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get {
+                return ((int)Data[0] & 0x1) == 0;
+            }
+        }
+
         public void Clear() {
             for (var i = 0; i < ITEMS_SIZE; i++) {
                 Data[i] = 0;
             }
         }
 
-        public bool Add(in BigInteger256 other) {
+        public bool AssignAdd(in BigInteger256 other) {
             bool carry = false;
             for (var i = 0; i < ITEMS_SIZE; i++) {
                 ulong acc = Data[i];
@@ -64,7 +106,7 @@ namespace Ecc.Math {
             return carry;
         }
 
-        public bool Sub(in BigInteger256 other) {
+        public bool AssignSub(in BigInteger256 other) {
             bool carry = false;
             for (var i = 0; i < ITEMS_SIZE; i++) {
                 ulong acc = Data[i];
@@ -76,7 +118,7 @@ namespace Ecc.Math {
             return carry;
         }
 
-        public uint ShiftLeft() {
+        public uint AssignShiftLeft() {
             uint carry = 0;
             for (var i = 0; i < ITEMS_SIZE; i++) {
                 var sum = (ulong)carry;
@@ -111,6 +153,76 @@ namespace Ecc.Math {
             return 0;
         }
 
+        public static int Compare(in BigInteger256 left, in BigInteger256 right) {
+            for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
+                var leftBt = left.Data[i];
+                var rightBt = right.Data[i];
+                if (leftBt > rightBt) {
+                    return 1;
+                }
+                if (leftBt < rightBt) {
+                    return -1;
+                }
+            }
+            return 0;
+        }
+
+        public static bool Equals(in BigInteger256 left, in BigInteger256 right) {
+            return Compare(left, right) == 0;
+        }
+
+        [Obsolete]
+        public readonly BigInteger ToNative() {
+            var array = new byte[BYTES_SIZE];
+            var ai = 0;
+            for (var i = 0; i < ITEMS_SIZE; i++) {
+                var bt = Data[i];
+                array[ai++] = (byte)(bt >> 0);
+                array[ai++] = (byte)(bt >> 8);
+                array[ai++] = (byte)(bt >> 16);
+                array[ai++] = (byte)(bt >> 24);
+            }
+            return new BigInteger(array, isUnsigned: true, isBigEndian: false);
+        }
+
+        [Obsolete]
+        public static BigInteger operator %(BigInteger left, BigInteger256 right) {
+            return left % right.ToNative();
+        }
+
+        public static BigInteger256 operator %(BigInteger256 left, BigInteger256 right) {
+            return new BigInteger256(left.ToNative() % right.ToNative());
+        }
+
+        public static BigInteger256 operator -(in BigInteger256 left, in BigInteger256 right) {
+            var res = new BigInteger256();
+            bool carry = false;
+            for (var i = 0; i < ITEMS_SIZE; i++) {
+                ulong acc = left.Data[i];
+                acc -= right.Data[i];
+                acc -= carry ? 1ul : 0ul;
+                res.Data[i] = (uint)acc;
+                carry = acc > uint.MaxValue;
+            }
+            return res;
+        }
+
+        public static bool operator <(in BigInteger256 left, in BigInteger256 right) {
+            return Compare(left, right) < 0;
+        }
+
+        public static bool operator >(in BigInteger256 left, in BigInteger256 right) {
+            return Compare(left, right) > 0;
+        }
+
+        public static bool operator ==(in BigInteger256 left, in BigInteger256 right) {
+            return Compare(left, right) == 0;
+        }
+
+        public static bool operator !=(in BigInteger256 left, in BigInteger256 right) {
+            return Compare(left, right) != 0;
+        }
+
         public void ReadFromHex(ReadOnlySpan<char> str) {
             if (str.Length > BYTES_SIZE * 2) {
                 throw new ArgumentException($"Expected hex string with {BYTES_SIZE * 2} characters");
@@ -120,7 +232,7 @@ namespace Ecc.Math {
             for (var i = 0; i < ITEMS_SIZE; i++) {
                 uint part = 0;
                 for (var j = 0; j < 32 && charPtr >= 0; j += 4) {
-                    var hd = ParseHexChar(str[charPtr]);
+                    var hd = StringUtils.GetHexDigit(str[charPtr]);
                     part |= ((uint)hd << j);
                     charPtr--;
                 }
@@ -144,19 +256,6 @@ namespace Ecc.Math {
                 buffer[ptr++] = (byte)val;
             }
             return true;
-        }
-
-        private static byte ParseHexChar(char ch) {
-            if (ch >= '0' && ch <= '9') {
-                return (byte)(ch - '0');
-            }
-            if (ch >= 'a' && ch <= 'f') {
-                return (byte)(ch - 'a' + 10);
-            }
-            if (ch >= 'A' && ch <= 'F') {
-                return (byte)(ch - 'A' + 10);
-            }
-            throw new ArgumentException("Invalid hex character");
         }
 
     }

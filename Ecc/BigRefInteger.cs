@@ -4,7 +4,7 @@ using System.Numerics;
 namespace Ecc {
     public readonly ref struct BigRefInteger {
 
-        public readonly ReadOnlySpan<byte> Data { get; init; }
+        public required readonly Span<byte> Data { get; init; }
 
         public readonly int Sign {
             get {
@@ -50,7 +50,36 @@ namespace Ecc {
         }
 
         public readonly BigInteger ToBigInteger() {
-            return new BigInteger(Data, isUnsigned: true);
+            return new BigInteger(Data, isUnsigned: true, isBigEndian: false);
+        }
+
+        public readonly void ToBigEndianBytes(Span<byte> target) {
+            if (target.Length != Data.Length) {
+                throw new Exception();
+            }
+            var ti = target.Length - 1;
+            for (var i = 0; i < Data.Length; i++) {
+                target[ti--] = Data[i];
+            }
+        }
+
+        public static void ParseHexUnsigned(string src, ref BigRefInteger val) {
+            if ((src.Length + 1) / 2 > val.Data.Length) {
+                throw new Exception();
+            }
+            var di = 0;
+            var si = src.Length - 1;
+            while (si >= 1) {
+                var l = StringUtils.GetHexDigit(src[si--]);
+                var h = StringUtils.GetHexDigit(src[si--]);
+                var bt = (h << 4) + l;
+                val.Data[di] = (byte)bt;
+                di++;
+            }
+            if (si >= 0) {
+                var l = StringUtils.GetHexDigit(src[si]);
+                val.Data[di] = l;
+            }
         }
 
     }

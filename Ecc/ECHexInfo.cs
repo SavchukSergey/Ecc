@@ -1,4 +1,6 @@
-﻿namespace Ecc {
+﻿using Ecc.Math;
+
+namespace Ecc {
     public struct ECHexInfo {
 
         public string Name;
@@ -31,6 +33,19 @@
             return ecc;
         }
 
+        public ECCurve256 Build256() {
+            var ecc = new ECCurve256(
+                name: Name,
+                a: BigIntegerExt.ParseHexUnsigned(A),
+                b: BigIntegerExt.ParseHexUnsigned(B),
+                modulus: BigInteger256Ext.ParseHexUnsigned(P),
+                order: BigInteger256Ext.ParseHexUnsigned(N),
+                cofactor: BigIntegerExt.ParseHexUnsigned(H),
+                gx: BigInteger256Ext.ParseHexUnsigned(Gx),
+                gy: BigInteger256Ext.ParseHexUnsigned(Gy)
+            );
+            return ecc;
+        }
     }
 
 }

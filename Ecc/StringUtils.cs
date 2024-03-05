@@ -34,7 +34,7 @@ namespace Ecc {
             return res;
         }
 
-        private static byte GetHexDigit(char ch) {
+        public static byte GetHexDigit(char ch) {
             if (ch >= '0' && ch <= '9') return (byte)(ch - '0');
             if (ch >= 'A' && ch <= 'F') return (byte)(ch - 'A' + 10);
             if (ch >= 'a' && ch <= 'f') return (byte)(ch - 'a' + 10);
