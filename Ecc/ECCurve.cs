@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -139,9 +139,10 @@ namespace Ecc {
             return num;
         }
 
+        private static ECCurve? _secp256k1;
         public static ECCurve Secp256k1 {
             get {
-                return new ECHexInfo {
+                return _secp256k1 ??= new ECHexInfo {
                     Name = "secp256k1",
                     P = "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f",
                     A = "0x0",
@@ -205,7 +206,7 @@ namespace Ecc {
                 "secp384r1" => Secp384r1,
                 "secp521r1" => Secp521r1,
                 "nistP256" => NistP256,
-                _ => null,
+                _ => throw new Exception($"unknown curve: {name}"),
             };
         }
 

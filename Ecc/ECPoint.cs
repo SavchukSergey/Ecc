@@ -39,11 +39,11 @@ namespace Ecc {
             }
 
             var m = dx.IsZero ?
-                ((3 * left.X * left.X + curve.A) * ((2 * left.Y).ModInverse(modulus))).ModAbs(modulus) :
+                ((3 * left.X * left.X + curve.A) * (2 * left.Y).ModInverse(modulus)).ModAbs(modulus) :
                 (dy * dx.ModInverse(modulus)).ModAbs(modulus);
 
-            var rx = (m * m - left.X - right.X);
-            var ry = (m * (left.X - rx) - left.Y);
+            var rx = m * m - left.X - right.X;
+            var ry = m * (left.X - rx) - left.Y;
 
             return new ECPoint(rx.ModAbs(modulus), ry.ModAbs(modulus), curve);
         }
@@ -62,7 +62,7 @@ namespace Ecc {
             return X.GetHashCode() ^ Y.GetHashCode() ^ Curve.GetHashCode();
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object? obj) {
             if (obj is ECPoint other) {
                 return X == other.X && Y == other.Y;
             }
@@ -87,7 +87,7 @@ namespace Ecc {
         }
 
         public readonly byte[] GetBytes(bool compress = true) {
-            if (IsInfinity) return new byte[] { 0 };
+            if (IsInfinity) return [0];
             var keySize = Curve.KeySize8;
             if (compress) {
                 var res = new byte[keySize + 1];
@@ -117,7 +117,7 @@ namespace Ecc {
 
         public override string ToString() => $"{{X: {X.ToHexUnsigned(Curve.KeySize8)}, Y: {Y.ToHexUnsigned(Curve.KeySize8)}}}";
 
-        private static readonly ECPoint _infinity = new ECPoint(0, 0, null);
+        private static readonly ECPoint _infinity = new ECPoint(0, 0, null!);
 
         public static ref readonly ECPoint Infinity => ref _infinity;
 
