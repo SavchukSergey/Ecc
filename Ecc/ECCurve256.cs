@@ -44,7 +44,7 @@ namespace Ecc {
             OrderSize = Order.Log2();
             KeySize = (int)Modulus.Log2();
             KeySize8 = (KeySize + 7) >> 3;
-            Singluar = ((4 * A * A * A + 27 * B * B) % Modulus) == 0;
+            Singluar = ((4 * A * A * A + 27 * B * B) % Modulus.ToNative()) == 0;
             _cache = new ECPointByteCache256(G, KeySize);
         }
 

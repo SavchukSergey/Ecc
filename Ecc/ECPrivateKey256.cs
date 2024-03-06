@@ -1,5 +1,3 @@
-using System;
-using System.ComponentModel;
 using System.Numerics;
 using Ecc.Math;
 
@@ -45,11 +43,13 @@ namespace Ecc {
         private readonly ECSignature256? SignTruncated(in BigInteger256 message, in BigInteger256 random) {
             var on = Curve.Order.ToNative();
             var p = Curve.G * random;
-            var r = p.X % on;
-            if (r == 0) return null;
-            var s = (message.ToNative() + r * D.ToNative()) * BigInteger256Ext.ModInverse(random, Curve.Order).ToNative() % on;
-            if (s == 0) return null;
-            return new ECSignature256(new BigInteger256(r), new BigInteger256(s), Curve);
+            var r = new BigInteger256(p.X % on);
+            if (r.IsZero) return null;
+            var a = r.ModMul(D, Curve.Order);
+            a.AssignModAdd(message, Curve.Order);
+            var s = a.ModMul(BigInteger256Ext.ModInverse(random, Curve.Order), Curve.Order);
+            if (s.IsZero) return null;
+            return new ECSignature256(r, s, Curve);
         }
 
         public static ECPrivateKey256 Create(ECCurve256 curve) {

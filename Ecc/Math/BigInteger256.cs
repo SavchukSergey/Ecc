@@ -94,6 +94,20 @@ namespace Ecc.Math {
             }
         }
 
+        public void AssignModAdd(in BigInteger256 other, in BigInteger256 modulus) {
+            bool carry = false;
+            for (var i = 0; i < ITEMS_SIZE; i++) {
+                ulong acc = Data[i];
+                acc += other.Data[i];
+                acc += carry ? 1ul : 0ul;
+                Data[i] = (uint)acc;
+                carry = acc > uint.MaxValue;
+            }
+            if (carry || this >= modulus) {
+                this.AssignSub(modulus);
+            }
+        }
+
         public bool AssignAdd(in BigInteger256 other) {
             bool carry = false;
             for (var i = 0; i < ITEMS_SIZE; i++) {
@@ -128,6 +142,10 @@ namespace Ecc.Math {
                 carry = (uint)(sum >> 32);
             }
             return carry;
+        }
+
+        public readonly BigInteger256 ModMul(in BigInteger256 other, in BigInteger256 modulus) {
+            return new BigInteger256((this.ToNative() * other.ToNative()).ModAbs(modulus.ToNative()));
         }
 
         public void ZeroExtendFrom(in BigInteger128 source) {
@@ -185,13 +203,29 @@ namespace Ecc.Math {
             return new BigInteger(array, isUnsigned: true, isBigEndian: false);
         }
 
-        [Obsolete]
-        public static BigInteger operator %(BigInteger left, BigInteger256 right) {
-            return left % right.ToNative();
+        public static BigInteger256 operator /(BigInteger256 left, BigInteger256 right) {
+            return new BigInteger256(left.ToNative() / right.ToNative());
+        }
+
+        public static BigInteger256 operator *(BigInteger256 left, BigInteger256 right) {
+            return new BigInteger256(left.ToNative() * right.ToNative());
         }
 
         public static BigInteger256 operator %(BigInteger256 left, BigInteger256 right) {
             return new BigInteger256(left.ToNative() % right.ToNative());
+        }
+
+        public static BigInteger256 operator +(BigInteger256 left, BigInteger256 right) {
+            var res = new BigInteger256();
+            bool carry = false;
+            for (var i = 0; i < ITEMS_SIZE; i++) {
+                ulong acc = left.Data[i];
+                acc += right.Data[i];
+                acc += carry ? 1ul : 0ul;
+                res.Data[i] = (uint)acc;
+                carry = acc > uint.MaxValue;
+            }
+            return res;
         }
 
         public static BigInteger256 operator -(in BigInteger256 left, in BigInteger256 right) {
@@ -213,6 +247,14 @@ namespace Ecc.Math {
 
         public static bool operator >(in BigInteger256 left, in BigInteger256 right) {
             return Compare(left, right) > 0;
+        }
+
+        public static bool operator <=(in BigInteger256 left, in BigInteger256 right) {
+            return Compare(left, right) <= 0;
+        }
+
+        public static bool operator >=(in BigInteger256 left, in BigInteger256 right) {
+            return Compare(left, right) >= 0;
         }
 
         public static bool operator ==(in BigInteger256 left, in BigInteger256 right) {
