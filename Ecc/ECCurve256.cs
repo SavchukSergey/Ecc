@@ -8,16 +8,11 @@ namespace Ecc {
 
         public readonly string Name;
 
-        public readonly BigInteger A;
-
-        public readonly BigInteger B;
-
+        public readonly BigInteger256 A;
+        public readonly BigInteger256 B;
         public readonly BigInteger256 Modulus;
-
         public readonly BigInteger256 Order;
-
         public readonly BigInteger Cofactor;
-
         public readonly ECPoint256 G;
 
         public readonly bool Singluar;
@@ -31,9 +26,9 @@ namespace Ecc {
         private readonly ECPointByteCache256 _cache;
 
         public ECCurve256(string name,
-            in BigInteger a, in BigInteger b,
-            in BigInteger256 modulus, in BigInteger256 order,
-            in BigInteger cofactor, in BigInteger256 gx, in BigInteger256 gy) {
+                   in BigInteger256 a, in BigInteger256 b,
+                   in BigInteger256 modulus, in BigInteger256 order,
+                   in BigInteger cofactor, in BigInteger256 gx, in BigInteger256 gy) {
             Name = name;
             A = a;
             B = b;
@@ -44,16 +39,19 @@ namespace Ecc {
             OrderSize = Order.Log2();
             KeySize = (int)Modulus.Log2();
             KeySize8 = (KeySize + 7) >> 3;
-            Singluar = ((4 * A * A * A + 27 * B * B) % Modulus.ToNative()) == 0;
+            Singluar = a.ModCube(modulus).ModMul(new BigInteger256(4), Modulus).ModAdd(
+                B.ModSquare(Modulus).ModMul(new BigInteger256(27), Modulus),
+                Modulus
+            ).IsZero;
             _cache = new ECPointByteCache256(G, KeySize);
         }
 
         public bool Has(in ECPoint256 p) {
             if (p.IsInfinity) return true;
 
-            var left = p.Y * p.Y;
-            var right = p.X * p.X * p.X + A * p.X + B;
-            return BigInteger256Ext.ModEqual(new BigInteger256(left), new BigInteger256(right), Modulus);
+            var left = p.Y.ModSquare(Modulus);
+            var right = p.X.ModCube(Modulus).ModAdd(A.ModMul(p.X, Modulus), Modulus).ModAdd(B, Modulus);
+            return left == right;
         }
 
         public ECPublicKey256 GetPublicKey(in BigInteger256 k) {
@@ -70,10 +68,12 @@ namespace Ecc {
         }
 
         public ECPoint256 CreatePoint(in BigInteger256 x, bool yOdd) {
-            var xn = x.ToNative();
-            var right = xn * xn * xn + A * xn + B;
-            var y = right.ModSqrt(Modulus.ToNative());
-            return CreatePoint(x, new BigInteger256(y));
+            var right = x.ModCube(Modulus).ModAdd(
+                A.ModMul(x, Modulus).ModAdd(B, Modulus),
+                Modulus
+            );
+            var y = right.ModSqrt(Modulus);
+            return CreatePoint(x, y);
         }
 
         public ECPoint256 CreatePoint(string hex) {

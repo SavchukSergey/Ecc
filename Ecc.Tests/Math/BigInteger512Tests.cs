@@ -73,7 +73,7 @@ namespace Ecc.Tests.Math {
         public void AddTest() {
             var left = new BigInteger512(0x80000000);
             var right = new BigInteger512(0x84000001);
-            left.Add(right);
+            left.AssignAdd(right);
             Span<byte> buffer = stackalloc byte[BigInteger512.BYTES_SIZE];
             left.TryWrite(buffer);
             ClassicAssert.AreEqual(0x01, buffer[0]);

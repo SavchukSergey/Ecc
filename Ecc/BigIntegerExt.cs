@@ -121,10 +121,6 @@ namespace Ecc {
             throw new Exception("Unable to generate random");
         }
 
-        public static BigInteger ToNative(this BigInteger val) {
-            return val;
-        }
-
         public static string ToHexUnsigned(this in BigInteger val, long length) {
             var sbLength = (int)length * 2;
             var sb = new StringBuilder(sbLength, sbLength);

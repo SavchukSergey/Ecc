@@ -19,40 +19,14 @@ namespace Ecc.Math {
             return val % modulus;
         }
 
-        public static BigInteger256 ModAbs(this in BigInteger256 val, in BigInteger256 modulus) {
-            // if (val.Sign == -1) {
-            //     return modulus - ((-val) % modulus);
-            // }
-            if (val < modulus) {
-                return val;
-            }
-            return val % modulus;
-        }
-
-        [Obsolete]
-        public static BigInteger ModInverse(this in BigInteger val, in BigInteger modulus) {
-            return EuclidExtended(val.ModAbs(modulus), modulus).X.ModAbs(modulus);
-        }
-
         //todo: use out param instead on return
         public static BigInteger256 ModInverse(this in BigInteger256 val, in BigInteger256 modulus) {
-            var mn = modulus.ToNative();
-            return new BigInteger256(EuclidExtended(val.ToNative().ModAbs(mn), mn).X.ModAbs(mn));
+            return new BigInteger256(
+                EuclidExtended(val, modulus).X.ModAbs(modulus.ToNative())
+            );
         }
 
-        public static bool ModEqual(in BigInteger256 a, in BigInteger256 b, in BigInteger256 modulus) {
-            //todo: remove extra check
-            if (a < modulus & b < modulus) {
-                return a == b;
-            }
-            return (a % modulus) == (b % modulus);
-        }
-
-        public static BigInteger ModMul(this in BigInteger a, in BigInteger b, in BigInteger modulus) {
-            return (a * b) % modulus;
-        }
-
-        public static BigInteger ModDiv(this in BigInteger a, in BigInteger b, in BigInteger modulus) {
+        public static BigInteger256 ModDiv(this in BigInteger256 a, in BigInteger256 b, in BigInteger256 modulus) {
             return a.ModMul(b.ModInverse(modulus), modulus);
         }
 
@@ -94,8 +68,8 @@ namespace Ecc.Math {
             return reverse;
         }
 
-        public static byte[] ToBigEndianBytes(this in BigInteger val, byte[] data, int offset, int length) {
-            var src = val.ToByteArray();
+        public static byte[] ToBigEndianBytes(this in BigInteger256 val, byte[] data, int offset, int length) {
+            var src = val.ToNative().ToByteArray();
             var actualLength = System.Math.Min(src.Length, length);
             for (var i = 0; i < actualLength; i++) {
                 data[i + offset] = src[actualLength - i - 1];
@@ -106,9 +80,9 @@ namespace Ecc.Math {
             return data;
         }
 
-        public static BigInteger ModSqrt(this in BigInteger val, in BigInteger modulus) {
-            var exp = (modulus + 1).ModDiv(4, modulus);
-            return BigInteger.ModPow(val, exp, modulus);
+        public static BigInteger256 ModSqrt(this in BigInteger256 val, in BigInteger256 modulus) {
+            var exp = modulus.ModAdd(new BigInteger256(1), modulus).ModDiv(new BigInteger256(4), modulus);
+            return val.ModPow(exp, modulus);
         }
 
         public static BigInteger256 ModRandom(in BigInteger256 modulus) {
@@ -134,24 +108,7 @@ namespace Ecc.Math {
             throw new Exception("Unable to generate random");
         }
 
-        public static string ToHexUnsigned(this in BigInteger256 val, int length) {
-            var sbLength = (int)length * 2;
-            var sb = new StringBuilder(sbLength, sbLength);
-            var dataLength = BigInteger256.BYTES_SIZE;
-            const string hex = "0123456789abcdef";
-            for (var i = length - 1; i >= 0; i--) {
-                if (i < dataLength) {
-                    var ch = val.GetByte(i);
-                    sb.Append(hex[ch >> 4]);
-                    sb.Append(hex[ch & 0x0f]);
-                } else {
-                    sb.Append("00");
-                }
-            }
-            return sb.ToString();
-        }
-
-        public static string ToBase64UrlUnsigned(this in BigInteger val, long length) {
+        public static string ToBase64UrlUnsigned(this in BigInteger256 val, long length) {
             var data = val.ToBigEndianBytes();
             return Base64Url.Encode(data, data.Length - length, length);
         }
@@ -170,16 +127,18 @@ namespace Ecc.Math {
             return res;
         }
 
-        public static BezoutIdentity EuclidExtended(in BigInteger a, in BigInteger b) {
+        public static BezoutIdentity256 EuclidExtended(in BigInteger256 a, in BigInteger256 b) {
+            var an = a.ToNative();
+            var bn = b.ToNative();
             var s0 = BigInteger.One;
             var t0 = BigInteger.Zero;
             var s1 = BigInteger.Zero;
             var t1 = BigInteger.One;
-            var r0 = a;
-            var r1 = b;
+            var r0 = an;
+            var r1 = bn;
 
             while (!r1.IsZero) {
-                var quotient = BigInteger.DivRem(r0, r1, out BigInteger r2);
+                var quotient = BigInteger.DivRem(r0, r1, out var r2);
                 var s2 = s0 - quotient * s1;
                 var t2 = t0 - quotient * t1;
                 s0 = s1;
@@ -189,9 +148,9 @@ namespace Ecc.Math {
                 r0 = r1;
                 r1 = r2;
             }
-            return new BezoutIdentity {
-                A = a,
-                B = b,
+            return new BezoutIdentity256 {
+                A = an,
+                B = bn,
                 X = s0,
                 Y = t0
             };

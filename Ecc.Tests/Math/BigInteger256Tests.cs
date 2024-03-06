@@ -132,19 +132,16 @@ namespace Ecc.Tests.Math {
 
         [Test]
         public void ZeroExtend128Test() {
-            var source = new BigInteger128(0x123456789abcdef);
-            var bi = new BigInteger256(source);
-            Span<byte> buffer = stackalloc byte[BigInteger256.BYTES_SIZE];
-            bi.TryWrite(buffer);
-            ClassicAssert.AreEqual(0xef, buffer[0]);
-            ClassicAssert.AreEqual(0xcd, buffer[1]);
-            ClassicAssert.AreEqual(0xab, buffer[2]);
-            ClassicAssert.AreEqual(0x89, buffer[3]);
-            ClassicAssert.AreEqual(0x67, buffer[4]);
-            ClassicAssert.AreEqual(0x45, buffer[5]);
-            ClassicAssert.AreEqual(0x23, buffer[6]);
-            ClassicAssert.AreEqual(0x01, buffer[7]);
-            ClassicAssert.AreEqual(0x00, buffer[8]);
+            var lower = new UInt128(0, 0x0123456789abcdeful);
+            var bi = new BigInteger256(lower);
+            ClassicAssert.AreEqual(0x89abcdef, bi.GetItem(0));
+            ClassicAssert.AreEqual(0x01234567, bi.GetItem(1));
+            ClassicAssert.AreEqual(0x0, bi.GetItem(2));
+            ClassicAssert.AreEqual(0x0, bi.GetItem(3));
+            ClassicAssert.AreEqual(0x0, bi.GetItem(4));
+            ClassicAssert.AreEqual(0x0, bi.GetItem(5));
+            ClassicAssert.AreEqual(0x0, bi.GetItem(6));
+            ClassicAssert.AreEqual(0x0, bi.GetItem(7));
         }
 
         [Test]
@@ -168,5 +165,28 @@ namespace Ecc.Tests.Math {
             ClassicAssert.AreEqual(1, left.Compare(right));
         }
 
+
+        [Test]
+        public void ModDoubleTest() {
+            ClassicAssert.AreEqual(new BigInteger256(40), new BigInteger256(20).ModDouble(new BigInteger256(127)));
+            ClassicAssert.AreEqual(new BigInteger256(80), new BigInteger256(40).ModDouble(new BigInteger256(127)));
+            ClassicAssert.AreEqual(new BigInteger256(33), new BigInteger256(80).ModDouble(new BigInteger256(127)));
+        }
+
+        [Test]
+        public void ModAddTest() {
+            ClassicAssert.AreEqual(
+                new BigInteger256(5),
+                new BigInteger256(6).ModAdd(new BigInteger256(126), new BigInteger256(127))
+            );
+        }
+
+        [Test]
+        public void MulTest() {
+            var left = BigInteger256Ext.ParseHexUnsigned("0123456789abcdef");
+            var right = BigInteger256Ext.ParseHexUnsigned("fedcba9876543210");
+            var res = left * right;
+            ClassicAssert.AreEqual("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000121fa00ad77d7422236d88fe5618cf0", res.ToHexUnsigned());
+        }
     }
 }

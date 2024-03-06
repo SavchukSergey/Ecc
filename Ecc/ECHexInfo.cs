@@ -19,7 +19,7 @@ namespace Ecc {
 
         public string H;
 
-        public ECCurve Build() {
+        public readonly ECCurve Build() {
             var ecc = new ECCurve(
                 name: Name,
                 a: BigIntegerExt.ParseHexUnsigned(A),
@@ -33,11 +33,11 @@ namespace Ecc {
             return ecc;
         }
 
-        public ECCurve256 Build256() {
+        public readonly ECCurve256 Build256() {
             var ecc = new ECCurve256(
                 name: Name,
-                a: BigIntegerExt.ParseHexUnsigned(A),
-                b: BigIntegerExt.ParseHexUnsigned(B),
+                a: BigInteger256Ext.ParseHexUnsigned(A),
+                b: BigInteger256Ext.ParseHexUnsigned(B),
                 modulus: BigInteger256Ext.ParseHexUnsigned(P),
                 order: BigInteger256Ext.ParseHexUnsigned(N),
                 cofactor: BigIntegerExt.ParseHexUnsigned(H),

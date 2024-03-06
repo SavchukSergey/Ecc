@@ -57,7 +57,7 @@ namespace Ecc.Tests {
                 var valid = privateKey.PublicKey.VerifySignature(msg, signature);
                 ClassicAssert.IsTrue(valid, $"curve {curve.Name}, r and s are valid");
                 signature = new ECSignature256(
-                    new BigInteger256(signature.R.ToNative() + 5),
+                    signature.R.ModAdd(new BigInteger256(5), signature.Curve.Modulus),
                     signature.S,
                     signature.Curve
                 );
@@ -65,7 +65,7 @@ namespace Ecc.Tests {
                 ClassicAssert.IsFalse(valid, $"curve {curve.Name}, r is invalid");
                 signature = new ECSignature256(
                     signature.R,
-                    new BigInteger256(signature.S.ToNative() + 5),
+                    signature.S.ModAdd(new BigInteger256(5), signature.Curve.Modulus),
                     signature.Curve
                 );
                 valid = privateKey.PublicKey.VerifySignature(msg, signature);

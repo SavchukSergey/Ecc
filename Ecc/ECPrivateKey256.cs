@@ -41,15 +41,13 @@ namespace Ecc {
         }
 
         private readonly ECSignature256? SignTruncated(in BigInteger256 message, in BigInteger256 random) {
-            var on = Curve.Order.ToNative();
             var p = Curve.G * random;
-            var r = new BigInteger256(p.X % on);
-            if (r.IsZero) return null;
-            var a = r.ModMul(D, Curve.Order);
+            if (p.X.IsZero) return null;
+            var a = p.X.ModMul(D, Curve.Order);
             a.AssignModAdd(message, Curve.Order);
             var s = a.ModMul(BigInteger256Ext.ModInverse(random, Curve.Order), Curve.Order);
             if (s.IsZero) return null;
-            return new ECSignature256(r, s, Curve);
+            return new ECSignature256(p.X, s, Curve);
         }
 
         public static ECPrivateKey256 Create(ECCurve256 curve) {

@@ -13,18 +13,16 @@ namespace Ecc {
             Curve = point.Curve;
         }
 
-        public bool VerifySignature(in BigInteger hash, in ECSignature256 signature) {
+        public readonly bool VerifySignature(in BigInteger hash, in ECSignature256 signature) {
             var truncated = Curve.TruncateHash(hash);
-            var on = Curve.Order.ToNative();
             var w = signature.S.ModInverse(Curve.Order);
-            var u1 = new BigInteger256(truncated.ToNative() * w.ToNative() % on);
-            var rn = signature.R.ToNative();
-            var u2 = new BigInteger256(rn * w.ToNative() % on);
+            var u1 = truncated.ModMul(w, Curve.Order);
+            var u2 = signature.R.ModMul(w, Curve.Order);
             var p = Curve.G * u1 + Point * u2;
-            return BigIntegerExt.ModEqual(rn, p.X, on);
+            return signature.R.Equals(p.X);
         }
 
-        public bool VerifySignature(byte[] hash, in ECSignature256 signature) {
+        public readonly bool VerifySignature(byte[] hash, in ECSignature256 signature) {
             return VerifySignature(BigIntegerExt.FromBigEndianBytes(hash), signature);
         }
 

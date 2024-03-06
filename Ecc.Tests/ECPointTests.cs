@@ -9,7 +9,7 @@ namespace Ecc.Tests {
 
         [Test]
         public void AddTest() {
-            var curve = new ECCurve(name: null, a: -1, b: 3, modulus: 127, order: default, cofactor: default, gx: default, gy: default);
+            var curve = new ECCurve(name: null, a: 126, b: 3, modulus: 127, order: default, cofactor: default, gx: default, gy: default);
             var p = curve.CreatePoint(16, 20);
             var q = curve.CreatePoint(41, 120);
             var r = p + q;
@@ -20,7 +20,7 @@ namespace Ecc.Tests {
         [TestCase(16, 20, 97, 81)]
         [TestCase(41, 120, 42, 95)]
         public void AddSameTest(int sx, int sy, int tx, int ty) {
-            var curve = new ECCurve(name: null, a: -1, b: 3, modulus: 127, order: default, cofactor: default, gx: default, gy: default);
+            var curve = new ECCurve(name: null, a: 126, b: 3, modulus: 127, order: default, cofactor: default, gx: default, gy: default);
             var p = curve.CreatePoint(sx, sy);
             var r = p + p;
             ClassicAssert.AreEqual(new BigInteger(tx), r.X);

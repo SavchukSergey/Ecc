@@ -6,16 +6,16 @@ using Ecc.Math;
 namespace Ecc {
     public readonly struct ECPoint256 {
 
-        public readonly BigInteger X;
+        public readonly BigInteger256 X;
 
-        public readonly BigInteger Y;
+        public readonly BigInteger256 Y;
 
         public readonly ECCurve256 Curve;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ECPoint256(in BigInteger256 x, in BigInteger256 y, ECCurve256 curve) {
-            X = x.ToNative();
-            Y = y.ToNative();
+            X = x;
+            Y = y;
             Curve = curve;
         }
 
@@ -32,23 +32,28 @@ namespace Ecc {
             var curve = left.Curve;
             var modulus = curve.Modulus;
 
-            var dy = right.Y - left.Y;
-            var dx = right.X - left.X;
+            var dy = right.Y.ModSub(left.Y, curve.Modulus);
+            var dx = right.X.ModSub(left.X, curve.Modulus);
 
             if (dx.IsZero && !dy.IsZero) {
                 return Infinity;
             }
 
+            //todo: left.X.ModSquare(curve.Modulus) can be cached in point
             var m = dx.IsZero ?
-                ((3 * left.X * left.X + curve.A) * (2 * left.Y).ModInverse(modulus.ToNative())).ModAbs(modulus.ToNative()) :
-                (dy * dx.ModInverse(modulus.ToNative())).ModAbs(modulus.ToNative());
+                new BigInteger256(3).ModMul(
+                    left.X.ModSquare(curve.Modulus),
+                    curve.Modulus
+                ).ModAdd(curve.A, curve.Modulus).ModDiv(left.Y.ModDouble(curve.Modulus), curve.Modulus) :
+                dy.ModDiv(dx, modulus);
 
-            var rx = m * m - left.X - right.X;
-            var ry = m * (left.X - rx) - left.Y;
+            var m2 = m.ModSquare(curve.Modulus);
+            var rx = m2.ModSub(left.X, curve.Modulus).ModSub(right.X, curve.Modulus);
+            var ry = m.ModMul(left.X.ModSub(rx, curve.Modulus), curve.Modulus).ModSub(left.Y, curve.Modulus);
 
             return new ECPoint256(
-                new BigInteger256(rx.ModAbs(modulus.ToNative())),
-                new BigInteger256(ry.ModAbs(modulus.ToNative())),
+                rx,
+                ry,
                 curve
             );
         }
