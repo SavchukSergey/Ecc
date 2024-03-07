@@ -192,9 +192,25 @@ namespace Ecc.Math {
         }
 
         public void AssignLeftShiftQuarter() {
-            for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
-                Data[i] = Data[i - ITEMS_SIZE / 4];
-            }
+            Data[7] = Data[5];
+            Data[6] = Data[4];
+            Data[5] = Data[3];
+            Data[4] = Data[2];
+            Data[3] = Data[1];
+            Data[2] = Data[0];
+            Data[1] = 0;
+            Data[0] = 0;
+        }
+
+        public void AssignLeftShiftHalf() {
+            Data[7] = Data[3];
+            Data[6] = Data[2];
+            Data[5] = Data[1];
+            Data[4] = Data[0];
+            Data[3] = 0;
+            Data[2] = 0;
+            Data[1] = 0;
+            Data[0] = 0;
         }
 
         public uint AssignShiftLeft() {

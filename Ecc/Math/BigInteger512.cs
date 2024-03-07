@@ -120,15 +120,41 @@ namespace Ecc.Math {
         }
 
         public void AssignLeftShiftQuarter() {
-            for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
-                Data[i] = Data[i - ITEMS_SIZE / 4];
-            }
+            Data[15] = Data[11];
+            Data[14] = Data[10];
+            Data[13] = Data[9];
+            Data[12] = Data[8];
+            Data[11] = Data[7];
+            Data[10] = Data[6];
+            Data[9] = Data[5];
+            Data[8] = Data[4];
+            Data[7] = Data[3];
+            Data[6] = Data[2];
+            Data[5] = Data[1];
+            Data[4] = Data[0];
+            Data[3] = 0;
+            Data[2] = 0;
+            Data[1] = 0;
+            Data[0] = 0;
         }
 
         public void AssignLeftShiftHalf() {
-            for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
-                Data[i] = Data[i - ITEMS_SIZE / 2];
-            }
+            Data[15] = Data[7];
+            Data[14] = Data[6];
+            Data[13] = Data[5];
+            Data[12] = Data[4];
+            Data[11] = Data[3];
+            Data[10] = Data[2];
+            Data[9] = Data[1];
+            Data[8] = Data[0];
+            Data[7] = 0;
+            Data[6] = 0;
+            Data[5] = 0;
+            Data[4] = 0;
+            Data[3] = 0;
+            Data[2] = 0;
+            Data[1] = 0;
+            Data[0] = 0;
         }
 
         public readonly BigInteger256 GetLow() {

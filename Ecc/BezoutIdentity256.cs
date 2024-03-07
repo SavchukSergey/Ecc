@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Ecc.Math;
 
 namespace Ecc {
     public readonly struct BezoutIdentity256 {
@@ -7,11 +8,11 @@ namespace Ecc {
 
         public readonly BigInteger Y { get; init; }
 
-        public readonly BigInteger A { get; init; }
+        public readonly BigInteger256 A { get; init; }
 
-        public readonly BigInteger B { get; init; }
+        public readonly BigInteger256 B { get; init; }
 
-        public readonly BigInteger Gcd => A * X + B * Y;
+        public readonly BigInteger Gcd => A.ToNative() * X + B.ToNative() * Y;
 
     }
 }

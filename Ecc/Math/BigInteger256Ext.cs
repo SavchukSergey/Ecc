@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
@@ -127,20 +127,25 @@ namespace Ecc.Math {
             return res;
         }
 
+        public static BigInteger256 DivRem(BigInteger256 dividend, BigInteger256 divisor, out BigInteger256 remainder) {
+            var res = BigInteger.DivRem(dividend.ToNative(), divisor.ToNative(), out var rem);
+            remainder = new BigInteger256(rem);
+            return new BigInteger256(res);
+        }
+
         public static BezoutIdentity256 EuclidExtended(in BigInteger256 a, in BigInteger256 b) {
-            var an = a.ToNative();
-            var bn = b.ToNative();
             var s0 = BigInteger.One;
             var t0 = BigInteger.Zero;
             var s1 = BigInteger.Zero;
             var t1 = BigInteger.One;
-            var r0 = an;
-            var r1 = bn;
+            var r0 = a;
+            var r1 = b;
 
             while (!r1.IsZero) {
-                var quotient = BigInteger.DivRem(r0, r1, out var r2);
-                var s2 = s0 - quotient * s1;
-                var t2 = t0 - quotient * t1;
+                var quotient = DivRem(r0, r1, out var r2);
+                var qn = quotient.ToNative();
+                var s2 = s0 - qn * s1;
+                var t2 = t0 - qn * t1;
                 s0 = s1;
                 s1 = s2;
                 t0 = t1;
@@ -149,8 +154,8 @@ namespace Ecc.Math {
                 r1 = r2;
             }
             return new BezoutIdentity256 {
-                A = an,
-                B = bn,
+                A = a,
+                B = b,
                 X = s0,
                 Y = t0
             };
