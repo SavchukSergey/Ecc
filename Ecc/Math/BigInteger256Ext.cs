@@ -62,18 +62,6 @@ namespace Ecc.Math {
             return reverse;
         }
 
-        public static byte[] ToBigEndianBytes(this in BigInteger256 val, byte[] data, int offset, int length) {
-            var src = val.ToNative().ToByteArray();
-            var actualLength = System.Math.Min(src.Length, length);
-            for (var i = 0; i < actualLength; i++) {
-                data[i + offset] = src[actualLength - i - 1];
-            }
-            for (var i = actualLength; i < length; i++) {
-                data[i + offset] = 0;
-            }
-            return data;
-        }
-
         public static BigInteger256 ModSqrt(this in BigInteger256 val, in BigInteger256 modulus) {
             var exp = modulus.ModAdd(new BigInteger256(1), modulus).ModDiv(new BigInteger256(4), modulus);
             return val.ModPow(exp, modulus);

@@ -457,7 +457,7 @@ namespace Ecc.Math {
         }
 
         public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-           return DivRemBits(dividend, divisor, out remainder);
+            return DivRemBits(dividend, divisor, out remainder);
             // var res = BigInteger.DivRem(dividend.ToNative(), divisor.ToNative(), out var rem);
             // remainder = new BigInteger256(rem);
             // return new BigInteger256(res);
@@ -529,6 +529,21 @@ namespace Ecc.Math {
                 buffer[ptr++] = (byte)val;
             }
             return true;
+        }
+
+        public readonly void WriteBigEndian(Span<byte> buffer) {
+            var ptr = 0;
+            for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
+                var val = Data[i];
+                buffer[ptr + 3] = (byte)(val & 0xff);
+                val >>= 8;
+                buffer[ptr + 2] = (byte)(val & 0xff);
+                val >>= 8;
+                buffer[ptr + 1] = (byte)(val & 0xff);
+                val >>= 8;
+                buffer[ptr] = (byte)val;
+                ptr += 4;
+            }
         }
 
         public override int GetHashCode() {

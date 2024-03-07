@@ -92,17 +92,17 @@ namespace Ecc {
 
         public readonly byte[] GetBytes(bool compress = true) {
             if (IsInfinity) return [0];
-            var keySize = Curve.KeySize8;
+            var keySize = Curve.KeySize8; //todo: this implies that keysize is 256. But it foes not have to
             if (compress) {
                 var res = new byte[keySize + 1];
                 res[0] = Y.IsEven ? (byte)2 : (byte)3;
-                X.ToBigEndianBytes(res, 1, keySize);
+                X.WriteBigEndian(res.AsSpan(1));
                 return res;
             } else {
                 var res = new byte[2 * keySize + 1];
                 res[0] = 4;
-                X.ToBigEndianBytes(res, 1, keySize);
-                Y.ToBigEndianBytes(res, 1 + keySize, keySize);
+                X.WriteBigEndian(res.AsSpan(1));
+                Y.WriteBigEndian(res.AsSpan(1 + keySize));
                 return res;
             }
         }
