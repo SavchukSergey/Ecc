@@ -47,9 +47,14 @@ namespace Ecc.Math {
             High = new BigInteger256(0);
         }
 
-        public BigInteger512(BigInteger256 low, BigInteger256 high) {
+        public BigInteger512(in BigInteger256 low, in BigInteger256 high) {
             Low = low;
             High = high;
+        }
+
+        public BigInteger512(in BigInteger512 other) {
+            Low = other.Low;
+            High = other.High;
         }
 
         [Obsolete]
@@ -205,16 +210,7 @@ namespace Ecc.Math {
             return carry;
         }
 
-        public void ZeroExtendFrom(in BigInteger256 source) {
-            for (var i = 0; i < BigInteger256.ITEMS_SIZE; i++) {
-                Data[i] = source.Data[i];
-            }
-            for (var i = BigInteger256.ITEMS_SIZE; i < ITEMS_SIZE; i++) {
-                Data[i] = 0;
-            }
-        }
-
-        public readonly int Compare(in BigInteger512 other) {
+         public readonly int Compare(in BigInteger512 other) {
             for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
                 var leftBt = Data[i];
                 var rightBt = other.Data[i];
@@ -228,16 +224,9 @@ namespace Ecc.Math {
             return 0;
         }
 
-        public static BigInteger512 operator +(BigInteger512 left, BigInteger512 right) {
-            var res = new BigInteger512();
-            bool carry = false;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                ulong acc = left.Data[i];
-                acc += right.Data[i];
-                acc += carry ? 1ul : 0ul;
-                res.Data[i] = (uint)acc;
-                carry = acc > uint.MaxValue;
-            }
+        public static BigInteger512 operator +(in BigInteger512 left, in BigInteger512 right) {
+            var res = new BigInteger512(left);
+            res.AssignAdd(right);
             return res;
         }
 

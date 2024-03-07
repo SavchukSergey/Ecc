@@ -45,7 +45,7 @@ namespace Ecc {
             if (p.X.IsZero) return null;
             var a = p.X.ModMul(D, Curve.Order);
             a.AssignModAdd(message, Curve.Order);
-            var s = a.ModMul(BigInteger256Ext.ModInverse(random, Curve.Order), Curve.Order);
+            var s = a.ModDiv(random, Curve.Order);
             if (s.IsZero) return null;
             return new ECSignature256(p.X, s, Curve);
         }

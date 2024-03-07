@@ -30,7 +30,6 @@ namespace Ecc {
             if (right.IsInfinity) return left;
 
             var curve = left.Curve;
-            var modulus = curve.Modulus;
 
             var dy = right.Y.ModSub(left.Y, curve.Modulus);
             var dx = right.X.ModSub(left.X, curve.Modulus);
@@ -41,11 +40,8 @@ namespace Ecc {
 
             //todo: left.X.ModSquare(curve.Modulus) can be cached in point
             var m = dx.IsZero ?
-                new BigInteger256(3).ModMul(
-                    left.X.ModSquare(curve.Modulus),
-                    curve.Modulus
-                ).ModAdd(curve.A, curve.Modulus).ModDiv(left.Y.ModDouble(curve.Modulus), curve.Modulus) :
-                dy.ModDiv(dx, modulus);
+                left.X.ModSquare(curve.Modulus).ModTriple(curve.Modulus).ModAdd(curve.A, curve.Modulus).ModDiv(left.Y.ModDouble(curve.Modulus), curve.Modulus) :
+                dy.ModDiv(dx, curve.Modulus);
 
             var m2 = m.ModSquare(curve.Modulus);
             var rx = m2.ModSub(left.X, curve.Modulus).ModSub(right.X, curve.Modulus);

@@ -82,6 +82,11 @@ namespace Ecc.Math {
             High = high;
         }
 
+        public BigInteger256(in BigInteger256 other) {
+            Low = other.Low;
+            High = other.High;
+        }
+
         [Obsolete]
         public BigInteger256(in BigInteger value) {
             var data = value.ToByteArray(isBigEndian: false);
@@ -148,15 +153,15 @@ namespace Ecc.Math {
         }
 
         public void AssignModAdd(in BigInteger256 other, in BigInteger256 modulus) {
-            bool carry = false;
+            ulong carry = 0;
             for (var i = 0; i < ITEMS_SIZE; i++) {
                 ulong acc = Data[i];
                 acc += other.Data[i];
-                acc += carry ? 1ul : 0ul;
+                acc += carry;
                 Data[i] = (uint)acc;
-                carry = acc > uint.MaxValue;
+                carry = acc >> 32;
             }
-            if (carry || this >= modulus) {
+            if (carry > 0 || this >= modulus) {
                 AssignSub(modulus);
             }
         }
@@ -166,15 +171,15 @@ namespace Ecc.Math {
         }
 
         public bool AssignAdd(in BigInteger256 other) {
-            bool carry = false;
+            ulong carry = 0;
             for (var i = 0; i < ITEMS_SIZE; i++) {
                 ulong acc = Data[i];
                 acc += other.Data[i];
-                acc += carry ? 1ul : 0ul;
+                acc += carry;
                 Data[i] = (uint)acc;
-                carry = acc > uint.MaxValue;
+                carry = acc >> 32;
             }
-            return carry;
+            return carry > 0;
         }
 
         public bool AssignSub(in BigInteger256 other) {
@@ -205,28 +210,9 @@ namespace Ecc.Math {
             Low = 0;
         }
 
-        public uint AssignShiftLeft() {
-            uint carry = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                var sum = (ulong)carry;
-                sum += Data[i];
-                sum += Data[i];
-                Data[i] = (uint)sum;
-                carry = (uint)(sum >> 32);
-            }
-            return carry;
-        }
-
         public readonly BigInteger256 ModAdd(in BigInteger256 other, in BigInteger256 modulus) {
-            var res = new BigInteger256(); //todo: unneccessary zeroing
-            bool carry = false;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                ulong acc = Data[i];
-                acc += other.Data[i];
-                acc += carry ? 1ul : 0ul;
-                res.Data[i] = (uint)acc;
-                carry = acc > uint.MaxValue;
-            }
+            var res = new BigInteger256(this);
+            var carry = res.AssignAdd(other);
             if (carry || res >= modulus) {
                 res.AssignSub(modulus);
             }
@@ -249,8 +235,11 @@ namespace Ecc.Math {
             return res;
         }
 
-        public readonly void ModMul(in BigInteger256 other, in BigInteger256 modulus, out BigInteger256 result) {
-            result = ((this * other) % new BigInteger512(modulus)).Low;
+        public readonly BigInteger256 ModTriple(in BigInteger256 modulus) {
+            var res = Clone();
+            res.AssignModAdd(this, modulus);
+            res.AssignModAdd(this, modulus);
+            return res;
         }
 
         // public readonly void ModMul(in BigInteger256 other, in BigInteger256 modulus, out BigInteger256 result) {
@@ -270,7 +259,20 @@ namespace Ecc.Math {
         // }
 
         public readonly BigInteger256 ModMul(in BigInteger256 other, in BigInteger256 modulus) {
-            ModMul(other, modulus, out var result);
+            //todo: modular all the way
+            return ((this * other) % new BigInteger512(modulus)).Low;
+            // return ModMulBit(other, modulus);
+        }
+
+        public readonly BigInteger256 ModMulBit(in BigInteger256 other, in BigInteger256 modulus) {
+            var result = new BigInteger256(0);
+            var acc = new BigInteger256(this);
+            for (var i = 0; i < BITS_SIZE; i++) {
+                if (other.GetBit(i)) {
+                    result.AssignModAdd(acc, modulus);
+                }
+                acc.AssignModDouble(modulus);
+            }
             return result;
         }
 
@@ -299,6 +301,13 @@ namespace Ecc.Math {
         public readonly BigInteger256 ModDouble(in BigInteger256 modulus) {
             return ModAdd(this, modulus);
         }
+
+        public readonly BigInteger256 ModInverse(in BigInteger256 modulus) {
+            return new BigInteger256(
+                BigInteger256Ext.EuclidExtended(this, modulus).X.ModAbs(modulus.ToNative())
+            );
+        }
+
 
         public readonly int Compare(in BigInteger256 other) {
             for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
@@ -402,20 +411,13 @@ namespace Ecc.Math {
         }
 
         [Obsolete]
-        public static BigInteger256 operator %(BigInteger256 left, BigInteger256 right) {
+        public static BigInteger256 operator %(in BigInteger256 left, in BigInteger256 right) {
             return new BigInteger256(left.ToNative() % right.ToNative());
         }
 
-        public static BigInteger256 operator +(BigInteger256 left, BigInteger256 right) {
-            var res = new BigInteger256();
-            bool carry = false;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                ulong acc = left.Data[i];
-                acc += right.Data[i];
-                acc += carry ? 1ul : 0ul;
-                res.Data[i] = (uint)acc;
-                carry = acc > uint.MaxValue;
-            }
+        public static BigInteger256 operator +(in BigInteger256 left, in BigInteger256 right) {
+            var res = new BigInteger256(left);
+            res.AssignAdd(right);
             return res;
         }
 
@@ -457,25 +459,25 @@ namespace Ecc.Math {
         }
 
         public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-            // var result = new BigInteger256();
-            // var value = new BigInteger512(dividend);
-            // var bit = BITS_SIZE - 1;
-            // for (var i = 0; i < BITS_SIZE; i++) {
-            //     value.AssignLeftShift();
-            //     if (value.High >= divisor) {
-            //         value.High.AssignSub(divisor);
-            //         result.SetBit(bit);
-            //     }
-            //     bit--;
-            // }
-            // remainder = value.High;
-            // return result;
-
-            //todo: abolve is extemely slow
             var res = BigInteger.DivRem(dividend.ToNative(), divisor.ToNative(), out var rem);
             remainder = new BigInteger256(rem);
             return new BigInteger256(res);
+        }
 
+        public static BigInteger256 DivRemBits(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
+            var result = new BigInteger256();
+            var value = new BigInteger512(dividend);
+            var bit = BITS_SIZE - 1;
+            for (var i = 0; i < BITS_SIZE; i++) {
+                value.AssignLeftShift();
+                if (value.High >= divisor) {
+                    value.High.AssignSub(divisor);
+                    result.SetBit(bit);
+                }
+                bit--;
+            }
+            remainder = value.High;
+            return result;
         }
 
         public void ReadFromHex(ReadOnlySpan<char> str) {

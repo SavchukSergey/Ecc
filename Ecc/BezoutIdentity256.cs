@@ -12,7 +12,7 @@ namespace Ecc {
 
         public readonly BigInteger256 B { get; init; }
 
-        public readonly BigInteger Gcd => A.ToNative() * X + B.ToNative() * Y;
+        // public readonly BigInteger Gcd => A.ToNative() * X + B.ToNative() * Y;
 
     }
 }

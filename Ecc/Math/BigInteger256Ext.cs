@@ -20,13 +20,6 @@ namespace Ecc.Math {
             return val % modulus;
         }
 
-        //todo: use out param instead on return
-        public static BigInteger256 ModInverse(this in BigInteger256 val, in BigInteger256 modulus) {
-            return new BigInteger256(
-                EuclidExtended(val, modulus).X.ModAbs(modulus.ToNative())
-            );
-        }
-
         public static BigInteger256 ModDiv(this in BigInteger256 a, in BigInteger256 b, in BigInteger256 modulus) {
             return a.ModMul(b.ModInverse(modulus), modulus);
         }
