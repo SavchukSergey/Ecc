@@ -303,9 +303,7 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger256 ModInverse(in BigInteger256 modulus) {
-            return new BigInteger256(
-                BigInteger256Ext.EuclidExtended(this, modulus).X.ModAbs(modulus.ToNative())
-            );
+            return BigInteger256Ext.EuclidExtended(this, modulus).X % modulus;
         }
 
 
@@ -410,9 +408,9 @@ namespace Ecc.Math {
             return x0 + x1 + x2;
         }
 
-        [Obsolete]
         public static BigInteger256 operator %(in BigInteger256 left, in BigInteger256 right) {
-            return new BigInteger256(left.ToNative() % right.ToNative());
+            DivRem(left, right, out var reminder);
+            return reminder;
         }
 
         public static BigInteger256 operator +(in BigInteger256 left, in BigInteger256 right) {
@@ -459,9 +457,10 @@ namespace Ecc.Math {
         }
 
         public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-            var res = BigInteger.DivRem(dividend.ToNative(), divisor.ToNative(), out var rem);
-            remainder = new BigInteger256(rem);
-            return new BigInteger256(res);
+           return DivRemBits(dividend, divisor, out remainder);
+            // var res = BigInteger.DivRem(dividend.ToNative(), divisor.ToNative(), out var rem);
+            // remainder = new BigInteger256(rem);
+            // return new BigInteger256(res);
         }
 
         public static BigInteger256 DivRemBits(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {

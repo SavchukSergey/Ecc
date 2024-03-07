@@ -122,24 +122,34 @@ namespace Ecc.Math {
         }
 
         public static BezoutIdentity256 EuclidExtended(in BigInteger256 a, in BigInteger256 b) {
-            var s0 = BigInteger.One;
-            var t0 = BigInteger.Zero;
-            var s1 = BigInteger.Zero;
-            var t1 = BigInteger.One;
+            var s0 = new BigInteger256(1);
+            var t0 = new BigInteger256(0);
+            var s1 = new BigInteger256(0);
+            var t1 = new BigInteger256(1);
             var r0 = a;
             var r1 = b;
 
+            //todo: optimize
+
+            var cnt = false;
             while (!r1.IsZero) {
                 var quotient = BigInteger256.DivRem(r0, r1, out var r2);
-                var qn = quotient.ToNative();
-                var s2 = s0 - qn * s1;
-                var t2 = t0 - qn * t1;
-                s0 = s1;
-                s1 = s2;
-                t0 = t1;
-                t1 = t2;
-                r0 = r1;
-                r1 = r2;
+                var qr1 = quotient * r1;
+                var qs1 = quotient * s1;
+                var qt1 = quotient * t1;
+
+                r0 = r0 > new BigInteger256(qr1.Low) ? r2 : new BigInteger256(0) - r2;
+                (r1, r0) = (r0, r1);
+                s0 = s0 + qs1.Low;
+                (s1, s0) = (s0, s1);
+                t0 = t0 + qt1.Low;
+                (t1, t0) = (t0, t1);
+                cnt = !cnt;
+            }
+            if (cnt) {
+                s0 = b - s0;
+            } else {
+                t0 = a - t0;
             }
             return new BezoutIdentity256 {
                 A = a,
