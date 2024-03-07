@@ -8,6 +8,7 @@ namespace Ecc.Math {
 
         private static RandomNumberGenerator _cng = RandomNumberGenerator.Create();
 
+
         [Obsolete]
         public static BigInteger ModAbs(this in BigInteger val, in BigInteger modulus) {
             if (val.Sign == -1) {
@@ -127,12 +128,6 @@ namespace Ecc.Math {
             return res;
         }
 
-        public static BigInteger256 DivRem(BigInteger256 dividend, BigInteger256 divisor, out BigInteger256 remainder) {
-            var res = BigInteger.DivRem(dividend.ToNative(), divisor.ToNative(), out var rem);
-            remainder = new BigInteger256(rem);
-            return new BigInteger256(res);
-        }
-
         public static BezoutIdentity256 EuclidExtended(in BigInteger256 a, in BigInteger256 b) {
             var s0 = BigInteger.One;
             var t0 = BigInteger.Zero;
@@ -142,7 +137,7 @@ namespace Ecc.Math {
             var r1 = b;
 
             while (!r1.IsZero) {
-                var quotient = DivRem(r0, r1, out var r2);
+                var quotient = BigInteger256.DivRem(r0, r1, out var r2);
                 var qn = quotient.ToNative();
                 var s2 = s0 - qn * s1;
                 var t2 = t0 - qn * t1;

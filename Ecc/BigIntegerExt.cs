@@ -6,7 +6,7 @@ using System.Text;
 namespace Ecc {
     public static class BigIntegerExt {
 
-        private static RandomNumberGenerator _cng = RandomNumberGenerator.Create();
+        private static readonly RandomNumberGenerator _cng = RandomNumberGenerator.Create();
 
         public static BigInteger ModAbs(this in BigInteger val, in BigInteger modulus) {
             if (val.Sign == -1) {

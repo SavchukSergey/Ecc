@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Ecc.Math {
+    [StructLayout(LayoutKind.Explicit, Size = 32)]
     public unsafe struct BigInteger256 {
 
         public const int BITS_SIZE = 256;
@@ -11,12 +13,18 @@ namespace Ecc.Math {
         private const int ITEM_BITS_SIZE = 32;
         internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
 
-        internal fixed uint Data[ITEMS_SIZE];
+        [FieldOffset(0)]
+        internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
+
+        [FieldOffset(0)]
+        public UInt128 Low;
+
+        [FieldOffset(16)]
+        public UInt128 High;
 
         public BigInteger256() {
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                Data[i] = 0;
-            }
+            Low = 0;
+            High = 0;
         }
 
         public BigInteger256(uint value) {
@@ -64,19 +72,14 @@ namespace Ecc.Math {
             }
         }
 
-        public BigInteger256(UInt128 value) {
-            ZeroExtendFrom(value);
+        public BigInteger256(UInt128 low) {
+            Low = low;
+            High = 0;
         }
 
         public BigInteger256(UInt128 low, UInt128 high) {
-            Data[0] = (uint)low;
-            Data[1] = (uint)(low >> 32);
-            Data[2] = (uint)(low >> 64);
-            Data[3] = (uint)(low >> 96);
-            Data[4] = (uint)high;
-            Data[5] = (uint)(high >> 32);
-            Data[6] = (uint)(high >> 64);
-            Data[7] = (uint)(high >> 96);
+            Low = low;
+            High = high;
         }
 
         [Obsolete]
@@ -113,18 +116,18 @@ namespace Ecc.Math {
             return (Data[btIndex] & (1 << (index & 0x1f))) != 0;
         }
 
+        public void SetBit(int index) {
+            var btIndex = index >> 5;
+            Data[btIndex] |= (uint)(1 << (index & 0x1f));
+        }
+
         public readonly uint GetItem(int index) {
             return Data[index];
         }
 
         public readonly bool IsZero {
             get {
-                for (var i = 0; i < ITEMS_SIZE; i++) {
-                    if (Data[i] != 0) {
-                        return false;
-                    }
-                }
-                return true;
+                return Low == 0 && High == 0;
             }
         }
 
@@ -136,17 +139,12 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger256 Clone() {
-            var res = new BigInteger256();
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                res.Data[i] = Data[i];
-            }
-            return res;
+            return new BigInteger256(Low, High);
         }
 
         public void Clear() {
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                Data[i] = 0;
-            }
+            Low = 0;
+            High = 0;
         }
 
         public void AssignModAdd(in BigInteger256 other, in BigInteger256 modulus) {
@@ -203,14 +201,8 @@ namespace Ecc.Math {
         }
 
         public void AssignLeftShiftHalf() {
-            Data[7] = Data[3];
-            Data[6] = Data[2];
-            Data[5] = Data[1];
-            Data[4] = Data[0];
-            Data[3] = 0;
-            Data[2] = 0;
-            Data[1] = 0;
-            Data[0] = 0;
+            High = Low;
+            Low = 0;
         }
 
         public uint AssignShiftLeft() {
@@ -223,22 +215,6 @@ namespace Ecc.Math {
                 carry = (uint)(sum >> 32);
             }
             return carry;
-        }
-
-        public readonly UInt128 GetLow() {
-            var b0 = (ulong)Data[0];
-            var b1 = (ulong)Data[1];
-            var b2 = (ulong)Data[2];
-            var b3 = (ulong)Data[3];
-            return new UInt128((b3 << 32) + b2, (b1 << 32) + b0);
-        }
-
-        public readonly UInt128 GetHigh() {
-            var b4 = (ulong)Data[4];
-            var b5 = (ulong)Data[5];
-            var b6 = (ulong)Data[6];
-            var b7 = (ulong)Data[7];
-            return new UInt128((b7 << 32) + b6, (b5 << 32) + b4);
         }
 
         public readonly BigInteger256 ModAdd(in BigInteger256 other, in BigInteger256 modulus) {
@@ -274,7 +250,7 @@ namespace Ecc.Math {
         }
 
         public readonly void ModMul(in BigInteger256 other, in BigInteger256 modulus, out BigInteger256 result) {
-            result = ((this * other) % new BigInteger512(modulus)).GetLow();
+            result = ((this * other) % new BigInteger512(modulus)).Low;
         }
 
         // public readonly void ModMul(in BigInteger256 other, in BigInteger256 modulus, out BigInteger256 result) {
@@ -324,17 +300,6 @@ namespace Ecc.Math {
             return ModAdd(this, modulus);
         }
 
-        public void ZeroExtendFrom(in UInt128 source) {
-            Data[0] = (uint)source;
-            Data[1] = (uint)(source >> 32);
-            Data[2] = (uint)(source >> 64);
-            Data[3] = (uint)(source >> 96);
-            Data[4] = 0;
-            Data[5] = 0;
-            Data[6] = 0;
-            Data[7] = 0;
-        }
-
         public readonly int Compare(in BigInteger256 other) {
             for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
                 var leftBt = Data[i];
@@ -350,15 +315,17 @@ namespace Ecc.Math {
         }
 
         public static int Compare(in BigInteger256 left, in BigInteger256 right) {
-            for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
-                var leftBt = left.Data[i];
-                var rightBt = right.Data[i];
-                if (leftBt > rightBt) {
-                    return 1;
-                }
-                if (leftBt < rightBt) {
-                    return -1;
-                }
+            if (left.High < right.High) {
+                return -1;
+            }
+            if (left.High > right.High) {
+                return 1;
+            }
+            if (left.Low < right.Low) {
+                return -1;
+            }
+            if (left.Low > right.Low) {
+                return 1;
             }
             return 0;
         }
@@ -388,16 +355,15 @@ namespace Ecc.Math {
             return new BigInteger(array, isUnsigned: true, isBigEndian: false);
         }
 
-        [Obsolete]
-        public static BigInteger256 operator /(BigInteger256 left, BigInteger256 right) {
-            return new BigInteger256(left.ToNative() / right.ToNative());
+        public static BigInteger256 operator /(in BigInteger256 left, in BigInteger256 right) {
+            return DivRem(left, right, out var _);
         }
 
         public static BigInteger512 operator *(in BigInteger256 left, in BigInteger256 right) {
-            var ah = left.GetHigh();
-            var al = left.GetLow();
-            var bh = right.GetHigh();
-            var bl = right.GetLow();
+            var ah = left.High;
+            var al = left.Low;
+            var bh = right.High;
+            var bl = right.Low;
 
             var zero = new BigInteger256(0);
             var x0 = new BigInteger512(Mul128(al, bl), zero);
@@ -490,6 +456,28 @@ namespace Ecc.Math {
             return Compare(left, right) != 0;
         }
 
+        public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
+            // var result = new BigInteger256();
+            // var value = new BigInteger512(dividend);
+            // var bit = BITS_SIZE - 1;
+            // for (var i = 0; i < BITS_SIZE; i++) {
+            //     value.AssignLeftShift();
+            //     if (value.High >= divisor) {
+            //         value.High.AssignSub(divisor);
+            //         result.SetBit(bit);
+            //     }
+            //     bit--;
+            // }
+            // remainder = value.High;
+            // return result;
+
+            //todo: abolve is extemely slow
+            var res = BigInteger.DivRem(dividend.ToNative(), divisor.ToNative(), out var rem);
+            remainder = new BigInteger256(rem);
+            return new BigInteger256(res);
+
+        }
+
         public void ReadFromHex(ReadOnlySpan<char> str) {
             if (str.Length > BYTES_SIZE * 2) {
                 throw new ArgumentException($"Expected hex string with {BYTES_SIZE * 2} characters");
@@ -507,7 +495,7 @@ namespace Ecc.Math {
             }
         }
 
-        public readonly string ToHexUnsigned(int length) {
+        public readonly string ToHexUnsigned(int length = 32) {
             var sbLength = (int)length * 2;
             var sb = new StringBuilder(sbLength, sbLength);
             var dataLength = BYTES_SIZE;

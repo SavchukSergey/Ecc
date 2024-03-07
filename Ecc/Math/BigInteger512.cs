@@ -1,8 +1,10 @@
 using System;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Ecc.Math {
+    [StructLayout(LayoutKind.Explicit, Size = 64)]
     public unsafe struct BigInteger512 {
 
         public const int BITS_SIZE = 512;
@@ -10,7 +12,14 @@ namespace Ecc.Math {
         private const int ITEM_BITS_SIZE = 32;
         internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
 
-        internal fixed uint Data[ITEMS_SIZE];
+        [FieldOffset(0)]
+        internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
+
+        [FieldOffset(0)]
+        public BigInteger256 Low;
+
+        [FieldOffset(32)]
+        public BigInteger256 High;
 
         public BigInteger512() {
             for (var i = 0; i < ITEMS_SIZE; i++) {
@@ -34,16 +43,13 @@ namespace Ecc.Math {
         }
 
         public BigInteger512(in BigInteger256 value) {
-            ZeroExtendFrom(value);
+            Low = value;
+            High = new BigInteger256(0);
         }
 
         public BigInteger512(BigInteger256 low, BigInteger256 high) {
-            for (var i = 0; i < BigInteger256.ITEMS_SIZE; i++) {
-                Data[i] = low.Data[i];
-            }
-            for (var i = 0; i < BigInteger256.ITEMS_SIZE; i++) {
-                Data[i + BigInteger256.ITEMS_SIZE] = high.Data[i];
-            }
+            Low = low;
+            High = high;
         }
 
         [Obsolete]
@@ -80,12 +86,7 @@ namespace Ecc.Math {
 
         public readonly bool IsZero {
             get {
-                for (var i = 0; i < ITEMS_SIZE; i++) {
-                    if (Data[i] != 0) {
-                        return false;
-                    }
-                }
-                return true;
+                return Low.IsZero && High.IsZero;
             }
         }
 
@@ -157,12 +158,23 @@ namespace Ecc.Math {
             Data[0] = 0;
         }
 
-        public readonly BigInteger256 GetLow() {
-            return new BigInteger256(Data[0], Data[1], Data[2], Data[3], Data[4], Data[5], Data[6], Data[7]);
-        }
-
-        public readonly BigInteger256 GetHigh() {
-            return new BigInteger256(Data[8], Data[9], Data[10], Data[11], Data[12], Data[13], Data[14], Data[15]);
+        public void AssignLeftShift32() {
+            Data[15] = Data[14];
+            Data[14] = Data[13];
+            Data[13] = Data[12];
+            Data[12] = Data[11];
+            Data[11] = Data[10];
+            Data[10] = Data[9];
+            Data[9] = Data[8];
+            Data[8] = Data[7];
+            Data[7] = Data[6];
+            Data[6] = Data[5];
+            Data[5] = Data[4];
+            Data[4] = Data[3];
+            Data[3] = Data[2];
+            Data[2] = Data[1];
+            Data[1] = Data[0];
+            Data[0] = 0;
         }
 
         public bool Sub(in BigInteger512 other) {
@@ -175,6 +187,10 @@ namespace Ecc.Math {
                 carry = acc > uint.MaxValue;
             }
             return carry;
+        }
+
+        public bool AssignLeftShift() {
+            return AssignAdd(this);
         }
 
         public uint ShiftLeft() {

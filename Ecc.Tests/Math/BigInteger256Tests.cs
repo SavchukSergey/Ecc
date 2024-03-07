@@ -36,10 +36,31 @@ namespace Ecc.Tests.Math {
         }
 
         [Test]
-        public void ClearIsZeroTest() {
-            var bi = new BigInteger256();
-            bi.Clear();
-            ClassicAssert.IsTrue(bi.IsZero);
+        public void CtorU128Test() {
+            var lower = new UInt128(0xfedcba9876543210, 0x0123456789abcdeful);
+            var bi = new BigInteger256(lower);
+            ClassicAssert.AreEqual("00000000000000000000000000000000fedcba98765432100123456789abcdef", bi.ToHexUnsigned());
+        }
+
+
+        [Test]
+        public void LowTest() {
+            var bi = BigInteger256Ext.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            ClassicAssert.AreEqual("3cfcc1a04fafa2ddb6ca6869bf272715", bi.Low.ToString("x"));
+        }
+
+        [Test]
+        public void HighTest() {
+            var bi = BigInteger256Ext.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            ClassicAssert.AreEqual("7846e3be8abd2e089ed812475be9b51c", bi.High.ToString("x"));
+        }
+
+
+        [Test]
+        public void IsZeroTest() {
+            ClassicAssert.IsTrue(new BigInteger256(0).IsZero);
+            ClassicAssert.IsFalse(new BigInteger256(1).IsZero);
+            ClassicAssert.IsFalse(new BigInteger256(1, 2, 3, 4).IsZero);
         }
 
         [Test]
@@ -114,6 +135,16 @@ namespace Ecc.Tests.Math {
         }
 
         [Test]
+        public void DivRemTest() {
+            var left = BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var right = BigInteger256Ext.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+
+            var res = BigInteger256.DivRem(left, right, out var reminder);
+            ClassicAssert.AreEqual("0000000000000000000000000000000000000000000000000000000000001dd1", res.ToHexUnsigned());
+            ClassicAssert.AreEqual("000281ef5cfc207bed7ea4cd27f4c9cb67ecbbe71173faa1d91045903b8a16c0", reminder.ToHexUnsigned());
+        }
+
+        [Test]
         public void ShiftLeftTest() {
             var bi = new BigInteger256(0x123456789abcdef);
             bi.AssignShiftLeft();
@@ -128,20 +159,6 @@ namespace Ecc.Tests.Math {
             ClassicAssert.AreEqual(0x46, buffer[6]);
             ClassicAssert.AreEqual(0x02, buffer[7]);
             ClassicAssert.AreEqual(0x00, buffer[8]);
-        }
-
-        [Test]
-        public void ZeroExtend128Test() {
-            var lower = new UInt128(0, 0x0123456789abcdeful);
-            var bi = new BigInteger256(lower);
-            ClassicAssert.AreEqual(0x89abcdef, bi.GetItem(0));
-            ClassicAssert.AreEqual(0x01234567, bi.GetItem(1));
-            ClassicAssert.AreEqual(0x0, bi.GetItem(2));
-            ClassicAssert.AreEqual(0x0, bi.GetItem(3));
-            ClassicAssert.AreEqual(0x0, bi.GetItem(4));
-            ClassicAssert.AreEqual(0x0, bi.GetItem(5));
-            ClassicAssert.AreEqual(0x0, bi.GetItem(6));
-            ClassicAssert.AreEqual(0x0, bi.GetItem(7));
         }
 
         [Test]
