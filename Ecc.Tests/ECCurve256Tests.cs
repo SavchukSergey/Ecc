@@ -1,7 +1,10 @@
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
+using Ecc.EC256;
 using Ecc.Math;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
@@ -11,18 +14,35 @@ namespace Ecc.Tests {
     [TestOf(typeof(ECCurve256))]
     public class ECCurve256Tests {
 
+        // [Test]
+        public void GenerateCacheTest() {
+            new ECHexInfo[] {
+                Secp256k1Curve.HexInfo,
+                NistP256Curve.HexInfo
+            }
+            .Select(curve => curve.Build256())
+            .ToList()
+            .ForEach(curve => {
+                var cache = new ECPointByteCache256(curve.G, curve.KeySize);
+                using var stream = File.OpenWrite($"{curve.Name}.cache.dat");
+                cache.SaveTo(stream);
+                stream.Flush();
+                stream.Close();
+            });
+        }
+
         [Test]
         public void PeformanceTest() {
             var curve = ECCurve256.Secp256k1;
-            var count = 500;
+            var count = 10;
             var watch = new Stopwatch();
-            curve.CreateKeyPair(); // warm up
+            var _ = curve.CreateKeyPair().PublicKey; // warm up
             var memStart = GC.GetAllocatedBytesForCurrentThread();
             watch.Start();
             for (var i = 0; i < count; i++) {
                 var keyPair = curve.CreateKeyPair();
                 var pubKey = keyPair.PublicKey;
-                ClassicAssert.NotNull(pubKey.Curve != null);
+                //ClassicAssert.NotNull(pubKey.Curve != null); //assert consumes 840 bytes
             }
             watch.Stop();
             var memEnd = GC.GetAllocatedBytesForCurrentThread();

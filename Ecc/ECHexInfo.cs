@@ -40,7 +40,7 @@ namespace Ecc {
                 b: BigInteger256Ext.ParseHexUnsigned(B),
                 modulus: BigInteger256Ext.ParseHexUnsigned(P),
                 order: BigInteger256Ext.ParseHexUnsigned(N),
-                cofactor: BigIntegerExt.ParseHexUnsigned(H),
+                cofactor: BigInteger256Ext.ParseHexUnsigned(H),
                 gx: BigInteger256Ext.ParseHexUnsigned(Gx),
                 gy: BigInteger256Ext.ParseHexUnsigned(Gy)
             );

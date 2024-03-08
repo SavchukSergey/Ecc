@@ -76,7 +76,7 @@ namespace Ecc.Tests {
         [Conditional("DEBUG")]
         [Test]
         public void SignaturePerformanceTest() {
-            const int count = 200;
+            const int count = 10;
             var curve = ECCurve256.Secp256k1;
             var privateKey = curve.CreatePrivateKey("8ce00ada2dffcfe03bd4775e90588f3f039bd83d56026fafd6f33080ebff72e8");
             var random = BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");

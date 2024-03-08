@@ -13,4 +13,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="EC256\*.cache.dat" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="EC256\*.cache.dat" />
+  </ItemGroup>
+
 </Project>

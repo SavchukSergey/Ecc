@@ -1,7 +1,6 @@
 using System;
 using System.Numerics;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Ecc.Math {
     public static class BigInteger256Ext {
@@ -117,21 +116,20 @@ namespace Ecc.Math {
             var r0 = a;
             var r1 = b;
 
-            //todo: optimize
-
+            //https://stackoverflow.com/questions/67097428/is-it-possible-to-implement-the-extended-euclidean-algorithm-with-unsigned-machi
             var cnt = false;
             while (!r1.IsZero) {
-                var quotient = BigInteger256.DivRem(r0, r1, out var r2);
-                var qr1 = quotient * r1;
-                var qs1 = quotient * s1;
-                var qt1 = quotient * t1;
+                var quotient = BigInteger256.DivRem(in r0, in r1, out var r2);
+                var s2 = s0 + BigInteger256.MulLow(in quotient, in s1);
+                var t2 = t0 + BigInteger256.MulLow(in quotient, in t1);
 
-                r0 = r0 > new BigInteger256(qr1.Low) ? r2 : new BigInteger256(0) - r2;
-                (r1, r0) = (r0, r1);
-                s0 = s0 + qs1.Low;
-                (s1, s0) = (s0, s1);
-                t0 = t0 + qt1.Low;
-                (t1, t0) = (t0, t1);
+                s0 = s1;
+                s1 = s2;
+                t0 = t1;
+                t1 = t2;
+                r0 = r1;
+                r1 = r2;
+
                 cnt = !cnt;
             }
             if (cnt) {

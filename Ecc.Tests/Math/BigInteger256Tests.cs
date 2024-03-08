@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Numerics;
 using Ecc.Math;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
@@ -152,6 +154,35 @@ namespace Ecc.Tests.Math {
             var res = BigInteger256.DivRemBits(left, right, out var reminder);
             ClassicAssert.AreEqual("0000000000000000000000000000000000000000000000000000000000001dd1", res.ToHexUnsigned());
             ClassicAssert.AreEqual("000281ef5cfc207bed7ea4cd27f4c9cb67ecbbe71173faa1d91045903b8a16c0", reminder.ToHexUnsigned());
+        }
+
+        [Test]
+        public void DivPerformanceTest() {
+            var left = BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var right = BigInteger256Ext.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+
+            var cnt = 10000;
+
+            var sw1 = new Stopwatch();
+            sw1.Start();
+            for (var i = 0; i < cnt; i++) {
+                //todo: improve lib division
+                BigInteger256.DivRem(left, right, out var _);
+            }
+            sw1.Stop();
+
+            var ln = left.ToNative();
+            var rn = right.ToNative();
+
+            var sw2 = new Stopwatch();
+            sw2.Start();
+            for (var i = 0; i < cnt; i++) {
+                BigInteger.DivRem(ln, rn, out var _);
+            }
+            sw2.Stop();
+
+            Console.WriteLine($"Ecc div per second: {(double)cnt / sw1.Elapsed.TotalSeconds}");
+            Console.WriteLine($"Native div per second: {(double)cnt / sw2.Elapsed.TotalSeconds}");
         }
 
         [Test]

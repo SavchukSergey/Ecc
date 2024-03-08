@@ -6,15 +6,23 @@ using System.Text;
 
 namespace Ecc.Math {
     [StructLayout(LayoutKind.Explicit, Size = 32)]
+    [SkipLocalsInit]
     public unsafe struct BigInteger256 {
 
         public const int BITS_SIZE = 256;
         public const int BYTES_SIZE = BITS_SIZE / 8;
         private const int ITEM_BITS_SIZE = 32;
         internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
+        internal const int UINT64_SIZE = BITS_SIZE / 64;
 
         [FieldOffset(0)]
         internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
+
+        [FieldOffset(0)]
+        internal fixed byte Bytes[BYTES_SIZE];
+
+        [FieldOffset(0)]
+        internal fixed ulong UInt64[UINT64_SIZE];
 
         [FieldOffset(0)]
         public UInt128 Low;
@@ -65,11 +73,10 @@ namespace Ecc.Math {
         }
 
         public BigInteger256(ulong value) {
-            Data[0] = (uint)value;
-            Data[1] = (uint)(value >> 32);
-            for (var i = 2; i < ITEMS_SIZE; i++) {
-                Data[i] = 0;
-            }
+            UInt64[0] = value;
+            UInt64[1] = 0;
+            UInt64[2] = 0;
+            UInt64[3] = 0;
         }
 
         public BigInteger256(UInt128 low) {
@@ -111,9 +118,14 @@ namespace Ecc.Math {
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly byte GetByte(int index) {
-            var btIndex = index >> 2;
-            return (byte)(Data[btIndex] >> (8 * (index & 0x03)));
+            return Bytes[index];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetByte(int index, byte value) {
+            Bytes[index] = value;
         }
 
         public readonly bool GetBit(int index) {
@@ -153,13 +165,13 @@ namespace Ecc.Math {
         }
 
         public void AssignModAdd(in BigInteger256 other, in BigInteger256 modulus) {
-            ulong carry = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                ulong acc = Data[i];
-                acc += other.Data[i];
+            UInt128 carry = 0;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                UInt128 acc = UInt64[i];
+                acc += other.UInt64[i];
                 acc += carry;
-                Data[i] = (uint)acc;
-                carry = acc >> 32;
+                UInt64[i] = (ulong)acc;
+                carry = acc >> 64;
             }
             if (carry > 0 || this >= modulus) {
                 AssignSub(modulus);
@@ -171,38 +183,38 @@ namespace Ecc.Math {
         }
 
         public bool AssignAdd(in BigInteger256 other) {
-            ulong carry = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                ulong acc = Data[i];
-                acc += other.Data[i];
+            UInt128 carry = 0;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                UInt128 acc = UInt64[i];
+                acc += other.UInt64[i];
                 acc += carry;
-                Data[i] = (uint)acc;
-                carry = acc >> 32;
+                UInt64[i] = (ulong)acc;
+                carry = acc >> 64;
             }
             return carry > 0;
         }
 
+        public void AssignAddHigh(UInt128 other) {
+            High += other;
+        }
+
         public bool AssignSub(in BigInteger256 other) {
             bool carry = false;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                ulong acc = Data[i];
-                acc -= other.Data[i];
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                UInt128 acc = UInt64[i];
+                acc -= other.UInt64[i];
                 acc -= carry ? 1ul : 0ul;
-                Data[i] = (uint)acc;
-                carry = acc > uint.MaxValue;
+                UInt64[i] = (ulong)acc;
+                carry = acc > ulong.MaxValue;
             }
             return carry;
         }
 
         public void AssignLeftShiftQuarter() {
-            Data[7] = Data[5];
-            Data[6] = Data[4];
-            Data[5] = Data[3];
-            Data[4] = Data[2];
-            Data[3] = Data[1];
-            Data[2] = Data[0];
-            Data[1] = 0;
-            Data[0] = 0;
+            UInt64[3] = UInt64[2];
+            UInt64[2] = UInt64[1];
+            UInt64[1] = UInt64[0];
+            UInt64[0] = 0;
         }
 
         public void AssignLeftShiftHalf() {
@@ -259,9 +271,7 @@ namespace Ecc.Math {
         // }
 
         public readonly BigInteger256 ModMul(in BigInteger256 other, in BigInteger256 modulus) {
-            //todo: modular all the way
-            return ((this * other) % new BigInteger512(modulus)).Low;
-            // return ModMulBit(other, modulus);
+            return ModMulBit(other, modulus);
         }
 
         public readonly BigInteger256 ModMulBit(in BigInteger256 other, in BigInteger256 modulus) {
@@ -348,6 +358,7 @@ namespace Ecc.Math {
             return false;
         }
 
+
         [Obsolete]
         public readonly BigInteger ToNative() {
             var array = new byte[BYTES_SIZE];
@@ -381,6 +392,19 @@ namespace Ecc.Math {
             return x0 + x1 + x2;
         }
 
+        /// <summary>
+        /// Multiplies to 256-bit numbers and returns first 256 bits of result
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static BigInteger256 MulLow(in BigInteger256 left, in BigInteger256 right) {
+            var x0 = Mul128(left.Low, right.Low);
+            x0.AssignAddHigh(Mul128Low(left.Low, right.High) + Mul128Low(left.High, right.Low));
+
+            return x0;
+        }
+
         private static BigInteger256 Mul128(UInt128 left, UInt128 right) {
             var ah = left >> 64;
             var al = (UInt128)(ulong)left;
@@ -393,6 +417,18 @@ namespace Ecc.Math {
             var x2 = new BigInteger256(0, ah * bh);
 
             return x0 + x1 + x2;
+        }
+
+        private static UInt128 Mul128Low(UInt128 left, UInt128 right) {
+            var ah = left >> 64;
+            var al = (UInt128)(ulong)left;
+            var bh = right >> 64;
+            var bl = (UInt128)(ulong)right;
+
+            var x0 = al * bl;
+            var x1 = (al * bh + ah * bl) << 64; //todo: we can use Mul64Low here check if it is faster
+
+            return x0 + x1;
         }
 
         private static UInt128 Mul64(ulong left, ulong right) {
