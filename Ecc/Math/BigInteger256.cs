@@ -7,7 +7,7 @@ using System.Text;
 namespace Ecc.Math {
     [StructLayout(LayoutKind.Explicit, Size = 32)]
     [SkipLocalsInit]
-    public unsafe struct BigInteger256 {
+    public unsafe partial struct BigInteger256 {
 
         public const int BITS_SIZE = 256;
         public const int BYTES_SIZE = BITS_SIZE / 8;
@@ -15,6 +15,7 @@ namespace Ecc.Math {
         internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
         internal const int UINT64_SIZE = BITS_SIZE / 64;
         internal const int UINT32_SIZE = BITS_SIZE / 32;
+        internal const int UINT16_SIZE = BITS_SIZE / 16;
 
         [FieldOffset(0)]
         internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
@@ -27,6 +28,9 @@ namespace Ecc.Math {
 
         [FieldOffset(0)]
         internal fixed ulong UInt32[UINT32_SIZE];
+
+        [FieldOffset(0)]
+        internal fixed ulong UInt16[UINT16_SIZE];
 
         [FieldOffset(0)]
         public UInt128 Low;
@@ -208,18 +212,6 @@ namespace Ecc.Math {
                 carry = acc > ulong.MaxValue;
             }
             return carry;
-        }
-
-        public void AssignLeftShiftQuarter() {
-            UInt64[3] = UInt64[2];
-            UInt64[2] = UInt64[1];
-            UInt64[1] = UInt64[0];
-            UInt64[0] = 0;
-        }
-
-        public void AssignLeftShiftHalf() {
-            High = Low;
-            Low = 0;
         }
 
         public readonly BigInteger256 ModAdd(in BigInteger256 other, in BigInteger256 modulus) {
@@ -494,27 +486,27 @@ namespace Ecc.Math {
             return Compare(left, right) != 0;
         }
 
-        public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-            return DivRemBits(dividend, divisor, out remainder);
-            // var res = BigInteger.DivRem(dividend.ToNative(), divisor.ToNative(), out var rem);
-            // remainder = new BigInteger256(rem);
-            // return new BigInteger256(res);
+        public readonly int Log2() {
+            int res = BITS_SIZE;
+            for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
+                var item = GetItem(i); //todo: use UInt128 items
+                var mask = 0x8000_0000;
+                while (mask != 0) {
+                    if ((item & mask) != 0) {
+                        return res;
+                    }
+                    mask >>= 1;
+                    res--;
+                }
+            }
+            return res;
         }
 
-        public static BigInteger256 DivRemBits(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-            var result = new BigInteger256();
-            var value = new BigInteger512(dividend);
-            var bit = BITS_SIZE - 1;
-            for (var i = 0; i < BITS_SIZE; i++) {
-                value.AssignLeftShift();
-                if (value.High >= divisor) {
-                    value.High.AssignSub(divisor);
-                    result.SetBit(bit);
-                }
-                bit--;
-            }
-            remainder = value.High;
-            return result;
+        public readonly BigInteger256 ReciprocalNewton() {
+            var log2 = Log2();
+            var res = Clone();
+            res.AssignLeftShift(log2);
+            return res;
         }
 
         public void ReadFromHex(ReadOnlySpan<char> str) {

@@ -23,22 +23,6 @@ namespace Ecc.Math {
             return a.ModMul(b.ModInverse(modulus), modulus);
         }
 
-        public static long Log2(this in BigInteger256 val) {
-            var res = BigInteger256.BITS_SIZE;
-            for (var i = BigInteger256.ITEMS_SIZE - 1; i >= 0; i--) {
-                var item = val.GetItem(i);
-                var mask = 0x8000_0000;
-                while (mask != 0) {
-                    if ((item & mask) != 0) {
-                        return res;
-                    }
-                    mask >>= 1;
-                    res--;
-                }
-            }
-            return res;
-        }
-
         public static BigInteger256 FromBigEndianBytes(byte[] data) {
             Span<byte> reverse = stackalloc byte[BigInteger256.BYTES_SIZE];
             var len = System.Math.Min(data.Length, BigInteger256.BYTES_SIZE);
