@@ -22,6 +22,7 @@ namespace Ecc.Math {
         }
 
         public static BigInteger256 DivRemNewton(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
+            var reciprocal = divisor.ReciprocalNewton();
             var result = new BigInteger256();
             var value = new BigInteger512(dividend);
             var bit = BITS_SIZE - 1;

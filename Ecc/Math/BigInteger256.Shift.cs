@@ -31,7 +31,7 @@ namespace Ecc.Math {
         }
 
         public void AssignLeftShift(int count) {
-            High = (High << count) + (Low >> (128 - count));
+            High = (High << count) + (Low >> (BITS_SIZE - count));
             Low <<= count;
         }
 

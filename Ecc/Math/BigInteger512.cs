@@ -5,12 +5,13 @@ using System.Text;
 
 namespace Ecc.Math {
     [StructLayout(LayoutKind.Explicit, Size = 64)]
-    public unsafe struct BigInteger512 {
+    public unsafe partial struct BigInteger512 {
 
         public const int BITS_SIZE = 512;
         public const int BYTES_SIZE = BITS_SIZE / 8;
         private const int ITEM_BITS_SIZE = 32;
         internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
+        internal const int UINT64_SIZE = BITS_SIZE / 64;
 
         [FieldOffset(0)]
         internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
@@ -20,6 +21,12 @@ namespace Ecc.Math {
 
         [FieldOffset(32)]
         public BigInteger256 High;
+
+        [FieldOffset(16)]
+        public BigInteger256 Middle; // for 256.256 fixed point arithmetics
+
+        [FieldOffset(0)]
+        internal fixed ulong UInt64[UINT64_SIZE];
 
         public BigInteger512() {
             for (var i = 0; i < ITEMS_SIZE; i++) {
@@ -125,43 +132,10 @@ namespace Ecc.Math {
             return carry;
         }
 
-        public void AssignLeftShiftQuarter() {
-            Data[15] = Data[11];
-            Data[14] = Data[10];
-            Data[13] = Data[9];
-            Data[12] = Data[8];
-            Data[11] = Data[7];
-            Data[10] = Data[6];
-            Data[9] = Data[5];
-            Data[8] = Data[4];
-            Data[7] = Data[3];
-            Data[6] = Data[2];
-            Data[5] = Data[1];
-            Data[4] = Data[0];
-            Data[3] = 0;
-            Data[2] = 0;
-            Data[1] = 0;
-            Data[0] = 0;
+        public void AssignAddHigh(in BigInteger256 other) {
+            High += other;
         }
 
-        public void AssignLeftShiftHalf() {
-            Data[15] = Data[7];
-            Data[14] = Data[6];
-            Data[13] = Data[5];
-            Data[12] = Data[4];
-            Data[11] = Data[3];
-            Data[10] = Data[2];
-            Data[9] = Data[1];
-            Data[8] = Data[0];
-            Data[7] = 0;
-            Data[6] = 0;
-            Data[5] = 0;
-            Data[4] = 0;
-            Data[3] = 0;
-            Data[2] = 0;
-            Data[1] = 0;
-            Data[0] = 0;
-        }
 
         public void AssignLeftShift32() {
             Data[15] = Data[14];
@@ -182,7 +156,7 @@ namespace Ecc.Math {
             Data[0] = 0;
         }
 
-        public bool Sub(in BigInteger512 other) {
+        public bool AssignSub(in BigInteger512 other) {
             bool carry = false;
             for (var i = 0; i < ITEMS_SIZE; i++) {
                 ulong acc = Data[i];
@@ -230,6 +204,12 @@ namespace Ecc.Math {
             return res;
         }
 
+        public static BigInteger512 operator -(in BigInteger512 left, in BigInteger512 right) {
+            var res = new BigInteger512(left);
+            res.AssignSub(right);
+            return res;
+        }
+
         public static BigInteger512 operator %(BigInteger512 left, BigInteger512 right) {
             return new BigInteger512(left.ToNative() % right.ToNative());
         }
@@ -257,6 +237,26 @@ namespace Ecc.Math {
             var dataLength = BYTES_SIZE;
             const string hex = "0123456789abcdef";
             for (var i = length - 1; i >= 0; i--) {
+                if (i < dataLength) {
+                    var ch = GetByte(i);
+                    sb.Append(hex[ch >> 4]);
+                    sb.Append(hex[ch & 0x0f]);
+                } else {
+                    sb.Append("00");
+                }
+            }
+            return sb.ToString();
+        }
+
+        public readonly string ToHexFixedPoint() {
+            var sbLength = 129;
+            var sb = new StringBuilder(sbLength, sbLength);
+            var dataLength = BYTES_SIZE;
+            const string hex = "0123456789abcdef";
+            for (var i = 63; i >= 0; i--) {
+                if (i == 31) {
+                    sb.Append('.');
+                }
                 if (i < dataLength) {
                     var ch = GetByte(i);
                     sb.Append(hex[ch >> 4]);

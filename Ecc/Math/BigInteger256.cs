@@ -370,35 +370,7 @@ namespace Ecc.Math {
         public static BigInteger256 operator /(in BigInteger256 left, in BigInteger256 right) {
             return DivRem(left, right, out var _);
         }
-
-        public static BigInteger512 operator *(in BigInteger256 left, in BigInteger256 right) {
-            var ah = left.High;
-            var al = left.Low;
-            var bh = right.High;
-            var bl = right.Low;
-
-            var zero = new BigInteger256(0);
-            var x0 = new BigInteger512(Mul128(al, bl), zero);
-            var x1 = new BigInteger512(Mul128(al, bh), zero) + new BigInteger512(Mul128(ah, bl), zero);
-            x1.AssignLeftShiftQuarter();
-            var x2 = new BigInteger512(zero, Mul128(ah, bh));
-
-            return x0 + x1 + x2;
-        }
-
-        /// <summary>
-        /// Multiplies to 256-bit numbers and returns first 256 bits of result
-        /// </summary>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
-        /// <returns></returns>
-        public static BigInteger256 MulLow(in BigInteger256 left, in BigInteger256 right) {
-            var x0 = Mul128(left.Low, right.Low);
-            x0.AssignAddHigh(Mul128Low(left.Low, right.High) + Mul128Low(left.High, right.Low));
-
-            return x0;
-        }
-
+      
         private static BigInteger256 Mul128(UInt128 left, UInt128 right) {
             var ah = left >> 64;
             var al = (UInt128)(ulong)left;
@@ -505,8 +477,14 @@ namespace Ecc.Math {
         public readonly BigInteger256 ReciprocalNewton() {
             var log2 = Log2();
             var res = Clone();
-            res.AssignLeftShift(log2);
-            return res;
+            res.AssignLeftShift(BITS_SIZE - log2);
+            var resfp = new BigInteger512(res);
+            resfp.Middle = res;
+
+            var t0 = new BigInteger512(new BigInteger512(48).LeftShiftHalf().ToNative() / new BigInteger256(17).ToNative());
+            var t1 = new BigInteger512(new BigInteger512(32).LeftShiftHalf().ToNative() / new BigInteger256(17).ToNative());
+            var x0 = t0 - (t1 * resfp).Middle;
+            return x0.Low;
         }
 
         public void ReadFromHex(ReadOnlySpan<char> str) {
@@ -532,6 +510,26 @@ namespace Ecc.Math {
             var dataLength = BYTES_SIZE;
             const string hex = "0123456789abcdef";
             for (var i = length - 1; i >= 0; i--) {
+                if (i < dataLength) {
+                    var ch = GetByte(i);
+                    sb.Append(hex[ch >> 4]);
+                    sb.Append(hex[ch & 0x0f]);
+                } else {
+                    sb.Append("00");
+                }
+            }
+            return sb.ToString();
+        }
+
+        public readonly string ToHexFixedPoint() {
+            var sbLength = 65;
+            var sb = new StringBuilder(sbLength, sbLength);
+            var dataLength = BYTES_SIZE;
+            const string hex = "0123456789abcdef";
+            for (var i = 31; i >= 0; i--) {
+                if (i == 15) {
+                    sb.Append('.');
+                }
                 if (i < dataLength) {
                     var ch = GetByte(i);
                     sb.Append(hex[ch >> 4]);

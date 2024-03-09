@@ -87,7 +87,7 @@ namespace Ecc.Tests.Math {
         public void SubPosTest() {
             var left = new BigInteger512(0x284000001);
             var right = new BigInteger512(0x180000000);
-            left.Sub(right);
+            left.AssignSub(right);
             Span<byte> buffer = stackalloc byte[BigInteger512.BYTES_SIZE];
             left.TryWrite(buffer);
             ClassicAssert.AreEqual(0x01, buffer[0]);
@@ -102,7 +102,7 @@ namespace Ecc.Tests.Math {
         public void SubNegTest() {
             var left = new BigInteger512(0x180000000);
             var right = new BigInteger512(0x284000001);
-            left.Sub(right);
+            left.AssignSub(right);
             Span<byte> buffer = stackalloc byte[BigInteger512.BYTES_SIZE];
             left.TryWrite(buffer);
             ClassicAssert.AreEqual(0xff, buffer[0]);
