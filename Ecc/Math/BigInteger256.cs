@@ -14,6 +14,7 @@ namespace Ecc.Math {
         private const int ITEM_BITS_SIZE = 32;
         internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
         internal const int UINT64_SIZE = BITS_SIZE / 64;
+        internal const int UINT32_SIZE = BITS_SIZE / 32;
 
         [FieldOffset(0)]
         internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
@@ -23,6 +24,9 @@ namespace Ecc.Math {
 
         [FieldOffset(0)]
         internal fixed ulong UInt64[UINT64_SIZE];
+
+        [FieldOffset(0)]
+        internal fixed ulong UInt32[UINT32_SIZE];
 
         [FieldOffset(0)]
         public UInt128 Low;
@@ -36,40 +40,36 @@ namespace Ecc.Math {
         }
 
         public BigInteger256(uint value) {
-            Data[0] = value;
-            for (var i = 1; i < ITEMS_SIZE; i++) {
-                Data[i] = 0;
+            UInt32[0] = value;
+            for (var i = 1; i < UINT32_SIZE; i++) {
+                UInt32[i] = 0;
             }
         }
 
         public BigInteger256(uint b0, uint b1) {
-            Data[0] = b0;
-            Data[1] = b1;
-            for (var i = 2; i < ITEMS_SIZE; i++) {
-                Data[i] = 0;
-            }
+            UInt32[0] = b0;
+            UInt32[1] = b1;
+            UInt64[1] = 0;
+            High = 0;
         }
 
         public BigInteger256(uint b0, uint b1, uint b2, uint b3) {
-            Data[0] = b0;
-            Data[1] = b1;
-            Data[2] = b2;
-            Data[3] = b3;
-            Data[4] = 0;
-            Data[5] = 0;
-            Data[6] = 0;
-            Data[7] = 0;
+            UInt32[0] = b0;
+            UInt32[1] = b1;
+            UInt32[2] = b2;
+            UInt32[3] = b3;
+            High = 0;
         }
 
         public BigInteger256(uint b0, uint b1, uint b2, uint b3, uint b4, uint b5, uint b6, uint b7) {
-            Data[0] = b0;
-            Data[1] = b1;
-            Data[2] = b2;
-            Data[3] = b3;
-            Data[4] = b4;
-            Data[5] = b5;
-            Data[6] = b6;
-            Data[7] = b7;
+            UInt32[0] = b0;
+            UInt32[1] = b1;
+            UInt32[2] = b2;
+            UInt32[3] = b3;
+            UInt32[4] = b4;
+            UInt32[5] = b5;
+            UInt32[6] = b6;
+            UInt32[7] = b7;
         }
 
         public BigInteger256(ulong value) {
@@ -318,15 +318,17 @@ namespace Ecc.Math {
 
 
         public readonly int Compare(in BigInteger256 other) {
-            for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
-                var leftBt = Data[i];
-                var rightBt = other.Data[i];
-                if (leftBt > rightBt) {
-                    return 1;
-                }
-                if (leftBt < rightBt) {
-                    return -1;
-                }
+            if (High < other.High) {
+                return -1;
+            }
+            if (High > other.High) {
+                return 1;
+            }
+            if (Low < other.Low) {
+                return -1;
+            }
+            if (Low > other.Low) {
+                return 1;
             }
             return 0;
         }
