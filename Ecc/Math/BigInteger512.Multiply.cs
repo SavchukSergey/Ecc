@@ -29,5 +29,15 @@ namespace Ecc.Math {
             return x0;
         }
 
+        /// <summary>
+        /// Multiplies two 256.256 fixed point values and return 256.256 fixed point result
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static BigInteger512 MulFixedPoint(in BigInteger512 left, in BigInteger512 right) {
+            return (left * right).Middle;
+        }
+
     }
 }

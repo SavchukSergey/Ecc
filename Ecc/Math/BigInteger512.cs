@@ -114,12 +114,12 @@ namespace Ecc.Math {
 
         public bool AssignAdd(in BigInteger512 other) {
             bool carry = false;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                ulong acc = Data[i];
-                acc += other.Data[i];
-                acc += carry ? 1ul : 0ul;
-                Data[i] = (uint)acc;
-                carry = acc > uint.MaxValue;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                UInt128 acc = UInt64[i];
+                acc += other.UInt64[i];
+                acc += carry ? 1u : 0u;
+                UInt64[i] = (ulong)acc;
+                carry = acc > ulong.MaxValue;
             }
             return carry;
         }
@@ -143,14 +143,41 @@ namespace Ecc.Math {
 
         public bool AssignSub(in BigInteger512 other) {
             bool carry = false;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                ulong acc = Data[i];
-                acc -= other.Data[i];
-                acc -= carry ? 1ul : 0ul;
-                Data[i] = (uint)acc;
-                carry = acc > uint.MaxValue;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                UInt128 acc = UInt64[i];
+                acc -= other.UInt64[i];
+                acc -= carry ? 1u : 0u;
+                UInt64[i] = (ulong)acc;
+                carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
             }
             return carry;
+        }
+
+        public readonly BigInteger512 Sub(in BigInteger512 other, out bool carry) {
+            carry = false;
+            var res = new BigInteger512(this);
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                UInt128 acc = UInt64[i];
+                acc -= other.UInt64[i];
+                acc -= carry ? 1u : 0u;
+                res.UInt64[i] = (ulong)acc;
+                carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
+            }
+            return res;
+        }
+
+        public void AssignNegate() {
+            bool carry = false;
+            ulong add = 1ul;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                UInt128 acc = 0xffffffff_fffffffful;
+                acc -= UInt64[i];
+                acc -= carry ? 1u : 0u;
+                acc += add;
+                add = 0;
+                UInt64[i] = (ulong)acc;
+                carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
+            }
         }
 
         public bool AssignLeftShift() {

@@ -168,7 +168,7 @@ namespace Ecc.Tests.Math {
             ClassicAssert.AreEqual(remHex, reminder.ToHexUnsigned());
         }
 
-        //[TestCaseSource(nameof(DivideCases))]
+        [TestCaseSource(nameof(DivideCases))]
         public void DivRemNewtonTest(string leftHex, string rightHex, string qHex, string remHex) {
             var left = BigInteger256Ext.ParseHexUnsigned(leftHex);
             var right = BigInteger256Ext.ParseHexUnsigned(rightHex);
@@ -406,7 +406,15 @@ namespace Ecc.Tests.Math {
             }
             sw2.Stop();
 
+            var sw3 = new Stopwatch();
+            sw3.Start();
+            for (var i = 0; i < cnt; i++) {
+                BigInteger256.DivRemNewton(left, right, out var _);
+            }
+            sw3.Stop();
+
             Console.WriteLine($"Ecc div per second: {(double)cnt / sw1.Elapsed.TotalSeconds}");
+            Console.WriteLine($"Ecc div newton per second: {(double)cnt / sw3.Elapsed.TotalSeconds}");
             Console.WriteLine($"Native div per second: {(double)cnt / sw2.Elapsed.TotalSeconds}");
         }
 
