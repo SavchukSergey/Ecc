@@ -168,5 +168,16 @@ namespace Ecc.Tests.Math {
             ClassicAssert.AreEqual(1, left.Compare(right));
         }
 
+        //[Test]
+        //public void DebugTest() {
+        //    //fixed point 1.e * 0.c => 1.68
+        //    var left = new BigInteger512(new BigInteger256(0, 0, 0, 0xe000000000000000ul), new BigInteger256(1));
+        //    var right = new BigInteger512(new BigInteger256(0, 0, 0, 0xc000000000000000ul), new BigInteger256(0));
+        //    var res = left * right;
+        //    var reshex = res.Middle.ToHexFixedPoint();
+
+        //    ClassicAssert.AreEqual(1, reshex);
+
+        //}
     }
 }

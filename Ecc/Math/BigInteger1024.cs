@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Ecc.Math {
     [StructLayout(LayoutKind.Explicit, Size = 128)]
@@ -40,6 +41,11 @@ namespace Ecc.Math {
             High = other.High;
         }
 
+        public readonly byte GetByte(int index) {
+            var btIndex = index >> 2;
+            return (byte)(Data[btIndex] >> (8 * (index & 0x03)));
+        }
+
         public static BigInteger1024 operator +(in BigInteger1024 left, in BigInteger1024 right) {
             var res = new BigInteger1024(left);
             res.AssignAdd(right);
@@ -74,6 +80,23 @@ namespace Ecc.Math {
             var res = new BigInteger1024(left);
             res.AssignSub(right);
             return res;
+        }
+
+        public readonly string ToHexUnsigned(int length = 256) {
+            var sbLength = (int)length * 2;
+            var sb = new StringBuilder(sbLength, sbLength);
+            var dataLength = BYTES_SIZE;
+            const string hex = "0123456789abcdef";
+            for (var i = length - 1; i >= 0; i--) {
+                if (i < dataLength) {
+                    var ch = GetByte(i);
+                    sb.Append(hex[ch >> 4]);
+                    sb.Append(hex[ch & 0x0f]);
+                } else {
+                    sb.Append("00");
+                }
+            }
+            return sb.ToString();
         }
     }
 }

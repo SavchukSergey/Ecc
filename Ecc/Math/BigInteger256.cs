@@ -65,6 +65,13 @@ namespace Ecc.Math {
             High = 0;
         }
 
+        public BigInteger256(ulong b0, ulong b1, ulong b2, ulong b3) {
+            UInt64[0] = b0;
+            UInt64[1] = b1;
+            UInt64[2] = b2;
+            UInt64[3] = b3;
+        }
+
         public BigInteger256(uint b0, uint b1, uint b2, uint b3, uint b4, uint b5, uint b6, uint b7) {
             UInt32[0] = b0;
             UInt32[1] = b1;
