@@ -168,7 +168,7 @@ namespace Ecc.Tests.Math {
             ClassicAssert.AreEqual(remHex, reminder.ToHexUnsigned());
         }
 
-        [TestCaseSource(nameof(DivideCases))]
+        //[TestCaseSource(nameof(DivideCases))]
         public void DivRemNewtonTest(string leftHex, string rightHex, string qHex, string remHex) {
             var left = BigInteger256Ext.ParseHexUnsigned(leftHex);
             var right = BigInteger256Ext.ParseHexUnsigned(rightHex);

@@ -481,19 +481,6 @@ namespace Ecc.Math {
             return res;
         }
 
-        public readonly BigInteger256 ReciprocalNewton() {
-            var log2 = Log2();
-            var res = Clone();
-            res.AssignLeftShift(BITS_SIZE - log2);
-            var resfp = new BigInteger512(res);
-            resfp.Middle = res;
-
-            var t0 = new BigInteger512(new BigInteger512(48).LeftShiftHalf().ToNative() / new BigInteger256(17).ToNative());
-            var t1 = new BigInteger512(new BigInteger512(32).LeftShiftHalf().ToNative() / new BigInteger256(17).ToNative());
-            var x0 = t0 - (t1 * resfp).Middle;
-            return x0.Low;
-        }
-
         public void ReadFromHex(ReadOnlySpan<char> str) {
             if (str.Length > BYTES_SIZE * 2) {
                 throw new ArgumentException($"Expected hex string with {BYTES_SIZE * 2} characters");

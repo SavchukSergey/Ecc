@@ -31,8 +31,21 @@ namespace Ecc.Math {
         }
 
         public void AssignLeftShift(int count) {
-            High = (High << count) + (Low >> (BITS_SIZE - count));
-            Low <<= count;
+            if (count >= BITS_SIZE / 2) {
+                AssignLeftShiftHalf();
+                count -= BITS_SIZE / 2;
+            }
+            if (count >= BITS_SIZE / 4) {
+                AssignLeftShiftQuarter();
+                count -= BITS_SIZE / 4;
+            }
+            ulong carry = 0;
+            var restBits = 64 - count;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                var acc = UInt64[i];
+                UInt64[i] = (acc << count) + carry;
+                carry = acc >> restBits;
+            }
         }
 
     }

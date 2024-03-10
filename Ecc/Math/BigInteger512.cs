@@ -11,6 +11,7 @@ namespace Ecc.Math {
         public const int BYTES_SIZE = BITS_SIZE / 8;
         private const int ITEM_BITS_SIZE = 32;
         internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
+        internal const int UINT32_SIZE = BITS_SIZE / 32;
         internal const int UINT64_SIZE = BITS_SIZE / 64;
 
         [FieldOffset(0)]
@@ -24,6 +25,9 @@ namespace Ecc.Math {
 
         [FieldOffset(16)]
         public BigInteger256 Middle; // for 256.256 fixed point arithmetics
+
+        [FieldOffset(0)]
+        internal fixed ulong UInt32[UINT32_SIZE];
 
         [FieldOffset(0)]
         internal fixed ulong UInt64[UINT64_SIZE];
@@ -124,7 +128,7 @@ namespace Ecc.Math {
             bool carry = false;
             for (var i = 0; i < ITEMS_SIZE; i++) {
                 ulong acc = Data[i];
-                acc += i < BigInteger256.ITEMS_SIZE ? other.Data[i] : 0;
+                acc += i < BigInteger256.ITEMS_SIZE ? other.Data[i] : 0; //todo: remove i < Itemssize
                 acc += carry ? 1ul : 0ul;
                 Data[i] = (uint)acc;
                 carry = acc > uint.MaxValue;
@@ -136,25 +140,6 @@ namespace Ecc.Math {
             High += other;
         }
 
-
-        public void AssignLeftShift32() {
-            Data[15] = Data[14];
-            Data[14] = Data[13];
-            Data[13] = Data[12];
-            Data[12] = Data[11];
-            Data[11] = Data[10];
-            Data[10] = Data[9];
-            Data[9] = Data[8];
-            Data[8] = Data[7];
-            Data[7] = Data[6];
-            Data[6] = Data[5];
-            Data[5] = Data[4];
-            Data[4] = Data[3];
-            Data[3] = Data[2];
-            Data[2] = Data[1];
-            Data[1] = Data[0];
-            Data[0] = 0;
-        }
 
         public bool AssignSub(in BigInteger512 other) {
             bool carry = false;
