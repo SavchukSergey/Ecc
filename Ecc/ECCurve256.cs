@@ -81,15 +81,15 @@ namespace Ecc {
         public ECPoint256 CreatePoint(string hex) {
             if (hex == "00") return ECPoint256.Infinity;
             if (hex.StartsWith("02")) {
-                var x = BigInteger256Ext.ParseHexUnsigned(hex.Substring(2));
+                var x = BigInteger256.ParseHexUnsigned(hex.Substring(2));
                 return CreatePoint(x, false);
             } else if (hex.StartsWith("03")) {
-                var x = BigInteger256Ext.ParseHexUnsigned(hex.Substring(2));
+                var x = BigInteger256.ParseHexUnsigned(hex.Substring(2));
                 return CreatePoint(x, true);
             } else if (hex.StartsWith("04")) {
                 var keySize = KeySize8 * 2;
-                var x = BigInteger256Ext.ParseHexUnsigned(hex.Substring(2, keySize));
-                var y = BigInteger256Ext.ParseHexUnsigned(hex.Substring(keySize + 2));
+                var x = BigInteger256.ParseHexUnsigned(hex.Substring(2, keySize));
+                var y = BigInteger256.ParseHexUnsigned(hex.Substring(keySize + 2));
                 return CreatePoint(x, y);
             }
             throw new System.FormatException();

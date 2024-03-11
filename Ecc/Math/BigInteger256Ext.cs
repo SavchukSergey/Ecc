@@ -83,15 +83,6 @@ namespace Ecc.Math {
             return FromBigEndianBytes(data);
         }
 
-        public static BigInteger256 ParseHexUnsigned(string val) {
-            if (val.StartsWith("0x")) {
-                val = val.Substring(2);
-            }
-            var res = new BigInteger256();
-            res.ReadFromHex(val);
-            return res;
-        }
-
         public static BezoutIdentity256 EuclidExtended(in BigInteger256 a, in BigInteger256 b) {
             var s0 = new BigInteger256(1);
             var t0 = new BigInteger256(0);

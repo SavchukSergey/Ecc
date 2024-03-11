@@ -56,7 +56,7 @@ namespace Ecc {
         }
 
         public static ECPrivateKey256 ParseHex(string hex, ECCurve256 curve) {
-            return new ECPrivateKey256(BigInteger256Ext.ParseHexUnsigned(hex), curve);
+            return new ECPrivateKey256(BigInteger256.ParseHexUnsigned(hex), curve);
         }
 
     }

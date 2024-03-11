@@ -30,14 +30,19 @@ namespace Ecc.Math {
             var divisorFP = new BigInteger512(res);
 
             //todo: use lookup table for x0 by first hex digit
-            var t0 = new BigInteger512(new BigInteger512(48).LeftShiftHalf().ToNative() / new BigInteger256(17).ToNative());
-            var t1 = new BigInteger512(new BigInteger512(32).LeftShiftHalf().ToNative() / new BigInteger256(17).ToNative());
-            var x0 = t0 - BigInteger512.MulFixedPoint(t1, divisorFP);
 
-            //var x0 = new BigInteger512(
-            //    BigInteger256Ext.ParseHexUnsigned("33d32aa64f858045a1589f144ddb3cf1b452c012e8bcc5ee7e053c6f42192d2e"),
-            //    BigInteger256Ext.ParseHexUnsigned("0000000000000000000000000000000000000000000000000000000000000001")
-            //);
+            // 48/17
+            var divideT0FP = new BigInteger512(
+                new BigInteger256(0xd2d2d2d2d2d2d2d2ul, 0xd2d2d2d2d2d2d2d2ul, 0xd2d2d2d2d2d2d2d2ul, 0xd2d2d2d2d2d2d2d2ul),
+                new BigInteger256(2)
+            );
+            // 32 / 17
+            var divideT1FP = new BigInteger512(
+                new BigInteger256(0xe1e1e1e1e1e1e1e1ul, 0xe1e1e1e1e1e1e1e1ul, 0xe1e1e1e1e1e1e1e1ul, 0xe1e1e1e1e1e1e1e1ul),
+                new BigInteger256(1)
+            );
+
+            var x0 = divideT0FP - BigInteger512.MulFixedPoint(divideT1FP, divisorFP);
 
             var x = x0;
 

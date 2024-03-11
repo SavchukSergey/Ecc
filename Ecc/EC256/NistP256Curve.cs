@@ -7,13 +7,13 @@ namespace Ecc.EC256 {
 
         public NistP256Curve() : base(
             CURVE_NAME,
-            BigInteger256Ext.ParseHexUnsigned(HexInfo.A),
-            BigInteger256Ext.ParseHexUnsigned(HexInfo.B),
-            BigInteger256Ext.ParseHexUnsigned(HexInfo.P),
-            BigInteger256Ext.ParseHexUnsigned(HexInfo.N),
-            BigInteger256Ext.ParseHexUnsigned(HexInfo.H),
-            BigInteger256Ext.ParseHexUnsigned(HexInfo.Gx),
-            BigInteger256Ext.ParseHexUnsigned(HexInfo.Gy)
+            BigInteger256.ParseHexUnsigned(HexInfo.A),
+            BigInteger256.ParseHexUnsigned(HexInfo.B),
+            BigInteger256.ParseHexUnsigned(HexInfo.P),
+            BigInteger256.ParseHexUnsigned(HexInfo.N),
+            BigInteger256.ParseHexUnsigned(HexInfo.H),
+            BigInteger256.ParseHexUnsigned(HexInfo.Gx),
+            BigInteger256.ParseHexUnsigned(HexInfo.Gy)
         ) {
         }
 

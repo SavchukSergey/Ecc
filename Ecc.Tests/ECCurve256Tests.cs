@@ -91,7 +91,7 @@ namespace Ecc.Tests {
         [TestCase("334180cfb8553b774d871c36be174171003cd13cb8325ad091b4f4b10934662f", false)]
         [TestCase("861529d088817d897efcc7233ff344a85c905bd2ae524b359eacd39537b5cb8e", false)]
         public void CreatePointXTest(string xHex, bool yOdd) {
-            var x = BigInteger256Ext.ParseHexUnsigned(xHex);
+            var x = BigInteger256.ParseHexUnsigned(xHex);
             var curve = ECCurve256.Secp256k1;
             var point = curve.CreatePoint(x, yOdd);
             ClassicAssert.IsTrue(point.Valid);

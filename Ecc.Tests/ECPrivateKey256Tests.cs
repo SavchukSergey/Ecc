@@ -22,7 +22,7 @@ namespace Ecc.Tests {
             var curve = ECCurve256.Secp256k1;
             var privateKey = curve.CreatePrivateKey("8ce00ada2dffcfe03bd4775e90588f3f039bd83d56026fafd6f33080ebff72e8");
             var msg = BigIntegerExt.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
-            var random = BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var random = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var signature = privateKey.Sign(msg, random);
             ClassicAssert.IsNotNull(signature, "signature must not be null");
             var rhex = signature.Value.R.ToHexUnsigned(32);
@@ -38,7 +38,7 @@ namespace Ecc.Tests {
             var privateKey = curve.CreatePrivateKey("8ce00ada2dffcfe03bd4775e90588f3f039bd83d56026fafd6f33080ebff72e8");
             var msgHex = "7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715";
             var msg = GetBytes(msgHex);
-            var random = BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var random = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var signature = privateKey.Sign(msg, random);
             ClassicAssert.IsNotNull(signature, "signature must not be null");
             var rhex = signature.Value.R.ToHexUnsigned(32);
@@ -79,7 +79,7 @@ namespace Ecc.Tests {
             const int count = 10;
             var curve = ECCurve256.Secp256k1;
             var privateKey = curve.CreatePrivateKey("8ce00ada2dffcfe03bd4775e90588f3f039bd83d56026fafd6f33080ebff72e8");
-            var random = BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var random = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var msg = BigIntegerExt.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
 
             var watch = new Stopwatch();

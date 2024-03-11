@@ -65,8 +65,8 @@ namespace Ecc.Tests {
             NistP256Curve.CURVE_NAME
         )]
         public void AddPointsTest(string k1hex, string k2hex, string pubHex, string curveName) {
-            var d1 = BigInteger256Ext.ParseHexUnsigned(k1hex);
-            var d2 = BigInteger256Ext.ParseHexUnsigned(k2hex);
+            var d1 = BigInteger256.ParseHexUnsigned(k1hex);
+            var d2 = BigInteger256.ParseHexUnsigned(k2hex);
             var curve = ECCurve256.GetNamedCurve(curveName);
             var k1 = curve.CreatePrivateKey(d1);
             var k2 = curve.CreatePrivateKey(d2);

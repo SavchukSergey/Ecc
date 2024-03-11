@@ -36,13 +36,13 @@ namespace Ecc {
         public readonly ECCurve256 Build256() {
             var ecc = new ECCurve256(
                 name: Name,
-                a: BigInteger256Ext.ParseHexUnsigned(A),
-                b: BigInteger256Ext.ParseHexUnsigned(B),
-                modulus: BigInteger256Ext.ParseHexUnsigned(P),
-                order: BigInteger256Ext.ParseHexUnsigned(N),
-                cofactor: BigInteger256Ext.ParseHexUnsigned(H),
-                gx: BigInteger256Ext.ParseHexUnsigned(Gx),
-                gy: BigInteger256Ext.ParseHexUnsigned(Gy)
+                a: BigInteger256.ParseHexUnsigned(A),
+                b: BigInteger256.ParseHexUnsigned(B),
+                modulus: BigInteger256.ParseHexUnsigned(P),
+                order: BigInteger256.ParseHexUnsigned(N),
+                cofactor: BigInteger256.ParseHexUnsigned(H),
+                gx: BigInteger256.ParseHexUnsigned(Gx),
+                gy: BigInteger256.ParseHexUnsigned(Gy)
             );
             return ecc;
         }

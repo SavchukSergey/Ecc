@@ -49,13 +49,13 @@ namespace Ecc.Tests.Math {
 
         [Test]
         public void LowTest() {
-            var bi = BigInteger256Ext.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            var bi = BigInteger256.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
             ClassicAssert.AreEqual("3cfcc1a04fafa2ddb6ca6869bf272715", bi.Low.ToString("x"));
         }
 
         [Test]
         public void HighTest() {
-            var bi = BigInteger256Ext.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            var bi = BigInteger256.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
             ClassicAssert.AreEqual("7846e3be8abd2e089ed812475be9b51c", bi.High.ToString("x"));
         }
 
@@ -140,8 +140,8 @@ namespace Ecc.Tests.Math {
 
         [TestCaseSource(nameof(DivideCases))]
         public void DivRemNativeTest(string leftHex, string rightHex, string qHex, string remHex) {
-            var left = BigInteger256Ext.ParseHexUnsigned(leftHex);
-            var right = BigInteger256Ext.ParseHexUnsigned(rightHex);
+            var left = BigInteger256.ParseHexUnsigned(leftHex);
+            var right = BigInteger256.ParseHexUnsigned(rightHex);
 
             var res = BigInteger.DivRem(left.ToNative(), right.ToNative(), out var reminder);
             ClassicAssert.AreEqual(qHex, new BigInteger256(res).ToHexUnsigned());
@@ -150,8 +150,8 @@ namespace Ecc.Tests.Math {
 
         [TestCaseSource(nameof(DivideCases))]
         public void DivRemTest(string leftHex, string rightHex, string qHex, string remHex) {
-            var left = BigInteger256Ext.ParseHexUnsigned(leftHex);
-            var right = BigInteger256Ext.ParseHexUnsigned(rightHex);
+            var left = BigInteger256.ParseHexUnsigned(leftHex);
+            var right = BigInteger256.ParseHexUnsigned(rightHex);
 
             var res = BigInteger256.DivRem(left, right, out var reminder);
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned());
@@ -160,8 +160,8 @@ namespace Ecc.Tests.Math {
 
         [TestCaseSource(nameof(DivideCases))]
         public void DivRemBitsTest(string leftHex, string rightHex, string qHex, string remHex) {
-            var left = BigInteger256Ext.ParseHexUnsigned(leftHex);
-            var right = BigInteger256Ext.ParseHexUnsigned(rightHex);
+            var left = BigInteger256.ParseHexUnsigned(leftHex);
+            var right = BigInteger256.ParseHexUnsigned(rightHex);
 
             var res = BigInteger256.DivRemBits(left, right, out var reminder);
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned());
@@ -170,8 +170,8 @@ namespace Ecc.Tests.Math {
 
         [TestCaseSource(nameof(DivideCases))]
         public void DivRemNewtonTest(string leftHex, string rightHex, string qHex, string remHex) {
-            var left = BigInteger256Ext.ParseHexUnsigned(leftHex);
-            var right = BigInteger256Ext.ParseHexUnsigned(rightHex);
+            var left = BigInteger256.ParseHexUnsigned(leftHex);
+            var right = BigInteger256.ParseHexUnsigned(rightHex);
 
             var res = BigInteger256.DivRemNewton(left, right, out var reminder);
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned());
@@ -383,8 +383,8 @@ namespace Ecc.Tests.Math {
 
         [Test]
         public void DivPerformanceTest() {
-            var left = BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
-            var right = BigInteger256Ext.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
 
             var cnt = 10000;
 
@@ -420,7 +420,7 @@ namespace Ecc.Tests.Math {
 
         [Test]
         public void AssignLeftShiftHalfTest() {
-            var bi = BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var bi = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             bi.AssignLeftShiftHalf();
             ClassicAssert.AreEqual("d435f8cf054b0f5902237e8cb9ee5fe500000000000000000000000000000000", bi.ToHexUnsigned());
         }
@@ -461,8 +461,8 @@ namespace Ecc.Tests.Math {
             ClassicAssert.AreEqual(
               "a4db0018f81780ee1ecebfedb2677795e8132dee14be8f58e853e8ea853dda55d6aa8b7117cd331e2cb0d23b68a85393d15c144a651ae84a56c6b3076bb7c2d9",
                 (
-                    BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5") *
-                    BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5")
+                    BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5") *
+                    BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5")
                 ).ToHexUnsigned()
            );
         }
@@ -477,9 +477,9 @@ namespace Ecc.Tests.Math {
         public void ModMulTest() {
             ClassicAssert.AreEqual(
               "f68d6baa084effcf7222c3f72d9ae49c974ced4078afe384291b7966149ac12c",
-               BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5").ModMul(
-                    BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5"),
-                    BigInteger256Ext.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")
+               BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5").ModMul(
+                    BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5"),
+                    BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")
                 ).ToHexUnsigned()
            );
         }
@@ -488,9 +488,9 @@ namespace Ecc.Tests.Math {
         public void ModMulBitTest() {
             ClassicAssert.AreEqual(
               "f68d6baa084effcf7222c3f72d9ae49c974ced4078afe384291b7966149ac12c",
-               BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5").ModMulBit(
-                    BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5"),
-                    BigInteger256Ext.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")
+               BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5").ModMulBit(
+                    BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5"),
+                    BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")
                 ).ToHexUnsigned()
            );
         }
@@ -500,8 +500,8 @@ namespace Ecc.Tests.Math {
             ClassicAssert.AreEqual(
               "0000000000000000000000000000000000000000000000000000000000000000",
                new BigInteger256().ModMul(
-                    BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5"),
-                    BigInteger256Ext.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")
+                    BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5"),
+                    BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")
                 ).ToHexUnsigned()
            );
         }
@@ -510,9 +510,9 @@ namespace Ecc.Tests.Math {
         public void ModMulZeroRightTest() {
             ClassicAssert.AreEqual(
               "0000000000000000000000000000000000000000000000000000000000000000",
-               BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5").ModMul(
+               BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5").ModMul(
                     new BigInteger256(),
-                    BigInteger256Ext.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")
+                    BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")
                 ).ToHexUnsigned()
            );
         }
@@ -521,7 +521,7 @@ namespace Ecc.Tests.Math {
         public void ModMulZeroTest() {
             ClassicAssert.AreEqual(
               "0000000000000000000000000000000000000000000000000000000000000000",
-               new BigInteger256().ModMul(new BigInteger256(), BigInteger256Ext.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")).ToHexUnsigned()
+               new BigInteger256().ModMul(new BigInteger256(), BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")).ToHexUnsigned()
            );
         }
 
@@ -529,8 +529,8 @@ namespace Ecc.Tests.Math {
         public void ModInverseTest() {
             ClassicAssert.AreEqual(
               "6a6c59bdd7a25d5fcd3b69d7f8b183194451df6a625bbecf68e7d86e194c21ac",
-               BigInteger256Ext.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5").ModInverse(
-                    BigInteger256Ext.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")
+               BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5").ModInverse(
+                    BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")
                 ).ToHexUnsigned()
            );
         }
