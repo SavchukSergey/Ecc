@@ -17,7 +17,7 @@ namespace Ecc.Math {
         }
 
         /// <summary>
-        /// Multiplies two 256-bit numbers and returns first 256 bits of result
+        /// Multiplies two 256-bit numbers and returns last 256 bits of result
         /// </summary>
         /// <param name="left"></param>
         /// <param name="right"></param>
@@ -27,6 +27,16 @@ namespace Ecc.Math {
             x0.AssignAddHigh(Mul128Low(left.Low, right.High) + Mul128Low(left.High, right.Low));
 
             return x0;
+        }
+
+        /// <summary>
+        /// Multiplies two 256-bit numbers and returns first 256 bits of result
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static BigInteger256 MulHigh(in BigInteger256 left, in BigInteger256 right) {
+            return (left * right).High;
         }
 
     }

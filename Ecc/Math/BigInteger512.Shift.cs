@@ -103,6 +103,28 @@ namespace Ecc.Math {
             return new BigInteger512(High, new BigInteger256(0));
         }
 
+        public bool AssignLeftShift() {
+            return AssignAdd(this);
+        }
+
+        public uint ShiftLeft() {
+            uint carry = 0;
+            for (var i = 0; i < ITEMS_SIZE; i++) {
+                var sum = (ulong)carry;
+                sum += Data[i];
+                sum += Data[i];
+                Data[i] = (uint)sum;
+                carry = (uint)(sum >> 32);
+            }
+            return carry;
+        }
+
+        public BigInteger512 LeftShift(int count) {
+            var res = new BigInteger512(this);
+            res.AssignLeftShift(count);
+            return res;
+        }
+
         public void AssignLeftShift(int count) {
             if (count >= BITS_SIZE / 2) {
                 AssignLeftShiftHalf();
@@ -153,6 +175,12 @@ namespace Ecc.Math {
                 UInt64[i] = (acc >> count) + carry;
                 carry = acc << restBits;
             }
+        }
+
+        public readonly BigInteger512 RightShift(int count) {
+            var res = new BigInteger512(this);
+            res.AssignRightShift(count);
+            return res;
         }
     }
 }

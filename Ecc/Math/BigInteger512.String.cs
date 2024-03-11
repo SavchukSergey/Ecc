@@ -2,7 +2,7 @@ using System.Text;
 using System;
 
 namespace Ecc.Math {
-    public unsafe partial struct BigInteger512{
+    public unsafe partial struct BigInteger512 {
 
         public static BigInteger512 ParseHexUnsigned(ReadOnlySpan<char> val) {
             var res = new BigInteger512();
@@ -30,12 +30,11 @@ namespace Ecc.Math {
             }
         }
 
-        public readonly string ToHexUnsigned(int length = 64) {
-            var sbLength = (int)length * 2;
-            var sb = new StringBuilder(sbLength, sbLength);
+        public readonly string ToHexUnsigned() {
+            var sb = new StringBuilder(BYTES_SIZE * 2, BYTES_SIZE * 2);
             var dataLength = BYTES_SIZE;
             const string hex = "0123456789abcdef";
-            for (var i = length - 1; i >= 0; i--) {
+            for (var i = BYTES_SIZE - 1; i >= 0; i--) {
                 if (i < dataLength) {
                     var ch = GetByte(i);
                     sb.Append(hex[ch >> 4]);
@@ -52,8 +51,8 @@ namespace Ecc.Math {
             var sb = new StringBuilder(sbLength, sbLength);
             var dataLength = BYTES_SIZE;
             const string hex = "0123456789abcdef";
-            for (var i = 31; i >= 0; i--) {
-                if (i == 15) {
+            for (var i = 63; i >= 0; i--) {
+                if (i == 31) {
                     sb.Append('.');
                 }
                 if (i < dataLength) {

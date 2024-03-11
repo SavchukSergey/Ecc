@@ -180,22 +180,6 @@ namespace Ecc.Math {
             }
         }
 
-        public bool AssignLeftShift() {
-            return AssignAdd(this);
-        }
-
-        public uint ShiftLeft() {
-            uint carry = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                var sum = (ulong)carry;
-                sum += Data[i];
-                sum += Data[i];
-                Data[i] = (uint)sum;
-                carry = (uint)(sum >> 32);
-            }
-            return carry;
-        }
-
          public readonly int Compare(in BigInteger512 other) {
             for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
                 var leftBt = Data[i];

@@ -44,10 +44,8 @@ namespace Ecc.Math {
         }
 
         public BigInteger256(uint value) {
-            UInt32[0] = value;
-            for (var i = 1; i < UINT32_SIZE; i++) {
-                UInt32[i] = 0;
-            }
+            Low = value;
+            High = 0;
         }
 
         public BigInteger256(uint b0, uint b1) {

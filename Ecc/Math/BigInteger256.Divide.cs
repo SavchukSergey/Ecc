@@ -1,3 +1,6 @@
+using System;
+using System.Numerics;
+
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
@@ -29,41 +32,44 @@ namespace Ecc.Math {
             res.AssignLeftShift(BITS_SIZE - log2);
             var divisorFP = new BigInteger512(res);
 
-            //todo: use lookup table for x0 by first hex digit
+            //todo: special case 0.5
 
-            // 48/17
-            var divideT0FP = new BigInteger512(
-                new BigInteger256(0xd2d2d2d2d2d2d2d2ul, 0xd2d2d2d2d2d2d2d2ul, 0xd2d2d2d2d2d2d2d2ul, 0xd2d2d2d2d2d2d2d2ul),
-                new BigInteger256(2)
-            );
-            // 32 / 17
-            var divideT1FP = new BigInteger512(
-                new BigInteger256(0xe1e1e1e1e1e1e1e1ul, 0xe1e1e1e1e1e1e1e1ul, 0xe1e1e1e1e1e1e1e1ul, 0xe1e1e1e1e1e1e1e1ul),
-                new BigInteger256(1)
-            );
+            var x0 = EstimateReciprocal(divisorFP);
 
-            var x0 = divideT0FP - BigInteger512.MulFixedPoint(divideT1FP, divisorFP);
-
-            var x = x0;
 
             var one = new BigInteger512(new BigInteger256(0), new BigInteger256(1));
+            var y = x0 - one; // 0 < y <= 1
+
             //todo: limit loop
             for (var i = 0; i < 10; i++) {
-                var sub = one.Sub(BigInteger512.MulFixedPoint(x, divisorFP), out var neg);
-                if (neg) {
-                    sub.AssignNegate();
-                }
-                var dx = BigInteger512.MulFixedPoint(x, sub);
-                if (dx.IsZero) {
+                var yf = y.Low; // fraction of Y
+                var dyLow = yf * divisorFP.Low; // multiply fractional parts
+                dyLow.AssignRightShiftHalf(); //  only first 256 of result fraction
+                //var dyLowApprox = Mul128(yf.High, divisorFP.Low.High); // approx. multiply fractional parts
+                //var dyLow = new BigInteger512(dyLowApprox); //  only first 256 of result fraction
+
+                var dx = dyLow + divisorFP;
+                var sub = one.Sub(dx, out var neg);
+                if (sub.IsZero) {
                     break;
                 }
                 if (neg) {
-                    x.AssignSub(dx);
+                    sub.AssignNegate();
+                }
+                var subL = sub.Low;
+                var ysub = yf * subL;  //yf and subL are below 1
+                ysub.AssignRightShiftHalf();//  only first 256 of result fraction
+                ysub.AssignAdd(sub);
+
+                var deltaX = ysub; // BigInteger512.MulFixedPoint(x, sub);
+                if (neg) {
+                    y.AssignSub(deltaX);
                 } else {
-                    x.AssignAdd(dx);
+                    y.AssignAdd(deltaX);
                 }
             }
 
+            var x = y + one;
             var reciprocal = x;
 
             var leftFP = new BigInteger512(new BigInteger256(0), dividend);
@@ -79,5 +85,13 @@ namespace Ecc.Math {
             return q;
         }
 
+
+        private static BigInteger512 EstimateReciprocal(in BigInteger512 divisorFP) {
+            var tableIndex = divisorFP.Low.High >> 64;
+            var max = new UInt128(0x8000_0000_0000_0000ul, 0); // 2 ^ 127
+            var value = max / tableIndex; 
+
+            return new BigInteger512(new BigInteger256(value), new BigInteger256()).LeftShift(193);
+        }
     }
 }
