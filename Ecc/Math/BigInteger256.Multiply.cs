@@ -1,5 +1,20 @@
+using System;
+
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
+
+        public static BigInteger512 operator *(in BigInteger256 left, in UInt128 right) {
+            var ah = left.High;
+            var al = left.Low;
+            var bl = right;
+
+            var zero = new BigInteger256(0);
+            var x0 = new BigInteger512(Mul128(al, bl), zero);
+            var x1 = new BigInteger512(Mul128(ah, bl), zero);
+            x1.AssignLeftShiftQuarter();
+
+            return x0 + x1;
+        }
 
         public static BigInteger512 operator *(in BigInteger256 left, in BigInteger256 right) {
             var ah = left.High;

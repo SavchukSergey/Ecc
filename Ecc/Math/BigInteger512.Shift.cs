@@ -138,16 +138,14 @@ namespace Ecc.Math {
                 AssignLeftShift64();
                 count -= 64;
             }
-            //if (count >= 32) {
-            //    AssignLeftShift32();
-            //    count -= 32;
-            //}
-            ulong carry = 0;
-            var restBits = 64 - count;
-            for (var i = 0; i < UINT64_SIZE; i++) {
-                var acc = UInt64[i];
-                UInt64[i] = (acc << count) + carry;
-                carry = acc >> restBits;
+            if (count > 0) {
+                ulong carry = 0;
+                var restBits = 64 - count;
+                for (var i = 0; i < UINT64_SIZE; i++) {
+                    var acc = UInt64[i];
+                    UInt64[i] = (acc << count) + carry;
+                    carry = acc >> restBits;
+                }
             }
         }
 
@@ -164,16 +162,14 @@ namespace Ecc.Math {
                 AssignRightShift64();
                 count -= 64;
             }
-            //if (count >= 32) {
-            //    AssignLeftShift32();
-            //    count -= 32;
-            //}
-            ulong carry = 0;
-            var restBits = 64 - count;
-            for (var i = UINT64_SIZE - 1; i >= 0; i--) {
-                var acc = UInt64[i];
-                UInt64[i] = (acc >> count) + carry;
-                carry = acc << restBits;
+            if (count > 0) {
+                ulong carry = 0;
+                var restBits = 64 - count;
+                for (var i = UINT64_SIZE - 1; i >= 0; i--) {
+                    var acc = UInt64[i];
+                    UInt64[i] = (acc >> count) + carry;
+                    carry = acc << restBits;
+                }
             }
         }
 

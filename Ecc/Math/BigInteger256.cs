@@ -219,6 +219,17 @@ namespace Ecc.Math {
             return carry;
         }
 
+        public bool AssignDecrement() {
+            bool carry = true;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                UInt128 acc = UInt64[i];
+                acc -= carry ? 1ul : 0ul;
+                UInt64[i] = (ulong)acc;
+                carry = acc > ulong.MaxValue;
+            }
+            return carry;
+        }
+
         public readonly BigInteger256 ModAdd(in BigInteger256 other, in BigInteger256 modulus) {
             var res = new BigInteger256(this);
             var carry = res.AssignAdd(other);
@@ -375,7 +386,7 @@ namespace Ecc.Math {
         public static BigInteger256 operator /(in BigInteger256 left, in BigInteger256 right) {
             return DivRem(left, right, out var _);
         }
-      
+
         private static BigInteger256 Mul128(UInt128 left, UInt128 right) {
             var ah = left >> 64;
             var al = (UInt128)(ulong)left;
@@ -463,7 +474,20 @@ namespace Ecc.Math {
             return Compare(left, right) != 0;
         }
 
+        public readonly int LeadingZeroCount() {
+            var val = 0;
+            for (var i = UINT64_SIZE - 1; i >= 0; i--) {
+                var cnt = BitOperations.LeadingZeroCount(UInt64[i]);
+                if (cnt < 64) {
+                    return val + cnt;
+                }
+                val += 64;
+            }
+            return val;
+        }
+
         public readonly int Log2() {
+            //BitOperations.LeadingZeroCount(UInt64[3]); //todo
             int res = BITS_SIZE;
             for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
                 var item = GetItem(i); //todo: use UInt128 items

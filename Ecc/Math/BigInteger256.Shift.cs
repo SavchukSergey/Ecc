@@ -39,12 +39,46 @@ namespace Ecc.Math {
                 AssignLeftShiftQuarter();
                 count -= BITS_SIZE / 4;
             }
-            ulong carry = 0;
-            var restBits = 64 - count;
-            for (var i = 0; i < UINT64_SIZE; i++) {
-                var acc = UInt64[i];
-                UInt64[i] = (acc << count) + carry;
-                carry = acc >> restBits;
+            if (count > 0) {
+                ulong carry = 0;
+                var restBits = 64 - count;
+                for (var i = 0; i < UINT64_SIZE; i++) {
+                    var acc = UInt64[i];
+                    UInt64[i] = (acc << count) + carry;
+                    carry = acc >> restBits;
+                }
+            }
+        }
+
+        public void AssignRightShiftHalf() {
+            Low = High;
+            High = 0;
+        }
+
+        public void AssignRightShiftQuarter() {
+            UInt64[0] = UInt64[1];
+            UInt64[1] = UInt64[2];
+            UInt64[2] = UInt64[3];
+            UInt64[3] = 0;
+        }
+
+        public void AssignRightShift(int count) {
+            if (count >= BITS_SIZE / 2) {
+                AssignRightShiftHalf();
+                count -= BITS_SIZE / 2;
+            }
+            if (count >= BITS_SIZE / 4) {
+                AssignRightShiftQuarter();
+                count -= BITS_SIZE / 4;
+            }
+            if (count > 0) {
+                ulong carry = 0;
+                var restBits = 64 - count;
+                for (var i = UINT64_SIZE - 1; i >= 0; i--) {
+                    var acc = UInt64[i];
+                    UInt64[i] = (acc >> count) + carry;
+                    carry = acc << restBits;
+                }
             }
         }
 

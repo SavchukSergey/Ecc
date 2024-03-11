@@ -178,6 +178,16 @@ namespace Ecc.Tests.Math {
             ClassicAssert.AreEqual(remHex, reminder.ToHexUnsigned());
         }
 
+        [TestCaseSource(nameof(DivideCases))]
+        public void DivRem2Test(string leftHex, string rightHex, string qHex, string remHex) {
+            var left = BigInteger256.ParseHexUnsigned(leftHex);
+            var right = BigInteger256.ParseHexUnsigned(rightHex);
+
+            var res = BigInteger256.DivRem2(left, right, out var reminder);
+            ClassicAssert.AreEqual(qHex, res.ToHexUnsigned());
+            ClassicAssert.AreEqual(remHex, reminder.ToHexUnsigned());
+        }
+
         public static IEnumerable<string[]> DivideCases() {
             yield return [
                 "cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5",
@@ -413,8 +423,16 @@ namespace Ecc.Tests.Math {
             }
             sw3.Stop();
 
+            var sw4 = new Stopwatch();
+            sw4.Start();
+            for (var i = 0; i < cnt; i++) {
+                BigInteger256.DivRem2(left, right, out var _);
+            }
+            sw4.Stop();
+
             Console.WriteLine($"Ecc div per second: {(double)cnt / sw1.Elapsed.TotalSeconds}");
             Console.WriteLine($"Ecc div newton per second: {(double)cnt / sw3.Elapsed.TotalSeconds}");
+            Console.WriteLine($"Ecc div 2 per second: {(double)cnt / sw4.Elapsed.TotalSeconds}");
             Console.WriteLine($"Native div per second: {(double)cnt / sw2.Elapsed.TotalSeconds}");
         }
 
