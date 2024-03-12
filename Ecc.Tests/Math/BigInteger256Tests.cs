@@ -204,6 +204,12 @@ namespace Ecc.Tests.Math {
 
             yield return [
                 "cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5",
+                "000000000000000000000000000000006e3be8abd2e089ed812475be9b51c3cf",
+                "00000000000000000000000000000001dd15d2c949aeda9ea5c7f77e1c7d2c3b",
+                "000000000000000000000000000000001294f2aac703fc89ac5cb7b3a05bab30"
+            ];
+            yield return [
+                "cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5",
                 "00000000000000000000000000000006e3be8abd2e089ed812475be9b51c3cfc",
                 "000000000000000000000000000000001dd15d2c949aeda9ea5c7f77e1c7d2c3",
                 "00000000000000000000000000000003695793f5df66c5c73c97cd45b78133f1"
@@ -397,9 +403,20 @@ namespace Ecc.Tests.Math {
         }
 
         [Test]
-        public void DivPerformanceTest() {
+        public void DivPerformanceBigTest() {
             var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            DivPerformanceTest(left, right);
+        }
+
+        [Test]
+        public void DivPerformanceSmallTest() {
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var right = BigInteger256.ParseHexUnsigned("00000000000000000000000000000000000000000000000000000069bf272715");
+            DivPerformanceTest(left, right);
+        }
+
+        private void DivPerformanceTest(BigInteger256 left, BigInteger256 right) {
 
             var cnt = 10000;
 

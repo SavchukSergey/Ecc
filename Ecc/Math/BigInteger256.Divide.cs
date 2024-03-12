@@ -1,12 +1,11 @@
 using System;
 using System.Numerics;
-using System.Reflection;
 
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
         public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-            return DivRemBits(dividend, divisor, out remainder);
+            return DivRem2(dividend, divisor, out remainder);
         }
 
         public static BigInteger256 DivRemBits(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
@@ -37,31 +36,26 @@ namespace Ecc.Math {
 
             var x0 = EstimateReciprocal(divisorFP);
 
-
-            var one256 = new BigInteger256(1);
-            var zero256 = new BigInteger256(0);
-            var oneFP = new BigInteger512(zero256, one256);
-            var y = (x0 - oneFP).Low; // 0 < y <= 1, fractional part only
+            var y = x0.Low; // 0 < y <= 1, fractional part only
 
             //todo: limit loop
-            for (var i = 0; i < 10; i++) {
+            for (var i = 0; i < 5; i++) {
                 var dyLow256 = MulHigh(y, divisorFP.Low);// multiply fractional parts and use only first 256 bits of result fraction
 
                 var dx2 = dyLow256;
                 dx2.AssignAdd(divisor256); //sum is >= 1.0
-
-                var sub256 = zero256.Sub(dx2, out var _);
-                if (sub256.IsZero) {
+                if (dx2.IsZero) {
                     break;
                 }
-                var ysub256 = MulHigh(y, sub256);  //y and subL are below 1 and use only first 256 bits of result fraction
-                ysub256.AssignAdd(sub256);
+                dx2.AssignNegate();
 
-                var deltaX = ysub256;
-                y.AssignAdd(deltaX);
+                var ysub256 = MulHigh(y, dx2);  //y and subL are below 1 and use only first 256 bits of result fraction
+                y.AssignAdd(dx2);
+                y.AssignAdd(ysub256);
             }
 
-            var x = new BigInteger512(y, new BigInteger256(0)) + oneFP;
+            var x = new BigInteger512(y, new BigInteger256(0));
+            x.High.AssignIncrement();
             var reciprocal = x;
 
             var leftFP = new BigInteger512(new BigInteger256(0), dividend);

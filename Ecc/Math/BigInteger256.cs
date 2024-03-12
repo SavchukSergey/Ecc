@@ -2,7 +2,6 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Ecc.Math {
     [StructLayout(LayoutKind.Explicit, Size = 32)]
@@ -233,14 +232,11 @@ namespace Ecc.Math {
         }
 
         public void AssignNegate() {
-            bool carry = false;
-            ulong add = 1ul;
+            var carry = false;
             for (var i = 0; i < UINT64_SIZE; i++) {
-                UInt128 acc = 0xffffffff_fffffffful;
+                UInt128 acc = 0;
                 acc -= UInt64[i];
                 acc -= carry ? 1u : 0u;
-                acc += add;
-                add = 0;
                 UInt64[i] = (ulong)acc;
                 carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
             }
