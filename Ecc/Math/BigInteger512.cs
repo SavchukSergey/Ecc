@@ -136,6 +136,16 @@ namespace Ecc.Math {
             return carry;
         }
 
+        public bool AssignDouble() {
+            ulong carry = 0;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                var acc = UInt64[i];
+                UInt64[i] = (acc << 1) + carry;
+                carry = acc >> 63;
+            }
+            return carry > 0;
+        }
+
         public void AssignAddHigh(in BigInteger256 other) {
             High += other;
         }

@@ -202,66 +202,40 @@ namespace Ecc.Math {
             return carry > 0;
         }
 
+        public bool AssignDouble() {
+            ulong carry = 0;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                var acc = UInt64[i];
+                UInt64[i] = (acc << 1) + carry;
+                carry = acc >> 63;
+            }
+            return carry > 0;
+        }
+
         public void AssignAddHigh(UInt128 other) {
             High += other;
         }
 
-        public bool AssignSub(in BigInteger256 other) {
-            bool carry = false;
-            for (var i = 0; i < UINT64_SIZE; i++) {
-                UInt128 acc = UInt64[i];
-                acc -= other.UInt64[i];
-                acc -= carry ? 1ul : 0ul;
-                UInt64[i] = (ulong)acc;
-                carry = acc > ulong.MaxValue;
-            }
-            return carry;
-        }
-
-        public readonly BigInteger256 Sub(in BigInteger256 other, out bool carry) {
-            carry = false;
-            var res = new BigInteger256(this);
-            for (var i = 0; i < UINT64_SIZE; i++) {
-                UInt128 acc = UInt64[i];
-                acc -= other.UInt64[i];
-                acc -= carry ? 1u : 0u;
-                res.UInt64[i] = (ulong)acc;
-                carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
-            }
-            return res;
-        }
-
         public void AssignNegate() {
-            var carry = false;
-            for (var i = 0; i < UINT64_SIZE; i++) {
-                UInt128 acc = 0;
-                acc -= UInt64[i];
-                acc -= carry ? 1u : 0u;
-                UInt64[i] = (ulong)acc;
-                carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
+            var borrow = Low != 0;
+            Low = -Low;
+            High = -High;
+            if (borrow) {
+                High--;
             }
         }
 
-        public bool AssignDecrement() {
-            bool carry = true;
-            for (var i = 0; i < UINT64_SIZE; i++) {
-                UInt128 acc = UInt64[i];
-                acc -= carry ? 1ul : 0ul;
-                UInt64[i] = (ulong)acc;
-                carry = acc > ulong.MaxValue;
+        public void AssignDecrement() {
+            if (Low == 0) {
+                High--;
             }
-            return carry;
+            Low--;
         }
-
-        public bool AssignIncrement() {
-            UInt128 carry = 1;
-            for (var i = 0; i < UINT64_SIZE; i++) {
-                UInt128 acc = UInt64[i];
-                acc += carry;
-                UInt64[i] = (ulong)acc;
-                carry = acc >> 64;
+        public void AssignIncrement() {
+            Low++;
+            if (Low == 0) {
+                High++;
             }
-            return carry > 0;
         }
 
         public readonly BigInteger256 ModAdd(in BigInteger256 other, in BigInteger256 modulus) {
@@ -274,16 +248,16 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger256 ModSub(in BigInteger256 other, in BigInteger256 modulus) {
-            var res = new BigInteger256(); //todo: unneccessary zeroing
-            bool carry = false;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                ulong acc = Data[i];
-                acc -= other.Data[i];
-                acc -= carry ? 1ul : 0ul;
-                res.Data[i] = (uint)acc;
-                carry = acc > uint.MaxValue;
+            var res = this;
+            var borrow = res.Low < other.Low;
+            res.Low -= other.Low;
+            if (borrow) {
+                borrow = res.High == 0;
+                res.High--;
             }
-            if (carry || res >= modulus) {
+            borrow |= res.High < other.High;
+            res.High -= other.High;
+            if (borrow) {
                 res.AssignAdd(modulus);
             }
             return res;
@@ -313,6 +287,7 @@ namespace Ecc.Math {
         // }
 
         public readonly BigInteger256 ModMul(in BigInteger256 other, in BigInteger256 modulus) {
+            //todo: optimize
             return ModMulBit(other, modulus);
         }
 
@@ -481,19 +456,6 @@ namespace Ecc.Math {
         public static BigInteger256 operator +(in BigInteger256 left, in BigInteger256 right) {
             var res = new BigInteger256(left);
             res.AssignAdd(right);
-            return res;
-        }
-
-        public static BigInteger256 operator -(in BigInteger256 left, in BigInteger256 right) {
-            var res = new BigInteger256();
-            bool carry = false;
-            for (var i = 0; i < UINT64_SIZE; i++) {
-                UInt128 acc = left.UInt64[i];
-                acc -= right.UInt64[i];
-                acc -= carry ? 1u : 0u;
-                res.UInt64[i] = (ulong)acc;
-                carry = acc > ulong.MaxValue;
-            }
             return res;
         }
 

@@ -1,23 +1,10 @@
 using System;
-using System.Numerics;
 using System.Security.Cryptography;
 
 namespace Ecc.Math {
     public static class BigInteger256Ext {
 
-        private static RandomNumberGenerator _cng = RandomNumberGenerator.Create();
-
-
-        [Obsolete]
-        public static BigInteger ModAbs(this in BigInteger val, in BigInteger modulus) {
-            if (val.Sign == -1) {
-                return modulus - ((-val) % modulus);
-            }
-            if (val < modulus) {
-                return val;
-            }
-            return val % modulus;
-        }
+        private static readonly RandomNumberGenerator _cng = RandomNumberGenerator.Create();
 
         public static BigInteger256 ModDiv(this in BigInteger256 a, in BigInteger256 b, in BigInteger256 modulus) {
             return a.ModMul(b.ModInverse(modulus), modulus);

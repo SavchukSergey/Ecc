@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
-using System.Text.RegularExpressions;
 using Ecc.Math;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
@@ -400,6 +399,138 @@ namespace Ecc.Tests.Math {
                 "0000000000000000000000000000000000000000000000000000000000000001",
                 "5f331d8a3cc5259694d330ba0ff414f2081bf3d40b1d33ec5b9ce29a477d0b5e"
             ];
+        }
+
+        [Test]
+        public void ShiftVsDoublePerformanceTest() {
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var cnt = 10000;
+
+            var swShift = new Stopwatch();
+            swShift.Start();
+            for (var i = 0; i < cnt; i++) {
+                new BigInteger256(left).AssignLeftShift(1);
+            }
+            swShift.Stop();
+
+            var swDouble = new Stopwatch();
+            swDouble.Start();
+            for (var i = 0; i < cnt; i++) {
+                new BigInteger256(left).AssignDouble();
+            }
+            swDouble.Stop();
+
+            Console.WriteLine($"mega shifts per second: {(double)cnt / 1e6 / swShift.Elapsed.TotalSeconds}");
+            Console.WriteLine($"mega double per second: {(double)cnt / 1e6 / swDouble.Elapsed.TotalSeconds}");
+        }
+
+        [Test]
+        public void AddPerformanceTest() {
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+
+            var cnt = 10000;
+
+            //warm up
+            for (var i = 0; i < cnt; i++) {
+                new BigInteger256(left).AssignAdd(right);
+            }
+
+            var sw = new Stopwatch();
+            sw.Start();
+            for (var i = 0; i < cnt; i++) {
+                new BigInteger256(left).AssignAdd(right);
+            }
+            sw.Stop();
+
+            Console.WriteLine($"mega adds per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
+        }
+
+        [Test]
+        public void IncrementPerformanceTest() {
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+
+            var cnt = 10000;
+
+            //warm up
+            for (var i = 0; i < cnt; i++) {
+                new BigInteger256(left).AssignIncrement();
+            }
+
+            var sw = new Stopwatch();
+            sw.Start();
+            for (var i = 0; i < cnt; i++) {
+                new BigInteger256(left).AssignIncrement();
+            }
+            sw.Stop();
+
+            Console.WriteLine($"mega increments per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
+        }
+
+        [Test]
+        public void DecrementPerformanceTest() {
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+
+            var cnt = 10000;
+
+            //warm up
+            for (var i = 0; i < cnt; i++) {
+                new BigInteger256(left).AssignDecrement();
+            }
+
+            var sw = new Stopwatch();
+            sw.Start();
+            for (var i = 0; i < cnt; i++) {
+                new BigInteger256(left).AssignDecrement();
+            }
+            sw.Stop();
+
+            Console.WriteLine($"mega decrements per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
+        }
+
+        [Test]
+        public void SubPerformanceTest() {
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+
+            var cnt = 10000;
+
+            //warm up
+            for (var i = 0; i < cnt; i++) {
+                new BigInteger256(left).AssignSub(right);
+            }
+
+            var sw = new Stopwatch();
+            sw.Start();
+            for (var i = 0; i < cnt; i++) {
+                new BigInteger256(left).AssignSub(right);
+            }
+            sw.Stop();
+
+            Console.WriteLine($"mega subs per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
+        }
+
+        [Test]
+        public void ModSubPerformanceTest() {
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            var modulus = BigInteger256.ParseHexUnsigned("0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
+
+            var cnt = 10000;
+
+            //warm up
+            for (var i = 0; i < cnt; i++) {
+                var _ = left.ModSub(right, modulus);
+            }
+
+            var sw = new Stopwatch();
+            sw.Start();
+            for (var i = 0; i < cnt; i++) {
+                var _ = left.ModSub(right, modulus);
+            }
+            sw.Stop();
+
+            Console.WriteLine($"mega mod-subs per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
         }
 
         [Test]

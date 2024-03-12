@@ -37,7 +37,7 @@ namespace Ecc.Math {
                 } else {
                     //next shift guranteed to be successful
                     if (bit > 0) {
-                        value.AssignLeftShift(1); // overflow to 257 bit but it does not matter
+                        value.AssignDouble(); // overflow to 257 bit but it does not matter
                         totalShift++;
                         value.AssignSub(divisorN);
                         result.SetBit(bit - 1);
@@ -54,7 +54,7 @@ namespace Ecc.Math {
             var value = new BigInteger512(dividend);
             var bit = BITS_SIZE - 1;
             for (var i = 0; i < BITS_SIZE; i++) {
-                value.AssignLeftShift();
+                value.AssignDouble();
                 if (value.High >= divisor) {
                     value.High.AssignSub(divisor);
                     result.SetBit(bit);

@@ -103,10 +103,6 @@ namespace Ecc.Math {
             return new BigInteger512(High, new BigInteger256(0));
         }
 
-        public bool AssignLeftShift() {
-            return AssignAdd(this);
-        }
-
         public uint ShiftLeft() {
             uint carry = 0;
             for (var i = 0; i < ITEMS_SIZE; i++) {
