@@ -27,7 +27,7 @@ namespace Ecc.Math {
         internal fixed ulong UInt64[UINT64_SIZE];
 
         [FieldOffset(0)]
-        internal fixed ulong UInt32[UINT32_SIZE];
+        internal fixed uint UInt32[UINT32_SIZE];
 
         [FieldOffset(0)]
         internal fixed ulong UInt16[UINT16_SIZE];
@@ -230,6 +230,17 @@ namespace Ecc.Math {
             return carry;
         }
 
+        public bool AssignIncrement() {
+            UInt128 carry = 1;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                UInt128 acc = UInt64[i];
+                acc += carry;
+                UInt64[i] = (ulong)acc;
+                carry = acc >> 64;
+            }
+            return carry > 0;
+        }
+
         public readonly BigInteger256 ModAdd(in BigInteger256 other, in BigInteger256 modulus) {
             var res = new BigInteger256(this);
             var carry = res.AssignAdd(other);
@@ -357,6 +368,19 @@ namespace Ecc.Math {
             return 0;
         }
 
+        public static int Compare(in BigInteger256 left, ulong right) {
+            if (left.High > 0) {
+                return -1;
+            }
+            if (left.Low < right) {
+                return -1;
+            }
+            if (left.Low > right) {
+                return 1;
+            }
+            return 0;
+        }
+
         public static bool Equals(in BigInteger256 left, in BigInteger256 right) {
             return Compare(left, right) == 0;
         }
@@ -427,8 +451,8 @@ namespace Ecc.Math {
         }
 
         public static BigInteger256 operator %(in BigInteger256 left, in BigInteger256 right) {
-            DivRem(left, right, out var reminder);
-            return reminder;
+            DivRem(left, right, out var remainder);
+            return remainder;
         }
 
         public static BigInteger256 operator +(in BigInteger256 left, in BigInteger256 right) {
@@ -459,6 +483,14 @@ namespace Ecc.Math {
         }
 
         public static bool operator <=(in BigInteger256 left, in BigInteger256 right) {
+            return Compare(left, right) <= 0;
+        }
+
+        public static bool operator >=(in BigInteger256 left, ulong right) {
+            return Compare(left, right) >= 0;
+        }
+
+        public static bool operator <=(in BigInteger256 left, ulong right) {
             return Compare(left, right) <= 0;
         }
 

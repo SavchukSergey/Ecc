@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Reflection;
 
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
@@ -89,74 +90,173 @@ namespace Ecc.Math {
 
             return q;
         }
+
         public static BigInteger256 DivRem2(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
 
             var divShiftBits = divisor.LeadingZeroCount();
-            var divisorN64 = divisor.Clone();
-            divisorN64.AssignLeftShift(divShiftBits);
-            var divisorN63 = divisorN64.Clone();
-            divisorN63.AssignRightShift(1);
+            if (divShiftBits >= BITS_SIZE - 32) {
+                return DivRem32(dividend, divisor.UInt32[0], out remainder);
+            }
+            if (divShiftBits >= BITS_SIZE - 64) {
+                return DivRem64(dividend, divisor.UInt64[0], out remainder);
+            }
 
-            var divPart64 = (UInt128)divisorN64.UInt64[3];
-            var divPart63 = (UInt128)divisorN63.UInt64[3];
+            var q = new BigInteger256();
+
+            var originalDividend = dividend.Clone();
+
+            var dividend2 = dividend;
+            //todo: check divisor.UInt64[3] + 1 overflow
+            //todo: check if divisor.UInt64[3] == 0, useless estiamtion
+            //todo: normalzie divisor before estimate?
+            //var estimate = DivRem64(dividend2, divisor.UInt64[3] + 1, out var _);
+            //estimate.AssignRightShift(192);
+            //var estimateQ = estimate * divisor;
+            //q.AssignAdd(estimate);
+            //dividend2.AssignSub(estimateQ.Low);
+
+            var divisorN = divisor.Clone();
+            divisorN.AssignLeftShift(divShiftBits);
+
+            var divPart64 = (UInt128)divisorN.UInt64[3];
+
+            var remainderConsumedLog2 = 0;
+            remainder = dividend2;
+
+            //todo: estimate division by divisor rounded by highest 64 bits. and then refine with expensive routine below
+            //todo: it performs better with division by byte rather then u64
+
+            while (remainderConsumedLog2 < BITS_SIZE) {
+                var remainderAdjust = remainder.LeadingZeroCount();
+                remainderConsumedLog2 += remainderAdjust;
+                if (remainderConsumedLog2 > BITS_SIZE) {
+                    remainderAdjust -= remainderConsumedLog2 - BITS_SIZE;
+                    remainderConsumedLog2 = BITS_SIZE;
+                }
+                remainder.AssignLeftShift(remainderAdjust);
+                var remPart128 = remainder.High;
+
+                UInt128 guess = remPart128 / (divPart64 + 1);
+
+                var delta = divisor * guess;
+                var correction2 = divShiftBits - 64; // -64 as we take 128 bit remainder versus 64 bit divisor
+                if (correction2 > 0) {
+                    delta.AssignLeftShift(correction2);
+                } else if (correction2 < 0) {
+                    delta.AssignRightShift(-correction2);
+                }
+                remainder.AssignSub(delta.Low);
+                var correction = divShiftBits - remainderConsumedLog2 - 64; // -64 as we take 128 bit remainder versus 64 bit divisor
+                var guessQ = new BigInteger256(guess);
+                if (correction > 0) {
+                    guessQ.AssignLeftShift(correction);
+                } else if (correction < 0) {
+                    guessQ.AssignRightShift(-correction);
+                }
+                q.AssignAdd(guessQ);
+            }
+
+            remainder = originalDividend - (divisor * q).Low; //todo: it could be derived somehow from above
+
+            return q;
+        }
+
+        public static BigInteger256 DivRem64(in BigInteger256 dividend, ulong divisor, out BigInteger256 remainder) {
+            //todo: very fast at first bits but slow at then end. Get first half and improve by Newton?
+            var divShiftBits = BitOperations.LeadingZeroCount(divisor);
+            //todo: if divisor is small call optimized method
+            var divisorN = divisor << divShiftBits;
+
+            var divPart128 = (UInt128)divisorN;
 
             var q = new BigInteger256();
 
             var remainderConsumedLog2 = 0;
             remainder = dividend;
 
+            //todo: estimate division by divisor rounded by highest 32 bits. and then refine with expensive routine below
+            //todo: it performs better with division by byte rather then u64
+
             while (remainderConsumedLog2 < BITS_SIZE) {
-                var reminderAdjust = remainder.LeadingZeroCount();
-                remainderConsumedLog2 += reminderAdjust;
+                var remainderAdjust = remainder.LeadingZeroCount();
+                remainderConsumedLog2 += remainderAdjust;
                 if (remainderConsumedLog2 > BITS_SIZE) {
-                    reminderAdjust -= remainderConsumedLog2 - BITS_SIZE;
+                    remainderAdjust -= remainderConsumedLog2 - BITS_SIZE;
                     remainderConsumedLog2 = BITS_SIZE;
                 }
-                remainder.AssignLeftShift(reminderAdjust);
-                if (remainder > divisorN64) {
-                    var remPart128 = remainder.High;
-                    UInt128 guess = 1; // as reminder >= divissorN64;
-                    if (remPart128 > divPart64) {
-                        guess = remPart128 / (divPart64 + 1);
-                    }
-                    var delta = guess * divPart64;
-                    remainder.High -= delta;
-                    var guessQ = new BigInteger256(guess);
-                    var dlog = divShiftBits - remainderConsumedLog2 - 64; // -64 as we take 128 bit reminder versus 64 bit divisor
-                    if (dlog > 0) {
-                        guessQ.AssignLeftShift(dlog);
-                    } else if (dlog < 0) {
-                        guessQ.AssignRightShift(-dlog);
-                    }
-                    q.AssignAdd(guessQ);
-                } else {
-                    // use 63-bit divisor. Remainder garanteed to be greater that 63-bit divisor
-                    var remPart128 = remainder.High;
-                    UInt128 guess = 1; // as reminder >= divissorN63;
-                    if (remPart128 > divPart63) {
-                        guess = remPart128 / (divPart63 + 1);
-                    }
-                    var delta = guess * divPart63;
-                    remainder.High -= delta;
-                    var guessQ = new BigInteger256(guess);
-                    var dlog = divShiftBits - remainderConsumedLog2 - 65; // -65 as we take 128 bit reminder versus 63 bit divisor
-                    if (dlog > 0) {
-                        guessQ.AssignLeftShift(dlog);
-                    } else if (dlog < 0) {
-                        guessQ.AssignRightShift(-dlog);
-                    }
-                    q.AssignAdd(guessQ);
-                }
+                remainder.AssignLeftShift(remainderAdjust);
+                var remPart128 = remainder.High;
 
+                UInt128 guess = remPart128 / (divPart128 + 1);
+
+                var delta = divisorN * guess;
+                remainder.High -= delta;
+
+                var guessQ = new BigInteger256(guess);
+                var dlog = divShiftBits - remainderConsumedLog2 + 128;
+                if (dlog > 0) {
+                    guessQ.AssignLeftShift(dlog);
+                } else if (dlog < 0) {
+                    guessQ.AssignRightShift(-dlog);
+                }
+                q.AssignAdd(guessQ);
             }
 
-            remainder.AssignRightShift(189); //magic number. It must be 256
+            remainder = dividend - (q * divisor).Low; //todo: it could be derived somehow from above
 
             return q;
-
         }
 
+        public static BigInteger256 DivRem32(in BigInteger256 dividend, uint divisor, out BigInteger256 remainder) {
+            //todo: very fast at first bits but slow at then end. Get first half and improve by Newton?
+            var divShiftBits = BitOperations.LeadingZeroCount(divisor);
+            //todo: if divisor is small call optimized method
+            var divisorN = divisor << divShiftBits;
 
+            var divPart128 = (UInt128)divisorN;
+
+            var q = new BigInteger256();
+
+            var remainderConsumedLog2 = 0;
+            remainder = dividend;
+
+            //todo: estimate division by divisor rounded by highest 16 bits. and then refine with expensive routine below
+            //todo: it performs better with division by byte rather then u64
+
+            while (remainderConsumedLog2 < BITS_SIZE) {
+                var remainderAdjust = remainder.LeadingZeroCount();
+                remainderConsumedLog2 += remainderAdjust;
+                if (remainderConsumedLog2 > BITS_SIZE) {
+                    remainderAdjust -= remainderConsumedLog2 - BITS_SIZE;
+                    remainderConsumedLog2 = BITS_SIZE;
+                }
+                remainder.AssignLeftShift(remainderAdjust);
+                var remPart128 = remainder.High;
+
+                UInt128 guess = remPart128 / (divPart128 + 1);
+
+                var delta = divisorN * guess;
+                remainder.High -= delta;
+
+                var guessQ = new BigInteger256(guess);
+                var dlog = divShiftBits - remainderConsumedLog2 + 128;
+                if (dlog > 0) {
+                    guessQ.AssignLeftShift(dlog);
+                } else if (dlog < 0) {
+                    guessQ.AssignRightShift(-dlog);
+                }
+                q.AssignAdd(guessQ);
+            }
+
+            remainder = dividend - (q * divisor).Low; //todo: it could be derived somehow from above
+
+            if (remainder >= divisor) {
+                remainder.AssignSub(new BigInteger256(divisor));
+                q.AssignIncrement();
+            }
+
+            return q;
+        }
 
         private static BigInteger512 EstimateReciprocal(in BigInteger512 divisorFP) {
             var tableIndex = divisorFP.Low.High >> 64;

@@ -143,9 +143,9 @@ namespace Ecc.Tests.Math {
             var left = BigInteger256.ParseHexUnsigned(leftHex);
             var right = BigInteger256.ParseHexUnsigned(rightHex);
 
-            var res = BigInteger.DivRem(left.ToNative(), right.ToNative(), out var reminder);
+            var res = BigInteger.DivRem(left.ToNative(), right.ToNative(), out var remainder);
             ClassicAssert.AreEqual(qHex, new BigInteger256(res).ToHexUnsigned());
-            ClassicAssert.AreEqual(remHex, new BigInteger256(reminder).ToHexUnsigned());
+            ClassicAssert.AreEqual(remHex, new BigInteger256(remainder).ToHexUnsigned());
         }
 
         [TestCaseSource(nameof(DivideCases))]
@@ -153,9 +153,9 @@ namespace Ecc.Tests.Math {
             var left = BigInteger256.ParseHexUnsigned(leftHex);
             var right = BigInteger256.ParseHexUnsigned(rightHex);
 
-            var res = BigInteger256.DivRem(left, right, out var reminder);
+            var res = BigInteger256.DivRem(left, right, out var remainder);
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned());
-            ClassicAssert.AreEqual(remHex, reminder.ToHexUnsigned());
+            ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned());
         }
 
         [TestCaseSource(nameof(DivideCases))]
@@ -163,9 +163,9 @@ namespace Ecc.Tests.Math {
             var left = BigInteger256.ParseHexUnsigned(leftHex);
             var right = BigInteger256.ParseHexUnsigned(rightHex);
 
-            var res = BigInteger256.DivRemBits(left, right, out var reminder);
+            var res = BigInteger256.DivRemBits(left, right, out var remainder);
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned());
-            ClassicAssert.AreEqual(remHex, reminder.ToHexUnsigned());
+            ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned());
         }
 
         [TestCaseSource(nameof(DivideCases))]
@@ -173,9 +173,9 @@ namespace Ecc.Tests.Math {
             var left = BigInteger256.ParseHexUnsigned(leftHex);
             var right = BigInteger256.ParseHexUnsigned(rightHex);
 
-            var res = BigInteger256.DivRemNewton(left, right, out var reminder);
+            var res = BigInteger256.DivRemNewton(left, right, out var remainder);
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned());
-            ClassicAssert.AreEqual(remHex, reminder.ToHexUnsigned());
+            ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned());
         }
 
         [TestCaseSource(nameof(DivideCases))]
@@ -183,9 +183,9 @@ namespace Ecc.Tests.Math {
             var left = BigInteger256.ParseHexUnsigned(leftHex);
             var right = BigInteger256.ParseHexUnsigned(rightHex);
 
-            var res = BigInteger256.DivRem2(left, right, out var reminder);
+            var res = BigInteger256.DivRem2(left, right, out var remainder);
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned());
-            ClassicAssert.AreEqual(remHex, reminder.ToHexUnsigned());
+            ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned());
         }
 
         public static IEnumerable<string[]> DivideCases() {
