@@ -82,5 +82,11 @@ namespace Ecc.Math {
             }
         }
 
+        public readonly BigInteger256 RightShift(int count) {
+            var res = new BigInteger256(this);
+            res.AssignRightShift(count);
+            return res;
+        }
+
     }
 }

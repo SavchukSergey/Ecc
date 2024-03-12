@@ -406,6 +406,7 @@ namespace Ecc.Tests.Math {
         public void DivPerformanceBigTest() {
             var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            Console.WriteLine("Divide by u256");
             DivPerformanceTest(left, right);
         }
 
@@ -413,30 +414,37 @@ namespace Ecc.Tests.Math {
         public void DivPerformanceSmallTest() {
             var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var right = BigInteger256.ParseHexUnsigned("00000000000000000000000000000000000000000000000000000069bf272715");
+            Console.WriteLine("Divide by u64");
             DivPerformanceTest(left, right);
         }
 
-        private void DivPerformanceTest(BigInteger256 left, BigInteger256 right) {
+        private static void DivPerformanceTest(BigInteger256 left, BigInteger256 right) {
 
             var cnt = 10000;
 
-            var sw1 = new Stopwatch();
-            sw1.Start();
+            var swBits = new Stopwatch();
+            swBits.Start();
             for (var i = 0; i < cnt; i++) {
-                //todo: improve lib division
-                BigInteger256.DivRem(left, right, out var _);
+                BigInteger256.DivRemBits(left, right, out var _);
             }
-            sw1.Stop();
+            swBits.Stop();
+
+            var swBitsFull = new Stopwatch();
+            swBitsFull.Start();
+            for (var i = 0; i < cnt; i++) {
+                BigInteger256.DivRemFullBits(left, right, out var _);
+            }
+            swBitsFull.Stop();
 
             var ln = left.ToNative();
             var rn = right.ToNative();
 
-            var sw2 = new Stopwatch();
-            sw2.Start();
+            var swNative = new Stopwatch();
+            swNative.Start();
             for (var i = 0; i < cnt; i++) {
                 BigInteger.DivRem(ln, rn, out var _);
             }
-            sw2.Stop();
+            swNative.Stop();
 
             var sw3 = new Stopwatch();
             sw3.Start();
@@ -452,10 +460,11 @@ namespace Ecc.Tests.Math {
             }
             sw4.Stop();
 
-            Console.WriteLine($"Ecc div per second: {(double)cnt / sw1.Elapsed.TotalSeconds}");
+            Console.WriteLine($"Ecc div bits per second: {(double)cnt / swBits.Elapsed.TotalSeconds}");
+            Console.WriteLine($"Ecc div full bits per second: {(double)cnt / swBitsFull.Elapsed.TotalSeconds}");
             Console.WriteLine($"Ecc div newton per second: {(double)cnt / sw3.Elapsed.TotalSeconds}");
             Console.WriteLine($"Ecc div 2 per second: {(double)cnt / sw4.Elapsed.TotalSeconds}");
-            Console.WriteLine($"Native div per second: {(double)cnt / sw2.Elapsed.TotalSeconds}");
+            Console.WriteLine($"Native div per second: {(double)cnt / swNative.Elapsed.TotalSeconds}");
         }
 
         [Test]

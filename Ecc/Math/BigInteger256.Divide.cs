@@ -5,10 +5,51 @@ namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
         public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-            return DivRem2(dividend, divisor, out remainder);
+            return DivRemBits(dividend, divisor, out remainder);
         }
 
         public static BigInteger256 DivRemBits(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
+            var divLZC = divisor.LeadingZeroCount();
+            if (divLZC == BITS_SIZE) {
+                throw new DivideByZeroException();
+            }
+            var divisorN = divisor;
+            divisorN.AssignLeftShift(divLZC);
+
+            var result = new BigInteger256();
+            var value = dividend;
+            var bit = divLZC;
+            var totalShift = 0;
+
+            while (bit >= 0) {
+                var valueLZC = value.LeadingZeroCount();
+                bit -= valueLZC;
+                if (bit < 0) {
+                    break;
+                }
+
+                value.AssignLeftShift(valueLZC);
+                totalShift += valueLZC;
+
+                if (value >= divisorN) {
+                    value.AssignSub(divisorN);
+                    result.SetBit(bit);
+                } else {
+                    //next shift guranteed to be successful
+                    if (bit > 0) {
+                        value.AssignLeftShift(1); // overflow to 257 bit but it does not matter
+                        totalShift++;
+                        value.AssignSub(divisorN);
+                        result.SetBit(bit - 1);
+                    }
+                    bit--;
+                }
+            }
+            remainder = value.RightShift(totalShift);
+            return result;
+        }
+
+        public static BigInteger256 DivRemFullBits(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
             var result = new BigInteger256();
             var value = new BigInteger512(dividend);
             var bit = BITS_SIZE - 1;

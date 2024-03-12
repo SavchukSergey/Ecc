@@ -238,6 +238,15 @@ namespace Ecc.Math {
             return Compare(left, right) != 0;
         }
 
+        public readonly int LeadingZeroCount() {
+            var h = High.LeadingZeroCount();
+            if (h != BigInteger256.BITS_SIZE) {
+                return h;
+            }
+            var l = Low.LeadingZeroCount();
+            return l + BigInteger256.BITS_SIZE;
+        }
+
         public readonly bool TryWrite(Span<byte> buffer) {
             if (buffer.Length < BYTES_SIZE) {
                 return false;
