@@ -28,52 +28,44 @@ namespace Ecc.Math {
         public static BigInteger256 DivRemNewton(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
 
             // [0.5, 1) -> (1, 2]
-            var log2 = divisor.Log2();
-            var res = divisor.Clone();
-            res.AssignLeftShift(BITS_SIZE - log2);
-            var divisorFP = new BigInteger512(res);
+            var log2 = divisor.LeadingZeroCount();
+            var divisor256 = divisor.Clone();
+            divisor256.AssignLeftShift(log2);
+            var divisorFP = new BigInteger512(divisor256);
 
             //todo: special case 0.5
 
             var x0 = EstimateReciprocal(divisorFP);
 
 
-            var one = new BigInteger512(new BigInteger256(0), new BigInteger256(1));
-            var y = (x0 - one).Low; // 0 < y <= 1, fractional part only
+            var one256 = new BigInteger256(1);
+            var zero256 = new BigInteger256(0);
+            var oneFP = new BigInteger512(zero256, one256);
+            var y = (x0 - oneFP).Low; // 0 < y <= 1, fractional part only
 
             //todo: limit loop
             for (var i = 0; i < 10; i++) {
-                var dyLow = y * divisorFP.Low; // multiply fractional parts
-                dyLow.AssignRightShiftHalf(); //  only first 256 of result fraction
-                //var dyLowApprox = Mul128(y.High, divisorFP.Low.High); // approx. multiply fractional parts
-                //var dyLow = new BigInteger512(dyLowApprox); //  only first 256 of result fraction
+                var dyLow256 = MulHigh(y, divisorFP.Low);// multiply fractional parts and use only first 256 bits of result fraction
 
-                var dx = dyLow + divisorFP;
-                var sub = one.Sub(dx, out var neg);
-                if (sub.IsZero) {
+                var dx2 = dyLow256;
+                dx2.AssignAdd(divisor256); //sum is >= 1.0
+
+                var sub256 = zero256.Sub(dx2, out var _);
+                if (sub256.IsZero) {
                     break;
                 }
-                if (neg) {
-                    sub.AssignNegate();
-                }
-                var subL = sub.Low;
-                var ysub = y * subL;  //yf and subL are below 1
-                ysub.AssignRightShiftHalf();//  only first 256 of result fraction
-                ysub.AssignAdd(sub);
+                var ysub256 = MulHigh(y, sub256);  //y and subL are below 1 and use only first 256 bits of result fraction
+                ysub256.AssignAdd(sub256);
 
-                var deltaX = ysub.Low;
-                if (neg) {
-                    y.AssignSub(deltaX);
-                } else {
-                    y.AssignAdd(deltaX);
-                }
+                var deltaX = ysub256;
+                y.AssignAdd(deltaX);
             }
 
-            var x = new BigInteger512(y, new BigInteger256(0)) + one;
+            var x = new BigInteger512(y, new BigInteger256(0)) + oneFP;
             var reciprocal = x;
 
             var leftFP = new BigInteger512(new BigInteger256(0), dividend);
-            leftFP.AssignRightShift(log2);
+            leftFP.AssignRightShift(BITS_SIZE - log2);
 
             var qfp = BigInteger512.MulFixedPoint(leftFP, reciprocal);
             var q = qfp.High;
@@ -262,6 +254,8 @@ namespace Ecc.Math {
             var tableIndex = divisorFP.Low.High >> 64;
             var max = new UInt128(0x8000_0000_0000_0000ul, 0); // 2 ^ 127
             var value = max / tableIndex;
+
+            //todo: LERP between two neighbour values will double valid bits
 
             return new BigInteger512(new BigInteger256(value), new BigInteger256()).LeftShift(193);
         }

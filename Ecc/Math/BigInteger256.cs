@@ -219,6 +219,33 @@ namespace Ecc.Math {
             return carry;
         }
 
+        public readonly BigInteger256 Sub(in BigInteger256 other, out bool carry) {
+            carry = false;
+            var res = new BigInteger256(this);
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                UInt128 acc = UInt64[i];
+                acc -= other.UInt64[i];
+                acc -= carry ? 1u : 0u;
+                res.UInt64[i] = (ulong)acc;
+                carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
+            }
+            return res;
+        }
+
+        public void AssignNegate() {
+            bool carry = false;
+            ulong add = 1ul;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                UInt128 acc = 0xffffffff_fffffffful;
+                acc -= UInt64[i];
+                acc -= carry ? 1u : 0u;
+                acc += add;
+                add = 0;
+                UInt64[i] = (ulong)acc;
+                carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
+            }
+        }
+
         public bool AssignDecrement() {
             bool carry = true;
             for (var i = 0; i < UINT64_SIZE; i++) {
