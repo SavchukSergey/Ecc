@@ -187,7 +187,16 @@ namespace Ecc.Math {
         }
 
         public void AssignModDouble(in BigInteger256 modulus) {
-            AssignModAdd(this, modulus);
+            ulong carry = 0;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                var acc = UInt64[i];
+                UInt64[i] = (acc << 1) + carry;
+                carry = acc >> 63;
+            }
+
+            if (carry > 0 || this >= modulus) {
+                AssignSub(modulus);
+            }
         }
 
         public bool AssignAdd(in BigInteger256 other) {
@@ -270,22 +279,6 @@ namespace Ecc.Math {
             return res;
         }
 
-        // public readonly void ModMul(in BigInteger256 other, in BigInteger256 modulus, out BigInteger256 result) {
-        //     result.Clear();
-        //     var walker = Clone();
-        //     for (var bit = 0; bit < BITS_SIZE; bit++) {
-        //         if (other.GetBit(bit)) {
-        //             result.AssignModAdd(walker, modulus);
-        //         }
-        //         walker.AssignModDouble(modulus);
-        //     }
-        //     //todo: above too slow
-        // }
-
-        // public readonly void ModMul(in BigInteger256 other, in BigInteger256 modulus, out BigInteger256 result) {
-        //     result = new BigInteger256((this.ToNative() * other.ToNative()).ModAbs(modulus.ToNative()));
-        // }
-
         public readonly BigInteger256 ModMul(in BigInteger256 other, in BigInteger256 modulus) {
             //todo: optimize
             return ModMulBit(other, modulus);
@@ -332,64 +325,6 @@ namespace Ecc.Math {
         public readonly BigInteger256 ModInverse(in BigInteger256 modulus) {
             return BigInteger256Ext.EuclidExtended(this, modulus).X % modulus;
         }
-
-
-        public readonly int Compare(in BigInteger256 other) {
-            if (High < other.High) {
-                return -1;
-            }
-            if (High > other.High) {
-                return 1;
-            }
-            if (Low < other.Low) {
-                return -1;
-            }
-            if (Low > other.Low) {
-                return 1;
-            }
-            return 0;
-        }
-
-        public static int Compare(in BigInteger256 left, in BigInteger256 right) {
-            if (left.High < right.High) {
-                return -1;
-            }
-            if (left.High > right.High) {
-                return 1;
-            }
-            if (left.Low < right.Low) {
-                return -1;
-            }
-            if (left.Low > right.Low) {
-                return 1;
-            }
-            return 0;
-        }
-
-        public static int Compare(in BigInteger256 left, ulong right) {
-            if (left.High > 0) {
-                return -1;
-            }
-            if (left.Low < right) {
-                return -1;
-            }
-            if (left.Low > right) {
-                return 1;
-            }
-            return 0;
-        }
-
-        public static bool Equals(in BigInteger256 left, in BigInteger256 right) {
-            return Compare(left, right) == 0;
-        }
-
-        public readonly override bool Equals(object? other) {
-            if (other is BigInteger256 val) {
-                return Equals(this, val);
-            }
-            return false;
-        }
-
 
         [Obsolete]
         public readonly BigInteger ToNative() {
@@ -457,38 +392,6 @@ namespace Ecc.Math {
             var res = new BigInteger256(left);
             res.AssignAdd(right);
             return res;
-        }
-
-        public static bool operator <(in BigInteger256 left, in BigInteger256 right) {
-            return Compare(left, right) < 0;
-        }
-
-        public static bool operator >(in BigInteger256 left, in BigInteger256 right) {
-            return Compare(left, right) > 0;
-        }
-
-        public static bool operator <=(in BigInteger256 left, in BigInteger256 right) {
-            return Compare(left, right) <= 0;
-        }
-
-        public static bool operator >=(in BigInteger256 left, ulong right) {
-            return Compare(left, right) >= 0;
-        }
-
-        public static bool operator <=(in BigInteger256 left, ulong right) {
-            return Compare(left, right) <= 0;
-        }
-
-        public static bool operator >=(in BigInteger256 left, in BigInteger256 right) {
-            return Compare(left, right) >= 0;
-        }
-
-        public static bool operator ==(in BigInteger256 left, in BigInteger256 right) {
-            return Compare(left, right) == 0;
-        }
-
-        public static bool operator !=(in BigInteger256 left, in BigInteger256 right) {
-            return Compare(left, right) != 0;
         }
 
         public readonly int LeadingZeroCount() {

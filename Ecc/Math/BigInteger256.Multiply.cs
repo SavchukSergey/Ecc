@@ -54,5 +54,9 @@ namespace Ecc.Math {
             return (left * right).High;
         }
 
+        public readonly BigInteger512 Square() {
+            return this * this;
+        }
+
     }
 }

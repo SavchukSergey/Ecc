@@ -9,7 +9,7 @@ using NUnit.Framework.Legacy;
 namespace Ecc.Tests.Math {
     [TestFixture]
     [TestOf(typeof(BigInteger256))]
-    public class BigInteger256Tests {
+    public partial class BigInteger256Tests {
 
         [Test]
         public void CtorTest() {
@@ -425,6 +425,73 @@ namespace Ecc.Tests.Math {
         }
 
         [Test]
+        public void ModMulPerformanceTest() {
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
+
+            var cnt = 10000;
+
+            //warm up
+            for (var i = 0; i < cnt; i++) {
+                left.ModMul(right, modulus);
+            }
+
+            var sw = new Stopwatch();
+            sw.Start();
+            for (var i = 0; i < cnt; i++) {
+                left.ModMul(right, modulus);
+            }
+            sw.Stop();
+
+            Console.WriteLine($"mega mod-mul per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
+        }
+
+        [Test]
+        public void MulPerformanceTest() {
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+
+            var cnt = 10000;
+
+            //warm up
+            for (var i = 0; i < cnt; i++) {
+                var _ = left * right;
+            }
+
+            var sw = new Stopwatch();
+            sw.Start();
+            for (var i = 0; i < cnt; i++) {
+                var _ = left * right;
+            }
+            sw.Stop();
+
+            Console.WriteLine($"mega mul per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
+        }
+
+        [Test]
+        public void MulLowPerformanceTest() {
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+
+            var cnt = 10000;
+
+            //warm up
+            for (var i = 0; i < cnt; i++) {
+                BigInteger256.MulLow(left, right);
+            }
+
+            var sw = new Stopwatch();
+            sw.Start();
+            for (var i = 0; i < cnt; i++) {
+                BigInteger256.MulLow(left, right);
+            }
+            sw.Stop();
+
+            Console.WriteLine($"mega mul-low per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
+        }
+
+        [Test]
         public void AddPerformanceTest() {
             var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
@@ -634,35 +701,9 @@ namespace Ecc.Tests.Math {
             ClassicAssert.AreEqual(new BigInteger256(33), new BigInteger256(80).ModDouble(new BigInteger256(127)));
         }
 
-        #region Multiplification
-
-        [Test]
-        public void MulTest() {
-            ClassicAssert.AreEqual(
-              "a4db0018f81780ee1ecebfedb2677795e8132dee14be8f58e853e8ea853dda55d6aa8b7117cd331e2cb0d23b68a85393d15c144a651ae84a56c6b3076bb7c2d9",
-                (
-                    BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5") *
-                    BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5")
-                ).ToHexUnsigned()
-           );
-        }
-
-        #endregion
-
         #region Modular
 
         #region Multiplication
-
-        [Test]
-        public void ModMulTest() {
-            ClassicAssert.AreEqual(
-              "f68d6baa084effcf7222c3f72d9ae49c974ced4078afe384291b7966149ac12c",
-               BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5").ModMul(
-                    BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5"),
-                    BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")
-                ).ToHexUnsigned()
-           );
-        }
 
         [Test]
         public void ModMulBitTest() {
