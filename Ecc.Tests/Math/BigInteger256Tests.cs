@@ -430,21 +430,34 @@ namespace Ecc.Tests.Math {
             var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
             var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
 
+            var shift = 511;
+
+            var reciprocalModulus = BigInteger256.ParseHexUnsigned("80000000000000000000000000000000000000000000000000000000800001e9");
+
             var cnt = 10000;
 
             //warm up
             for (var i = 0; i < cnt; i++) {
-                left.ModMul(right, modulus);
+                var _ = left.ModMul(right, modulus);
+                var _2 = BigInteger256.MulModMontgomery(left, right, modulus, reciprocalModulus, shift);
             }
 
-            var sw = new Stopwatch();
-            sw.Start();
+            var swBits = new Stopwatch();
+            swBits.Start();
             for (var i = 0; i < cnt; i++) {
-                left.ModMul(right, modulus);
+                var _ = left.ModMul(right, modulus);
             }
-            sw.Stop();
+            swBits.Stop();
 
-            Console.WriteLine($"mega mod-mul per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
+            var swMontgomery = new Stopwatch();
+            swMontgomery.Start();
+            for (var i = 0; i < cnt; i++) {
+                var _2 = BigInteger256.MulModMontgomery(left, right, modulus, reciprocalModulus, shift);
+            }
+            swMontgomery.Stop();
+
+            Console.WriteLine($"mega mod-mul bits per second: {(double)cnt / 1e6 / swBits.Elapsed.TotalSeconds}");
+            Console.WriteLine($"mega mod-mul montgomery per second: {(double)cnt / 1e6 / swMontgomery.Elapsed.TotalSeconds}");
         }
 
         [Test]

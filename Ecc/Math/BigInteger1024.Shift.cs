@@ -21,5 +21,63 @@ namespace Ecc.Math {
             UInt64[0] = 0;
         }
 
+        public void AssignRightShift512() {
+            Low = High;
+            High = new BigInteger512(0);
+        }
+
+        public void AssignRightShift256() {
+            for (var i = 0; i < UINT64_SIZE - 4; i++) {
+                UInt64[i] = UInt64[i + 4];
+            }
+            UInt64[UINT64_SIZE - 4] = 0;
+            UInt64[UINT64_SIZE - 3] = 0;
+            UInt64[UINT64_SIZE - 2] = 0;
+            UInt64[UINT64_SIZE - 1] = 0;
+        }
+
+        public void AssignRightShift128() {
+            for (var i = 0; i < UINT64_SIZE - 2; i++) {
+                UInt64[i] = UInt64[i + 2];
+            }
+            UInt64[UINT64_SIZE - 2] = 0;
+            UInt64[UINT64_SIZE - 1] = 0;
+        }
+
+        public void AssignRightShift64() {
+            for (var i = 0; i < UINT64_SIZE - 1; i++) {
+                UInt64[i] = UInt64[i + 1];
+            }
+            UInt64[UINT64_SIZE - 1] = 0;
+        }
+
+        public void AssignRightShift(int count) {
+            if (count >= 512) {
+                AssignRightShift512();
+                count -= 512;
+            }
+            if (count >= 256) {
+                AssignRightShift256();
+                count -= 256;
+            }
+            if (count >= 128) {
+                AssignRightShift128();
+                count -= 128;
+            }
+            if (count >= 64) {
+                AssignRightShift64();
+                count -= 64;
+            }
+            if (count > 0) {
+                ulong carry = 0;
+                var restBits = 64 - count;
+                for (var i = UINT64_SIZE - 1; i >= 0; i--) {
+                    var acc = UInt64[i];
+                    UInt64[i] = (acc >> count) + carry;
+                    carry = acc << restBits;
+                }
+            }
+        }
+
     }
 }

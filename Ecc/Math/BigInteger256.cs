@@ -279,6 +279,30 @@ namespace Ecc.Math {
             return res;
         }
 
+        public static BigInteger256 MulModMontgomery(in BigInteger256 left, in BigInteger256 right, in BigInteger256 modulus, in BigInteger256 reciprocalModulus, int shift) {
+            var mul512 = (left * right);
+            var q1024 = (mul512 * new BigInteger512(reciprocalModulus));
+            q1024.AssignRightShift(shift);
+
+            var q256 = q1024.Low.Low;
+            var remainder512 = (mul512 - q256 * modulus);
+
+            var modulus512 = new BigInteger512(modulus);
+
+            if (remainder512 > modulus512) {
+                remainder512 -= modulus512;
+                q256.AssignIncrement();
+            }
+
+            if (remainder512 > modulus512) {
+                remainder512 -= modulus512;
+                q256.AssignIncrement();
+            }
+
+            return remainder512.Low;
+        }
+
+
         public readonly BigInteger256 ModMul(in BigInteger256 other, in BigInteger256 modulus) {
             //todo: optimize
             return ModMulBit(other, modulus);

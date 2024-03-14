@@ -190,20 +190,6 @@ namespace Ecc.Math {
             }
         }
 
-        public readonly int Compare(in BigInteger512 other) {
-            for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
-                var leftBt = Data[i];
-                var rightBt = other.Data[i];
-                if (leftBt > rightBt) {
-                    return 1;
-                }
-                if (leftBt < rightBt) {
-                    return -1;
-                }
-            }
-            return 0;
-        }
-
         public static BigInteger512 operator +(in BigInteger512 left, in BigInteger512 right) {
             var res = new BigInteger512(left);
             res.AssignAdd(right);
@@ -214,38 +200,6 @@ namespace Ecc.Math {
             var res = new BigInteger512(left);
             res.AssignSub(right);
             return res;
-        }
-
-        public static int Compare(in BigInteger512 left, in BigInteger512 right) {
-            if (left.High < right.High) {
-                return -1;
-            }
-            if (left.High > right.High) {
-                return 1;
-            }
-            if (left.Low < right.Low) {
-                return -1;
-            }
-            if (left.Low > right.Low) {
-                return 1;
-            }
-            return 0;
-        }
-
-        public static bool operator <=(in BigInteger512 left, in BigInteger512 right) {
-            return Compare(left, right) <= 0;
-        }
-
-        public static bool operator >=(in BigInteger512 left, in BigInteger512 right) {
-            return Compare(left, right) >= 0;
-        }
-
-        public static bool operator ==(in BigInteger512 left, in BigInteger512 right) {
-            return Compare(left, right) == 0;
-        }
-
-        public static bool operator !=(in BigInteger512 left, in BigInteger512 right) {
-            return Compare(left, right) != 0;
         }
 
         public readonly int LeadingZeroCount() {
