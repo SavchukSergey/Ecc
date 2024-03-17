@@ -1,6 +1,19 @@
 namespace Ecc.Math {
     public unsafe partial struct BigInteger512 {
 
+        public static BigInteger1024 operator *(in BigInteger512 left, in BigInteger256 right) {
+            var ah = left.High;
+            var al = left.Low;
+            var bl = right;
+
+            var zero = new BigInteger512(0);
+            var x0 = new BigInteger1024(al * bl, zero);
+            var x1 = new BigInteger1024(ah * bl, zero);
+            x1.AssignLeftShiftQuarter();
+
+            return x0 + x1;
+        }
+
         public static BigInteger1024 operator *(in BigInteger512 left, in BigInteger512 right) {
             var ah = left.High;
             var al = left.Low;

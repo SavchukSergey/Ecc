@@ -118,6 +118,7 @@ namespace Ecc.Math {
             return q;
         }
 
+        //todo: use it?
         public static BigInteger256 DivRem2(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
 
             var divShiftBits = divisor.LeadingZeroCount();

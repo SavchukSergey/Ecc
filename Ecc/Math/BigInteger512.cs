@@ -163,6 +163,20 @@ namespace Ecc.Math {
             return carry;
         }
 
+        public void AssignSub(in BigInteger256 other) {
+            bool carry = false;
+            for (var i = 0; i < UINT64_SIZE / 2; i++) {
+                UInt128 acc = UInt64[i];
+                acc -= other.UInt64[i];
+                acc -= carry ? 1u : 0u;
+                UInt64[i] = (ulong)acc;
+                carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
+            }
+            if (carry) {
+                High.AssignDecrement();
+            }
+        }
+
         public readonly BigInteger512 Sub(in BigInteger512 other, out bool carry) {
             carry = false;
             var res = new BigInteger512(this);
@@ -197,6 +211,12 @@ namespace Ecc.Math {
         }
 
         public static BigInteger512 operator -(in BigInteger512 left, in BigInteger512 right) {
+            var res = new BigInteger512(left);
+            res.AssignSub(right);
+            return res;
+        }
+
+        public static BigInteger512 operator -(in BigInteger512 left, in BigInteger256 right) {
             var res = new BigInteger512(left);
             res.AssignSub(right);
             return res;

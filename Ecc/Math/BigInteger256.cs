@@ -281,21 +281,19 @@ namespace Ecc.Math {
 
         public static BigInteger256 MulModMontgomery(in BigInteger256 left, in BigInteger256 right, in BigInteger256 modulus, in BigInteger256 reciprocalModulus, int shift) {
             var mul512 = (left * right);
-            var q1024 = (mul512 * new BigInteger512(reciprocalModulus));
+            var q1024 = mul512 * reciprocalModulus;
             q1024.AssignRightShift(shift);
 
             var q256 = q1024.Low.Low;
             var remainder512 = (mul512 - q256 * modulus);
 
-            var modulus512 = new BigInteger512(modulus);
-
-            if (remainder512 > modulus512) {
-                remainder512 -= modulus512;
+            if (remainder512 > modulus) {
+                remainder512 -= modulus;
                 q256.AssignIncrement();
             }
 
-            if (remainder512 > modulus512) {
-                remainder512 -= modulus512;
+            if (remainder512 > modulus) {
+                remainder512 -= modulus;
                 q256.AssignIncrement();
             }
 
@@ -311,6 +309,7 @@ namespace Ecc.Math {
         public readonly BigInteger256 ModMulBit(in BigInteger256 other, in BigInteger256 modulus) {
             var result = new BigInteger256(0);
             var acc = new BigInteger256(this);
+
             for (var i = 0; i < BITS_SIZE; i++) {
                 if (other.GetBit(i)) {
                     result.AssignModAdd(acc, modulus);
@@ -426,6 +425,14 @@ namespace Ecc.Math {
                     return val + cnt;
                 }
                 val += 64;
+            }
+            return val;
+        }
+
+        public readonly int PopCount() {
+            var val = 0;
+            for (var i = UINT64_SIZE - 1; i >= 0; i--) {
+                val += BitOperations.PopCount(UInt64[i]);
             }
             return val;
         }
