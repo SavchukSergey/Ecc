@@ -183,8 +183,13 @@ namespace Ecc.Tests.Math {
             var right = BigInteger256.ParseHexUnsigned(rightHex);
 
             var res = BigInteger256.DivRem2(left, right, out var remainder);
-            ClassicAssert.AreEqual(qHex, res.ToHexUnsigned());
-            ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned());
+
+            var nativeRes = BigInteger.DivRem(left.ToNative(), right.ToNative(), out var nativeRemainder);
+            ClassicAssert.AreEqual(qHex, new BigInteger256(nativeRes).ToHexUnsigned(), "native.quotient");
+            ClassicAssert.AreEqual(remHex, new BigInteger256(nativeRemainder).ToHexUnsigned(), "native.remainder");
+
+            ClassicAssert.AreEqual(qHex, res.ToHexUnsigned(), "quotient");
+            ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned(), "remainder");
         }
 
         public static IEnumerable<string[]> DivideCases() {
@@ -479,7 +484,17 @@ namespace Ecc.Tests.Math {
             }
             sw.Stop();
 
+            var swNative = new Stopwatch();
+            var leftN = left.ToNative();
+            var rightN = right.ToNative();
+            swNative.Start();
+            for (var i = 0; i < cnt; i++) {
+                var _ = leftN * rightN;
+            }
+            swNative.Stop();
+
             Console.WriteLine($"mega mul per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
+            Console.WriteLine($"mega mul native per second: {(double)cnt / 1e6 / swNative.Elapsed.TotalSeconds}");
         }
 
         [Test]
@@ -671,11 +686,17 @@ namespace Ecc.Tests.Math {
             }
             sw4.Stop();
 
-            Console.WriteLine($"Ecc div bits per second: {(double)cnt / swBits.Elapsed.TotalSeconds}");
-            Console.WriteLine($"Ecc div full bits per second: {(double)cnt / swBitsFull.Elapsed.TotalSeconds}");
-            Console.WriteLine($"Ecc div newton per second: {(double)cnt / sw3.Elapsed.TotalSeconds}");
-            Console.WriteLine($"Ecc div 2 per second: {(double)cnt / sw4.Elapsed.TotalSeconds}");
-            Console.WriteLine($"Native div per second: {(double)cnt / swNative.Elapsed.TotalSeconds}");
+            var format = (Stopwatch sw) => {
+                var val = ((double)cnt / sw.Elapsed.TotalSeconds);
+                val = System.Math.Round(val);
+                return val.ToString().PadLeft(10, ' ');
+            };
+
+            Console.WriteLine($"Ecc div bits per second:      {format(swBits)}");
+            Console.WriteLine($"Ecc div full bits per second: {format(swBitsFull)}");
+            Console.WriteLine($"Ecc div newton per second:    {format(sw3)}");
+            Console.WriteLine($"Ecc div 2 per second:         {format(sw4)}");
+            Console.WriteLine($"Native div per second:        {format(swNative)}");
         }
 
         [Test]

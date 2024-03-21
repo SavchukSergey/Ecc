@@ -68,6 +68,12 @@ namespace Ecc.Math {
             High = other.High;
         }
 
+        public BigInteger512(UInt128 l0) {
+            Low.Low = l0;
+            Low.High = 0;
+            High = new BigInteger256(0);
+        }
+
         [Obsolete]
         public BigInteger512(in BigInteger value) {
             var data = value.ToByteArray(isBigEndian: false);

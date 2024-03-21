@@ -3,14 +3,36 @@ using System;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
-        public static BigInteger512 operator *(in BigInteger256 left, in UInt128 right) {
+        public static BigInteger512 operator *(in BigInteger256 left, ulong right) {
             var ah = left.High;
             var al = left.Low;
             var bl = right;
 
-            var zero = new BigInteger256(0);
-            var x0 = new BigInteger512(Mul128(al, bl), zero);
-            var x1 = new BigInteger512(Mul128(ah, bl), zero);
+            var x0 = new BigInteger512(Mul128(al, bl));
+            var x1 = new BigInteger512(Mul128(ah, bl));
+            x1.AssignLeftShiftQuarter();
+
+            return x0 + x1;
+        }
+
+
+        public static BigInteger512 operator *(in BigInteger256 left, in UInt128 right) {
+            if (left.IsZero || right == 0) {
+                return new BigInteger512(0);
+            }
+            if (left.IsOne) {
+                return new BigInteger512(right);
+            }
+            if (right == 1) {
+                return new BigInteger512(left);
+            }
+
+            var ah = left.High;
+            var al = left.Low;
+            var bl = right;
+
+            var x0 = new BigInteger512(Mul128(al, bl));
+            var x1 = new BigInteger512(Mul128(ah, bl));
             x1.AssignLeftShiftQuarter();
 
             return x0 + x1;
@@ -23,8 +45,8 @@ namespace Ecc.Math {
             var bl = right.Low;
 
             var zero = new BigInteger256(0);
-            var x0 = new BigInteger512(Mul128(al, bl), zero);
-            var x1 = new BigInteger512(Mul128(al, bh), zero) + new BigInteger512(Mul128(ah, bl), zero);
+            var x0 = new BigInteger512(Mul128(al, bl));
+            var x1 = new BigInteger512(Mul128(al, bh)) + new BigInteger512(Mul128(ah, bl));
             x1.AssignLeftShiftQuarter();
             var x2 = new BigInteger512(zero, Mul128(ah, bh));
 

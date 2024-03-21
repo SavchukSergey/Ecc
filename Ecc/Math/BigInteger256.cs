@@ -156,6 +156,12 @@ namespace Ecc.Math {
             }
         }
 
+        public readonly bool IsOne {
+            get {
+                return Low == 1 && High == 0;
+            }
+        }
+
         public readonly bool IsEven {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get {
@@ -346,7 +352,7 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger256 ModInverse(in BigInteger256 modulus) {
-            return BigInteger256Ext.EuclidExtended(this, modulus).X % modulus;
+            return BigInteger256Ext.EuclidExtended(this, modulus).X;
         }
 
         [Obsolete]
@@ -368,6 +374,15 @@ namespace Ecc.Math {
         }
 
         private static BigInteger256 Mul128(UInt128 left, UInt128 right) {
+            if (left == 0 || right == 0) {
+                return new BigInteger256(0);
+            }
+            if (left == 1) {
+                return new BigInteger256(right);
+            }
+            if (right == 1) {
+                return new BigInteger256(left);
+            }
             var ah = left >> 64;
             var al = (UInt128)(ulong)left;
             var bh = right >> 64;
@@ -379,6 +394,18 @@ namespace Ecc.Math {
             var x2 = new BigInteger256(0, ah * bh);
 
             return x0 + x1 + x2;
+        }
+
+        private static BigInteger256 Mul128(UInt128 left, ulong right) {
+            var ah = left >> 64;
+            var al = (UInt128)(ulong)left;
+            var bl = (UInt128)right;
+
+            var x0 = new BigInteger256(al * bl, 0);
+            var x1 = new BigInteger256(ah * bl, 0);
+            x1.AssignLeftShiftQuarter();
+
+            return x0 + x1;
         }
 
         private static UInt128 Mul128Low(UInt128 left, UInt128 right) {

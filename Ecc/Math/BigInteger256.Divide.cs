@@ -71,17 +71,16 @@ namespace Ecc.Math {
             var log2 = divisor.LeadingZeroCount();
             var divisor256 = divisor.Clone();
             divisor256.AssignLeftShift(log2);
-            var divisorFP = new BigInteger512(divisor256);
 
             //todo: special case 0.5
 
-            var x0 = EstimateReciprocal(divisorFP);
+            var x0 = EstimateReciprocal(divisor256);
 
             var y = x0.Low; // 0 < y <= 1, fractional part only
 
             //todo: limit loop
             for (var i = 0; i < 5; i++) {
-                var dyLow256 = MulHigh(y, divisorFP.Low);// multiply fractional parts and use only first 256 bits of result fraction
+                var dyLow256 = MulHigh(y, divisor256);// multiply fractional parts and use only first 256 bits of result fraction
 
                 var dx2 = dyLow256;
                 dx2.AssignAdd(divisor256); //sum is >= 1.0
@@ -95,15 +94,10 @@ namespace Ecc.Math {
                 y.AssignAdd(ysub256);
             }
 
-            var x = new BigInteger512(y, new BigInteger256(0));
-            x.High.AssignIncrement();
-            var reciprocal = x;
-
-            var leftFP = new BigInteger512(new BigInteger256(0), dividend);
-            leftFP.AssignRightShift(BITS_SIZE - log2);
-
-            var qfp = BigInteger512.MulFixedPoint(leftFP, reciprocal);
-            var q = qfp.High;
+            var t = new BigInteger1024(y * dividend);
+            t.Middle.AssignAdd(dividend);
+            t.AssignRightShift(BITS_SIZE - log2);
+            var q = t.Low.High;
 
             remainder = dividend - MulLow(q, divisor);
             if (remainder >= divisor) {
@@ -131,60 +125,41 @@ namespace Ecc.Math {
 
             var q = new BigInteger256();
 
-            var originalDividend = dividend.Clone();
-
-            var dividend2 = dividend;
-            //todo: check divisor.UInt64[3] + 1 overflow
-            //todo: check if divisor.UInt64[3] == 0, useless estiamtion
-            //todo: normalzie divisor before estimate?
-            //var estimate = DivRem64(dividend2, divisor.UInt64[3] + 1, out var _);
-            //estimate.AssignRightShift(192);
-            //var estimateQ = estimate * divisor;
-            //q.AssignAdd(estimate);
-            //dividend2.AssignSub(estimateQ.Low);
-
             var divisorN = divisor.Clone();
             divisorN.AssignLeftShift(divShiftBits);
 
-            var divPart64 = (UInt128)divisorN.UInt64[3];
+            var divPart64 = (UInt128)(divisorN.UInt64[3]) + 1; // +1 pessimistic guess
 
-            var remainderConsumedLog2 = 0;
-            remainder = dividend2;
+            remainder = dividend;
 
             //todo: estimate division by divisor rounded by highest 64 bits. and then refine with expensive routine below
             //todo: it performs better with division by byte rather then u64
 
-            while (remainderConsumedLog2 < BITS_SIZE) {
+            while (remainder >= divisor) {
                 var remainderAdjust = remainder.LeadingZeroCount();
-                remainderConsumedLog2 += remainderAdjust;
-                if (remainderConsumedLog2 > BITS_SIZE) {
-                    remainderAdjust -= remainderConsumedLog2 - BITS_SIZE;
-                    remainderConsumedLog2 = BITS_SIZE;
-                }
-                remainder.AssignLeftShift(remainderAdjust);
-                var remPart128 = remainder.High;
+                var remainderAdjusted = new BigInteger256(remainder);
+                remainderAdjusted.AssignLeftShift(remainderAdjust);
 
-                UInt128 guess = remPart128 / (divPart64 + 1);
+                var remPart128 = remainderAdjusted.High;
+
+                UInt128 guess = remPart128 / divPart64;
+                var correction = remainderAdjust - divShiftBits + 64;
+                if (correction > 0) {
+                    //starting fractional part
+                    guess >>= correction;
+                    correction = 0;
+                }
 
                 var delta = divisor * guess;
-                var correction2 = divShiftBits - 64; // -64 as we take 128 bit remainder versus 64 bit divisor
-                if (correction2 > 0) {
-                    delta.AssignLeftShift(correction2);
-                } else if (correction2 < 0) {
-                    delta.AssignRightShift(-correction2);
+
+                var guessQ = new BigInteger256(guess);
+                if (correction < 0) {
+                    delta.AssignLeftShift(-correction);
+                    guessQ.AssignLeftShift(-correction);
                 }
                 remainder.AssignSub(delta.Low);
-                var correction = divShiftBits - remainderConsumedLog2 - 64; // -64 as we take 128 bit remainder versus 64 bit divisor
-                var guessQ = new BigInteger256(guess);
-                if (correction > 0) {
-                    guessQ.AssignLeftShift(correction);
-                } else if (correction < 0) {
-                    guessQ.AssignRightShift(-correction);
-                }
                 q.AssignAdd(guessQ);
             }
-
-            remainder = originalDividend - (divisor * q).Low; //todo: it could be derived somehow from above
 
             return q;
         }
@@ -286,8 +261,8 @@ namespace Ecc.Math {
             return q;
         }
 
-        private static BigInteger512 EstimateReciprocal(in BigInteger512 divisorFP) {
-            var tableIndex = divisorFP.Low.High >> 64;
+        private static BigInteger512 EstimateReciprocal(in BigInteger256 divisor256) {
+            var tableIndex = divisor256.High >> 64;
             var max = new UInt128(0x8000_0000_0000_0000ul, 0); // 2 ^ 127
             var value = max / tableIndex;
 
