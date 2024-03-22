@@ -54,6 +54,30 @@ namespace Ecc.Math {
         }
 
         /// <summary>
+        /// Multiplies 256-bit and 64-bit numbers and returns last 256 bits of result
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static BigInteger256 MulLow(in BigInteger256 left, ulong right) {
+            var x0 = Mul128(left.Low, right);
+            x0.AssignAddHigh(Mul128Low(left.High, right));
+            return x0;
+        }
+
+        /// <summary>
+        /// Multiplies 256-bit and 128-bit numbers and returns last 256 bits of result
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static BigInteger256 MulLow(in BigInteger256 left, UInt128 right) {
+            var x0 = Mul128(left.Low, right);
+            x0.AssignAddHigh(Mul128Low(left.High, right));
+            return x0;
+        }
+
+        /// <summary>
         /// Multiplies two 256-bit numbers and returns last 256 bits of result
         /// </summary>
         /// <param name="left"></param>

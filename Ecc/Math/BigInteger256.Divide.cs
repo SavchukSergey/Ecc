@@ -150,14 +150,14 @@ namespace Ecc.Math {
                     correction = 0;
                 }
 
-                var delta = divisor * guess;
+                var delta = MulLow(divisor, guess);
 
                 var guessQ = new BigInteger256(guess);
                 if (correction < 0) {
                     delta.AssignLeftShift(-correction);
                     guessQ.AssignLeftShift(-correction);
                 }
-                remainder.AssignSub(delta.Low);
+                remainder.AssignSub(delta);
                 q.AssignAdd(guessQ);
             }
 

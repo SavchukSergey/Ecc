@@ -102,16 +102,10 @@ namespace Ecc.Math {
             High = other.High;
         }
 
-        [Obsolete]
         public BigInteger256(in BigInteger value) {
             var data = value.ToByteArray(isBigEndian: false);
-            var si = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                var bt0 = si < data.Length ? data[si++] : 0;
-                var bt1 = si < data.Length ? data[si++] : 0;
-                var bt2 = si < data.Length ? data[si++] : 0;
-                var bt3 = si < data.Length ? data[si++] : 0;
-                Data[i] = (uint)(bt3 << 24 | bt2 << 16 | bt1 << 8 | bt0);
+            for (var i = 0; i < BYTES_SIZE; i++) {
+                Bytes[i] = i < data.Length ? data[i] : (byte)0;
             }
         }
 
@@ -355,16 +349,11 @@ namespace Ecc.Math {
             return BigInteger256Ext.EuclidExtended(this, modulus).X;
         }
 
-        [Obsolete]
         public readonly BigInteger ToNative() {
-            var array = new byte[BYTES_SIZE];
-            var ai = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                var bt = Data[i];
-                array[ai++] = (byte)(bt >> 0);
-                array[ai++] = (byte)(bt >> 8);
-                array[ai++] = (byte)(bt >> 16);
-                array[ai++] = (byte)(bt >> 24);
+            Span<byte> array = stackalloc byte[BYTES_SIZE];
+            for (var i = 0; i < BYTES_SIZE; i++) {
+                var bt = Bytes[i];
+                array[i] = bt;
             }
             return new BigInteger(array, isUnsigned: true, isBigEndian: false);
         }
