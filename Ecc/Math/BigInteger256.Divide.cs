@@ -16,37 +16,39 @@ namespace Ecc.Math {
             var divisorN = divisor;
             divisorN.AssignLeftShift(divLZC);
 
-            var result = new BigInteger256();
-            var value = dividend;
+            var quotient = new BigInteger256();
+            remainder = dividend;
             var bit = divLZC;
             var totalShift = 0;
 
-            while (bit >= 0) {
-                var valueLZC = value.LeadingZeroCount();
+            while (true) {
+                var valueLZC = remainder.LeadingZeroCount();
                 bit -= valueLZC;
                 if (bit < 0) {
                     break;
                 }
 
-                value.AssignLeftShift(valueLZC);
+                remainder.AssignLeftShift(valueLZC);
                 totalShift += valueLZC;
 
-                if (value >= divisorN) {
-                    value.AssignSub(divisorN);
-                    result.SetBit(bit);
+                if (remainder >= divisorN) {
+                    remainder.AssignSub(divisorN);
+                    quotient.SetBit(bit);
                 } else {
-                    //next shift guranteed to be successful
-                    if (bit > 0) {
-                        value.AssignDouble(); // overflow to 257 bit but it does not matter
-                        totalShift++;
-                        value.AssignSub(divisorN);
-                        result.SetBit(bit - 1);
+                    if (bit == 0) {
+                        break;
                     }
                     bit--;
+
+                    //next shift guranteed to be successful
+                    remainder.AssignDouble(); // overflow to 257 bit but it does not matter
+                    totalShift++;
+                    remainder.AssignSub(divisorN);
+                    quotient.SetBit(bit);
                 }
             }
-            remainder = value.RightShift(totalShift);
-            return result;
+            remainder.AssignRightShift(totalShift);
+            return quotient;
         }
 
         public static BigInteger256 DivRemFullBits(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
