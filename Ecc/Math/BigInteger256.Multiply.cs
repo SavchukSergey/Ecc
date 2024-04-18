@@ -101,7 +101,16 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger512 Square() {
-            return this * this;
+            var zero = new BigInteger256(0);
+
+            var low = new BigInteger512(Square128(Low));
+
+            var mid = new BigInteger512(Mul128(Low, High));
+            mid.AssignLeftShiftQuarter();
+
+            var high = new BigInteger512(zero, Square128(High));
+
+            return low + mid + mid + high;
         }
 
     }

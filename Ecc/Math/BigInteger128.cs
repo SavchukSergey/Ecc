@@ -20,7 +20,11 @@ namespace Ecc.Math {
         internal fixed byte Bytes[BYTES_SIZE];
 
         [FieldOffset(0)]
+        internal ulong Low;
+
+        [FieldOffset(0)]
         public UInt128 UInt128;
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly byte GetByte(int index) {
@@ -41,6 +45,18 @@ namespace Ecc.Math {
         public static BigInteger128 DivRem(in BigInteger128 dividend, in BigInteger128 divisor, out BigInteger128 remainder) {
             var res = new BigInteger128(dividend.UInt128 / divisor.UInt128);
             remainder = new BigInteger128(dividend.UInt128 % divisor.UInt128);
+            return res;
+        }
+
+        public static BigInteger128 DivRem64(in BigInteger128 dividend, ulong divisor, out BigInteger128 remainder) {
+            var res = new BigInteger128(dividend.UInt128 / divisor);
+            remainder = new BigInteger128(dividend.UInt128 % divisor);
+            return res;
+        }
+
+        public static BigInteger128 DivRem64(in UInt128 dividend, ulong divisor, out BigInteger128 remainder) {
+            var res = new BigInteger128(dividend / divisor);
+            remainder = new BigInteger128(dividend % divisor);
             return res;
         }
 

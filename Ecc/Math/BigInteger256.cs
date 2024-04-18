@@ -334,6 +334,7 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger256 ModSquare(in BigInteger256 modulus) {
+            //todo: square can use just 3 multiplications instead of regular four
             return ModMul(this, modulus);
         }
 
@@ -365,6 +366,23 @@ namespace Ecc.Math {
 
         public static BigInteger256 operator /(in BigInteger256 left, in BigInteger256 right) {
             return DivRem(left, right, out var _);
+        }
+
+        private static BigInteger256 Square128(UInt128 value) {
+            if (value == 0 || value == 1) {
+                return new BigInteger256(value);
+            }
+            var ah = value >> 64;
+            var al = (UInt128)(ulong)value;
+
+            var low = new BigInteger256(al * al);
+
+            var mid = new BigInteger256(al * ah);
+            mid.AssignLeftShiftQuarter();
+
+            var high = new BigInteger256(0, ah * ah);
+
+            return low + mid + mid + high;
         }
 
         private static BigInteger256 Mul128(UInt128 left, UInt128 right) {

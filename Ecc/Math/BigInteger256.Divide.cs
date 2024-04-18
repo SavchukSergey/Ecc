@@ -167,49 +167,13 @@ namespace Ecc.Math {
         }
 
         public static BigInteger256 DivRem64(in BigInteger256 dividend, ulong divisor, out BigInteger256 remainder) {
-            //todo: very fast at first bits but slow at then end. Get first half and improve by Newton?
-            var divShiftBits = BitOperations.LeadingZeroCount(divisor);
-            //todo: if divisor is small call optimized method
-            var divisorN = divisor << divShiftBits;
+            var q3 = BigInteger128.DivRem64(new UInt128(0, dividend.UInt64[3]), divisor, out var r3);
+            var q2 = BigInteger128.DivRem64(new UInt128(r3.Low, dividend.UInt64[2]), divisor, out var r2);
+            var q1 = BigInteger128.DivRem64(new UInt128(r2.Low, dividend.UInt64[1]), divisor, out var r1);
+            var q0 = BigInteger128.DivRem64(new UInt128(r1.Low, dividend.UInt64[0]), divisor, out var r0);
 
-            var divPart128 = (UInt128)divisorN;
-
-            var q = new BigInteger256();
-
-            var remainderConsumedLog2 = 0;
-            remainder = dividend;
-
-            //todo: estimate division by divisor rounded by highest 32 bits. and then refine with expensive routine below
-            //todo: it performs better with division by byte rather then u64
-
-            while (remainderConsumedLog2 < BITS_SIZE) {
-                var remainderAdjust = remainder.LeadingZeroCount();
-                remainderConsumedLog2 += remainderAdjust;
-                if (remainderConsumedLog2 > BITS_SIZE) {
-                    remainderAdjust -= remainderConsumedLog2 - BITS_SIZE;
-                    remainderConsumedLog2 = BITS_SIZE;
-                }
-                remainder.AssignLeftShift(remainderAdjust);
-                var remPart128 = remainder.High;
-
-                UInt128 guess = remPart128 / (divPart128 + 1);
-
-                var delta = divisorN * guess;
-                remainder.High -= delta;
-
-                var guessQ = new BigInteger256(guess);
-                var dlog = divShiftBits - remainderConsumedLog2 + 128;
-                if (dlog > 0) {
-                    guessQ.AssignLeftShift(dlog);
-                } else if (dlog < 0) {
-                    guessQ.AssignRightShift(-dlog);
-                }
-                q.AssignAdd(guessQ);
-            }
-
-            remainder = dividend - (q * divisor).Low; //todo: it could be derived somehow from above
-
-            return q;
+            remainder = new BigInteger256(r0.Low);
+            return new BigInteger256(q0.Low, q1.Low, q2.Low, q3.Low);
         }
 
         public static BigInteger256 DivRem32(in BigInteger256 dividend, uint divisor, out BigInteger256 remainder) {

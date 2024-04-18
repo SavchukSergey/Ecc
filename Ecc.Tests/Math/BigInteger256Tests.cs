@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
@@ -199,6 +199,40 @@ namespace Ecc.Tests.Math {
         }
 
         [Test]
+        public void ModPowPerformanceTest() {
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
+
+            var cnt = 1000;
+
+            //warm up
+            for (var i = 0; i < cnt; i++) {
+                var _ = left.ModPow(right, modulus);
+            }
+
+            var swNative = new Stopwatch();
+            var leftN = left.ToNative();
+            var rightN = right.ToNative();
+            var modulusN = modulus.ToNative();
+            swNative.Start();
+            for (var i = 0; i < cnt; i++) {
+                var _ = BigInteger.ModPow(leftN, rightN, modulusN);
+            }
+            swNative.Stop();
+
+            var sw = new Stopwatch();
+            sw.Start();
+            for (var i = 0; i < cnt; i++) {
+                var _ = left.ModPow(right, modulus);
+            }
+            sw.Stop();
+
+            Console.WriteLine($"mega mod-pow per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
+            Console.WriteLine($"mega mod-pow native per second: {(double)cnt / 1e6 / swNative.Elapsed.TotalSeconds}");
+        }
+
+        [Test]
         public void MulPerformanceTest() {
             var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
@@ -377,7 +411,7 @@ namespace Ecc.Tests.Math {
             DivPerformanceTest(left, right);
         }
 
-        private static void DivPerformanceTest(BigInteger256 left, BigInteger256 right) {
+        private static void DivPerformanceTest(in BigInteger256 left, in BigInteger256 right) {
 
             var cnt = 10000;
 
@@ -515,12 +549,45 @@ namespace Ecc.Tests.Math {
 
         [Test]
         public void ModInverseTest() {
+            var value = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
+
             ClassicAssert.AreEqual(
               "6a6c59bdd7a25d5fcd3b69d7f8b183194451df6a625bbecf68e7d86e194c21ac",
-               BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5").ModInverse(
-                    BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f")
-                ).ToHexUnsigned()
+               value.ModInverse(modulus).ToHexUnsigned()
            );
+        }
+
+        [Test]
+        public void ModInversePerformanceTest() {
+            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
+
+            var cnt = 1000;
+
+            //warm up
+            for (var i = 0; i < cnt; i++) {
+                var _ = left.ModInverse(modulus);
+            }
+
+            var sw = new Stopwatch();
+            sw.Start();
+            for (var i = 0; i < cnt; i++) {
+                var _ = left.ModInverse(modulus);
+            }
+            sw.Stop();
+
+            var swNative = new Stopwatch();
+            var leftN = left.ToNative();
+            var modulusN = modulus.ToNative();
+            swNative.Start();
+            for (var i = 0; i < cnt; i++) {
+                var _ = leftN.ModInverse(modulusN);
+            }
+            swNative.Stop();
+
+            Console.WriteLine($"mega modInverse per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
+            Console.WriteLine($"mega modInverse native per second: {(double)cnt / 1e6 / swNative.Elapsed.TotalSeconds}");
         }
 
         #endregion
