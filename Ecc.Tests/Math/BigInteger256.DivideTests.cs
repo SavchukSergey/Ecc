@@ -7,6 +7,17 @@ using NUnit.Framework.Legacy;
 namespace Ecc.Tests.Math {
     public partial class BigInteger256Tests {
 
+        [Test]
+        public void ModDivTest() {
+            var value = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var exponent = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
+
+            var result = value.ModDiv(exponent, modulus);
+
+            Assert.That(result.ToHexUnsigned(), Is.EqualTo("182ff5254d4522b55f0ead2ebef2217bdd846824f3457dfdbbfc196ecc37453e"));
+        }
+
         [TestCaseSource(nameof(DivideCases))]
         public void DivRemNativeTest(string leftHex, string rightHex, string qHex, string remHex) {
             var left = BigInteger256.ParseHexUnsigned(leftHex);
