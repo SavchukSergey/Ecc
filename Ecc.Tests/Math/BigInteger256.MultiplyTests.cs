@@ -67,6 +67,16 @@ namespace Ecc.Tests.Math {
             );
         }
 
+        [Test]
+        public void ModPowTest() {
+            var value = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
+            var exponent = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
+
+            var result = value.ModPow(exponent, modulus);
+
+            Assert.That(result.ToHexUnsigned(), Is.EqualTo("01407be969151e9402e5cdd6462676d38085ed57927ad147ea89f88055741b01"));
+        }
 
         [Test]
         public void GenerateModMulMontgomeryTest() {

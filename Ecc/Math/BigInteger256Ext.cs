@@ -10,6 +10,10 @@ namespace Ecc.Math {
             return a.ModMul(b.ModInverse(modulus), modulus);
         }
 
+        public static BigInteger256 ModDivPrime(this in BigInteger256 a, in BigInteger256 b, in BigInteger256 primeModulus) {
+            return a.ModMul(b.ModInversePrime(primeModulus), primeModulus);
+        }
+
         public static BigInteger256 FromBigEndianBytes(byte[] data) {
             Span<byte> reverse = stackalloc byte[BigInteger256.BYTES_SIZE];
             var len = System.Math.Min(data.Length, BigInteger256.BYTES_SIZE);
@@ -35,6 +39,11 @@ namespace Ecc.Math {
         public static BigInteger256 ModSqrt(this in BigInteger256 val, in BigInteger256 modulus) {
             var exp = modulus.ModAdd(new BigInteger256(1), modulus).ModDiv(new BigInteger256(4), modulus);
             return val.ModPow(exp, modulus);
+        }
+
+        public static BigInteger256 ModSqrtPrime(this in BigInteger256 val, in BigInteger256 primeModulus) {
+            var exp = primeModulus.ModAdd(new BigInteger256(1), primeModulus).ModDivPrime(new BigInteger256(4), primeModulus);
+            return val.ModPow(exp, primeModulus);
         }
 
         public static BigInteger256 ModRandom(in BigInteger256 modulus) {

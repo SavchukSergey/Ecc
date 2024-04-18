@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -347,6 +347,11 @@ namespace Ecc.Math {
 
         public readonly BigInteger256 ModInverse(in BigInteger256 modulus) {
             return BigInteger256Ext.EuclidExtended(this, modulus).X;
+        }
+
+        public readonly BigInteger256 ModInversePrime(in BigInteger256 primeModulus) {
+            //Fermat theorem
+            return ModPow(primeModulus.Sub(new BigInteger256(2), out var _), primeModulus);
         }
 
         public readonly BigInteger ToNative() {
