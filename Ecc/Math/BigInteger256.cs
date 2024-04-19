@@ -280,28 +280,6 @@ namespace Ecc.Math {
             return res;
         }
 
-        public static BigInteger256 MulModMontgomery(in BigInteger256 left, in BigInteger256 right, in BigInteger256 modulus, in BigInteger256 reciprocalModulus, int shift) {
-            var mul512 = (left * right);
-            var q1024 = mul512 * reciprocalModulus;
-            q1024.AssignRightShift(shift);
-
-            var q256 = q1024.Low.Low;
-            var remainder512 = (mul512 - q256 * modulus);
-
-            if (remainder512 > modulus) {
-                remainder512 -= modulus;
-                q256.AssignIncrement();
-            }
-
-            if (remainder512 > modulus) {
-                remainder512 -= modulus;
-                q256.AssignIncrement();
-            }
-
-            return remainder512.Low;
-        }
-
-
         public readonly BigInteger256 ModMul(in BigInteger256 other, in BigInteger256 modulus) {
             //todo: optimize
             return ModMulBit(other, modulus);
@@ -335,7 +313,7 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger256 ModPow(in BigInteger256 exp, in MontgomeryContext256 ctx) {
-            var acc = ctx.ToMontgomery(new BigInteger256(1));
+            var acc = ctx.ToMontgomery(new BigInteger256(1)); //todo: this can be cached in ctx
             var walker = ctx.ToMontgomery(this);
             for (var bit = 0; bit < BITS_SIZE; bit++) {
                 if (exp.GetBit(bit)) {

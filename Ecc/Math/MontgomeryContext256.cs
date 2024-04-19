@@ -1,4 +1,4 @@
-﻿namespace Ecc.Math {
+namespace Ecc.Math {
     public readonly struct MontgomeryContext256 {
 
         public readonly BigInteger256 Modulus;
@@ -7,8 +7,8 @@
         private readonly BigInteger256 _beta; //check actual size. 0 <= beta < r
 
         public MontgomeryContext256(in BigInteger256 modulus) {
-            // k is supported to be 256
-            // modulus >= 2 ^ 255
+            // k is supposed to be 256
+            // modulus >= 2 ^ 255, odd
             _r = new BigInteger512(new BigInteger256(0), new BigInteger256(1));
             Modulus = modulus;
             _beta = (_r - new BigInteger512(modulus).ModInverse(_r)).Low;
@@ -31,6 +31,7 @@
         }
 
         public readonly BigInteger256 Reduce(in BigInteger512 x) {
+            //todo: precalc beta * modulus?
             var s1 = x.Low;                 // s1 = x % r
             var s2 = BigInteger256.MulLow(s1, _beta);
             var s3 = Modulus * s2;
@@ -42,6 +43,7 @@
         }
 
         public readonly BigInteger256 Reduce(in BigInteger256 x) {
+            //todo: precalc beta * modulus?
             var s1 = x;                 // s1 = x % r
             var s2 = BigInteger256.MulLow(s1, _beta);
             var s3 = Modulus * s2;
