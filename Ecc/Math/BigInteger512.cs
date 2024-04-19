@@ -112,6 +112,12 @@ namespace Ecc.Math {
             }
         }
 
+        public readonly bool IsOne {
+            get {
+                return Low.IsOne && High.IsZero;
+            }
+        }
+
         public void Clear() {
             for (var i = 0; i < ITEMS_SIZE; i++) {
                 Data[i] = 0;
@@ -196,6 +202,14 @@ namespace Ecc.Math {
             return res;
         }
 
+        public void AssignDecrement() {
+            if (Low.IsZero) {
+                High.AssignDecrement();
+            }
+            Low.AssignDecrement();
+        }
+
+
         public void AssignNegate() {
             bool carry = false;
             ulong add = 1ul;
@@ -210,7 +224,21 @@ namespace Ecc.Math {
             }
         }
 
+        public readonly BigInteger512 ModInverse(in BigInteger512 modulus) {
+            return new BigInteger512(ToNative().ModInverse(modulus.ToNative()));
+        }
+
+        public static BigInteger256 operator %(in BigInteger512 left, in BigInteger256 right) {
+            return new BigInteger256(left.ToNative() % right.ToNative());
+        }
+
         public static BigInteger512 operator +(in BigInteger512 left, in BigInteger512 right) {
+            var res = new BigInteger512(left);
+            res.AssignAdd(right);
+            return res;
+        }
+
+        public static BigInteger512 operator +(in BigInteger512 left, in BigInteger256 right) {
             var res = new BigInteger512(left);
             res.AssignAdd(right);
             return res;
@@ -254,6 +282,11 @@ namespace Ecc.Math {
             }
             return true;
         }
+
+        public static BigInteger512 Gcd(in BigInteger512 a, in BigInteger256 b) {
+            return new BigInteger512(BigInteger.GreatestCommonDivisor(a.ToNative(), b.ToNative()));
+        }
+
 
     }
 }

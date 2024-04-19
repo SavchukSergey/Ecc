@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Numerics;
+using System;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Ecc.Math {
@@ -46,6 +48,26 @@ namespace Ecc.Math {
             return (byte)(Data[btIndex] >> (8 * (index & 0x03)));
         }
 
+        public readonly bool IsOne {
+            get {
+                return Low.IsOne && High.IsZero;
+            }
+        }
+
+        [Obsolete]
+        public readonly BigInteger ToNative() {
+            var array = new byte[BYTES_SIZE];
+            var ai = 0;
+            for (var i = 0; i < ITEMS_SIZE; i++) {
+                var bt = Data[i];
+                array[ai++] = (byte)(bt >> 0);
+                array[ai++] = (byte)(bt >> 8);
+                array[ai++] = (byte)(bt >> 16);
+                array[ai++] = (byte)(bt >> 24);
+            }
+            return new BigInteger(array, isUnsigned: true, isBigEndian: false);
+        }
+
         public static BigInteger1024 operator +(in BigInteger1024 left, in BigInteger1024 right) {
             var res = new BigInteger1024(left);
             res.AssignAdd(right);
@@ -76,7 +98,27 @@ namespace Ecc.Math {
             return carry;
         }
 
+        public void AssignSub(in BigInteger512 other) {
+            bool carry = false;
+            for (var i = 0; i < UINT64_SIZE / 2; i++) {
+                UInt128 acc = UInt64[i];
+                acc -= other.UInt64[i];
+                acc -= carry ? 1u : 0u;
+                UInt64[i] = (ulong)acc;
+                carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
+            }
+            if (carry) {
+                High.AssignDecrement();
+            }
+        }
+
         public static BigInteger1024 operator -(in BigInteger1024 left, in BigInteger1024 right) {
+            var res = new BigInteger1024(left);
+            res.AssignSub(right);
+            return res;
+        }
+
+        public static BigInteger1024 operator -(in BigInteger1024 left, in BigInteger512 right) {
             var res = new BigInteger1024(left);
             res.AssignSub(right);
             return res;

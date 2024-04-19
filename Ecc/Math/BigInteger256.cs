@@ -240,6 +240,7 @@ namespace Ecc.Math {
             }
             Low--;
         }
+
         public void AssignIncrement() {
             Low++;
             if (Low == 0) {
@@ -331,6 +332,18 @@ namespace Ecc.Math {
             }
             return acc;
             //todo: above to slow?
+        }
+
+        public readonly BigInteger256 ModPow(in BigInteger256 exp, in MontgomeryContext256 ctx) {
+            var acc = ctx.ToMontgomery(new BigInteger256(1));
+            var walker = ctx.ToMontgomery(this);
+            for (var bit = 0; bit < BITS_SIZE; bit++) {
+                if (exp.GetBit(bit)) {
+                    acc = ctx.ModMul(acc, walker);
+                }
+                walker = ctx.ModSquare(walker);
+            }
+            return ctx.Reduce(acc);
         }
 
         public readonly BigInteger256 ModSquare(in BigInteger256 modulus) {
@@ -532,6 +545,10 @@ namespace Ecc.Math {
                 res ^= Data[i];
             }
             return (int)res;
+        }
+
+        public static BigInteger256 Gcd(in BigInteger256 a, in BigInteger256 b) {
+            return BigInteger256Ext.EuclidExtended(a, b).Gcd;
         }
 
         //todo: one

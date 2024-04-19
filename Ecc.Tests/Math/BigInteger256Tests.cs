@@ -206,6 +206,8 @@ namespace Ecc.Tests.Math {
 
             var cnt = 1000;
 
+            var ctx = new MontgomeryContext256(modulus);
+
             //warm up
             for (var i = 0; i < cnt; i++) {
                 var _ = left.ModPow(right, modulus);
@@ -228,7 +230,15 @@ namespace Ecc.Tests.Math {
             }
             sw.Stop();
 
+            var swMontgomery = new Stopwatch();
+            swMontgomery.Start();
+            for (var i = 0; i < cnt; i++) {
+                var _ = left.ModPow(right, ctx);
+            }
+            swMontgomery.Stop();
+
             Console.WriteLine($"mega mod-pow per second: {(double)cnt / 1e6 / sw.Elapsed.TotalSeconds}");
+            Console.WriteLine($"mega mod-pow montgomery per second: {(double)cnt / 1e6 / swMontgomery.Elapsed.TotalSeconds}");
             Console.WriteLine($"mega mod-pow native per second: {(double)cnt / 1e6 / swNative.Elapsed.TotalSeconds}");
         }
 

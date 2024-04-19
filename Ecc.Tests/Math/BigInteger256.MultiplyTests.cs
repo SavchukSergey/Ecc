@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Ecc.Math;
 using NUnit.Framework;
@@ -67,15 +68,28 @@ namespace Ecc.Tests.Math {
             );
         }
 
-        [Test]
-        public void ModPowTest() {
-            var value = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
-            var exponent = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+        [TestCaseSource(nameof(ModPowCases))]
+        public void ModMontgomeryTest(string valueHex, string expHex, string expectedHex) {
+            var value = BigInteger256.ParseHexUnsigned(valueHex);
+            var exponent = BigInteger256.ParseHexUnsigned(expHex);
             var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
 
             var result = value.ModPow(exponent, modulus);
 
-            Assert.That(result.ToHexUnsigned(), Is.EqualTo("01407be969151e9402e5cdd6462676d38085ed57927ad147ea89f88055741b01"));
+            Assert.That(result.ToHexUnsigned(), Is.EqualTo(expectedHex));
+        }
+
+        [TestCaseSource(nameof(ModPowCases))]
+        public void ModPowMontgomeryTest(string valueHex, string expHex, string expectedHex) {
+            var value = BigInteger256.ParseHexUnsigned(valueHex);
+            var exponent = BigInteger256.ParseHexUnsigned(expHex);
+            var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
+
+            var ctx = new MontgomeryContext256(modulus);
+
+            var result = value.ModPow(exponent, ctx);
+
+            Assert.That(result.ToHexUnsigned(), Is.EqualTo(expectedHex));
         }
 
         [Test]
@@ -120,91 +134,55 @@ namespace Ecc.Tests.Math {
             Console.WriteLine($"result:    {c.ToHexUnsigned()}");
         }
 
-        private readonly struct MontgomeryContext256 {
-            public readonly BigInteger Modulus;
-            private readonly int _k;
-            private readonly BigInteger _r;
-            private readonly BigInteger _rm;
-            private readonly BigInteger _beta;
-
-            public MontgomeryContext256(in BigInteger modulus) {
-                _k = 256;
-                _r = new BigInteger(1) << _k;
-                Modulus = modulus;
-                _beta = _r - modulus.ModInverse(_r);
-                _rm = _r % modulus;
-            }
-
-            public readonly BigInteger ToMontgomery(in BigInteger x) {
-                return x.ModMul(_r, Modulus);
-            }
-
-            public readonly BigInteger Reduce(in BigInteger x) {
-                var s1 = x % _r;              // s1 = x % r
-                var s2 = (s1 * _beta) % _r;
-                var s3 = Modulus * s2;
-                var t = (x + s3) / _r;
-                if (t >= Modulus) {
-                    t -= Modulus;
-                }
-                return t;
-            }
-
-            public bool IsValid {
-                get {
-                    var gcd = BigInteger.GreatestCommonDivisor(_r, Modulus);
-                    if (gcd != 1) {
-                        return false;
-                    }
-
-                    //r * rInv - m * beta = 1
-
-                    var rInv = _rm.ModInverse(Modulus);
-                    return _r * rInv - Modulus * _beta == 1;
-                }
-            }
-        }
-
         [Test]
         public void ModMulMontgonmeryAlgoTest() {
             var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
             var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
 
-            var u = left.ToNative();
-            var v = right.ToNative();
-            var m = modulus.ToNative();
-
-            var ctx = new MontgomeryContext256(m);
+            var ctx = new MontgomeryContext256(modulus);
 
             Assert.That(ctx.IsValid, Is.True);
 
-            var um = ctx.ToMontgomery(u);
-            var vm = ctx.ToMontgomery(v);
+            var um = ctx.ToMontgomery(left);
+            var vm = ctx.ToMontgomery(right);
 
-            var uvrr = um * vm;
-
-            var uvr = ctx.Reduce(uvrr);
-            var uv = ctx.Reduce(uvr);
-
-            var result = new BigInteger256(uv);
+            var uvr = ctx.ModMul(um, vm);
+            var result = ctx.Reduce(uvr);
 
             Assert.That(result.ToHexUnsigned(), Is.EqualTo("5d7d5d481d0e11156103bcb9b60db5588399b95d89cc6940b231937201b2e38f"));
         }
 
-        [Test]
-        public void ModMulMontgomeryTest() {
-            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
-            var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
-            var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
+        public static IEnumerable<string[]> ModPowCases() {
+            yield return [
+                "cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5",
+                "0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715",
+                "01407be969151e9402e5cdd6462676d38085ed57927ad147ea89f88055741b01",
+            ];
 
-            var shift = 511;
+            yield return [
+                "cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5",
+                "0000000000000000000000000000000000000000000000000000000000000000",
+                "0000000000000000000000000000000000000000000000000000000000000001",
+            ];
 
-            var reciprocalModulus = BigInteger256.ParseHexUnsigned("80000000000000000000000000000000000000000000000000000000800001e9");
+            yield return [
+                "cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5",
+                "0000000000000000000000000000000000000000000000000000000000000001",
+                "cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5",
+            ];
 
-            var mod256 = BigInteger256.MulModMontgomery(left, right, modulus, reciprocalModulus, shift);
-            var mod256Bits = left.ModMulBit(right, modulus);
-            Assert.That(mod256.ToHexUnsigned(), Is.EqualTo(mod256Bits.ToHexUnsigned()));
+            yield return [
+                "cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5",
+                "0000000000000000000000000000000000000000000000000000000000000002",
+                "f68d6baa084effcf7222c3f72d9ae49c974ced4078afe384291b7966149ac12c",
+            ];
+
+            yield return [
+                "cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5",
+                "0000000000000000000000000000000000000000000000000000000000000004",
+                "4b6401fe5e473e64611d2b20187f103af350633cf0d4d487fe5435683223210d",
+            ];
 
         }
 
