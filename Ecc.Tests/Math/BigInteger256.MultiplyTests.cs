@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Reflection;
 using Ecc.Math;
 using NUnit.Framework;
 
@@ -122,6 +123,24 @@ namespace Ecc.Tests.Math {
             var result = resultRaw >> shift;
             Console.WriteLine($"result:    {result.ToString("x").TrimStart('0')}");
 
+        }
+
+        [Test]
+        public void SomeTest() {
+            var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
+            var ctx = new MontgomeryContext256(modulus);
+
+            var val = BigInteger256.ParseHexUnsigned("f68d6baa084effcf7222c3f72d9ae49c974ced4078afe384291b7966149ac12c");
+
+            var square = val.ModSquare(modulus);
+            Assert.That(square.ToHexUnsigned(), Is.EqualTo("4b6401fe5e473e64611d2b20187f103af350633cf0d4d487fe5435683223210d"));
+
+            var squareM = ctx.ToMontgomery(square);
+
+            var valM = ctx.ToMontgomery(val);
+            var mm = ctx.ModSquare(valM);
+
+            Assert.That(squareM.ToHexUnsigned(), Is.EqualTo(mm.ToHexUnsigned()));
         }
 
         [Test]
