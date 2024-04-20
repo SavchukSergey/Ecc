@@ -167,6 +167,7 @@ namespace Ecc.Math {
         }
 
         public static BigInteger256 DivRem64(in BigInteger256 dividend, ulong divisor, out BigInteger256 remainder) {
+            //todo: we have extra divisions here that can be avoided
             var q3 = BigInteger128.DivRem64(new UInt128(0, dividend.UInt64[3]), divisor, out var r3);
             var q2 = BigInteger128.DivRem64(new UInt128(r3.Low, dividend.UInt64[2]), divisor, out var r2);
             var q1 = BigInteger128.DivRem64(new UInt128(r2.Low, dividend.UInt64[1]), divisor, out var r1);

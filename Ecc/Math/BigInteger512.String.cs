@@ -26,7 +26,7 @@ namespace Ecc.Math {
                     part |= ((uint)hd << j);
                     charPtr--;
                 }
-                Data[ptr++] = part;
+                UInt32[ptr++] = part;
             }
         }
 

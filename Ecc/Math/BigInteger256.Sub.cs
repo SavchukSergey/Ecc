@@ -36,6 +36,5 @@ namespace Ecc.Math {
             }
         }
 
-
     }
 }

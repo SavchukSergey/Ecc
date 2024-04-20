@@ -1,7 +1,6 @@
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Ecc.Math {
     [StructLayout(LayoutKind.Explicit, Size = 64)]
@@ -10,10 +9,12 @@ namespace Ecc.Math {
         public const int BITS_SIZE = 512;
         public const int BYTES_SIZE = BITS_SIZE / 8;
         private const int ITEM_BITS_SIZE = 32;
+        [Obsolete]
         internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
         internal const int UINT32_SIZE = BITS_SIZE / 32;
         internal const int UINT64_SIZE = BITS_SIZE / 64;
 
+        [Obsolete]
         [FieldOffset(0)]
         internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
 
@@ -27,69 +28,16 @@ namespace Ecc.Math {
         public BigInteger256 Middle; // for 256.256 fixed point arithmetics
 
         [FieldOffset(0)]
-        internal fixed ulong UInt32[UINT32_SIZE];
+        internal fixed byte Bytes[BYTES_SIZE];
+
+        [FieldOffset(0)]
+        internal fixed uint UInt32[UINT32_SIZE];
 
         [FieldOffset(0)]
         internal fixed ulong UInt64[UINT64_SIZE];
 
-        public BigInteger512() {
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                Data[i] = 0;
-            }
-        }
-
-        public BigInteger512(uint value) {
-            Data[0] = value;
-            for (var i = 1; i < ITEMS_SIZE; i++) {
-                Data[i] = 0;
-            }
-        }
-
-        public BigInteger512(ulong value) {
-            Data[0] = (uint)value;
-            Data[1] = (uint)(value >> 32);
-            for (var i = 2; i < ITEMS_SIZE; i++) {
-                Data[i] = 0;
-            }
-        }
-
-        public BigInteger512(in BigInteger256 value) {
-            Low = value;
-            High = new BigInteger256(0);
-        }
-
-        public BigInteger512(in BigInteger256 low, in BigInteger256 high) {
-            Low = low;
-            High = high;
-        }
-
-        public BigInteger512(in BigInteger512 other) {
-            Low = other.Low;
-            High = other.High;
-        }
-
-        public BigInteger512(UInt128 l0) {
-            Low.Low = l0;
-            Low.High = 0;
-            High = new BigInteger256(0);
-        }
-
-        [Obsolete]
-        public BigInteger512(in BigInteger value) {
-            var data = value.ToByteArray(isBigEndian: false);
-            var si = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                var bt0 = si < data.Length ? data[si++] : 0;
-                var bt1 = si < data.Length ? data[si++] : 0;
-                var bt2 = si < data.Length ? data[si++] : 0;
-                var bt3 = si < data.Length ? data[si++] : 0;
-                Data[i] = (uint)((bt3 << 24) | (bt2 << 16) | (bt1 << 8) | bt0);
-            }
-        }
-
         public readonly byte GetByte(int index) {
-            var btIndex = index >> 2;
-            return (byte)(Data[btIndex] >> (8 * (index & 0x03)));
+            return Bytes[index];
         }
 
         [Obsolete]
@@ -119,34 +67,11 @@ namespace Ecc.Math {
         }
 
         public void Clear() {
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                Data[i] = 0;
+            for (var i = 0; i < UINT32_SIZE; i++) {
+                UInt32[i] = 0;
             }
         }
 
-        public bool AssignAdd(in BigInteger512 other) {
-            bool carry = false;
-            for (var i = 0; i < UINT64_SIZE; i++) {
-                UInt128 acc = UInt64[i];
-                acc += other.UInt64[i];
-                acc += carry ? 1u : 0u;
-                UInt64[i] = (ulong)acc;
-                carry = acc > ulong.MaxValue;
-            }
-            return carry;
-        }
-
-        public bool AssignAdd(in BigInteger256 other) {
-            bool carry = false;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                ulong acc = Data[i];
-                acc += i < BigInteger256.ITEMS_SIZE ? other.Data[i] : 0; //todo: remove i < Itemssize
-                acc += carry ? 1ul : 0ul;
-                Data[i] = (uint)acc;
-                carry = acc > uint.MaxValue;
-            }
-            return carry;
-        }
 
         public bool AssignDouble() {
             ulong carry = 0;
@@ -287,6 +212,13 @@ namespace Ecc.Math {
             return new BigInteger512(BigInteger.GreatestCommonDivisor(a.ToNative(), b.ToNative()));
         }
 
+        public override int GetHashCode() {
+            uint res = 0;
+            for (var i = 1; i < UINT32_SIZE; i++) {
+                res ^= UInt32[i];
+            }
+            return (int)res;
+        }
 
     }
 }

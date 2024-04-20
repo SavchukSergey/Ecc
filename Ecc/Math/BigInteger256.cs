@@ -10,14 +10,9 @@ namespace Ecc.Math {
 
         public const int BITS_SIZE = 256;
         public const int BYTES_SIZE = BITS_SIZE / 8;
-        private const int ITEM_BITS_SIZE = 32;
-        internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
         internal const int UINT64_SIZE = BITS_SIZE / 64;
         internal const int UINT32_SIZE = BITS_SIZE / 32;
         internal const int UINT16_SIZE = BITS_SIZE / 16;
-
-        [FieldOffset(0)]
-        internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
 
         [FieldOffset(0)]
         internal fixed byte Bytes[BYTES_SIZE];
@@ -37,88 +32,12 @@ namespace Ecc.Math {
         [FieldOffset(16)]
         public UInt128 High;
 
-        public BigInteger256() {
-            Low = 0;
-            High = 0;
-        }
 
-        public BigInteger256(uint value) {
-            Low = value;
-            High = 0;
-        }
+        [FieldOffset(0)]
+        public BigInteger128 BiLow;
 
-        public BigInteger256(uint b0, uint b1) {
-            UInt32[0] = b0;
-            UInt32[1] = b1;
-            UInt64[1] = 0;
-            High = 0;
-        }
-
-        public BigInteger256(uint b0, uint b1, uint b2, uint b3) {
-            UInt32[0] = b0;
-            UInt32[1] = b1;
-            UInt32[2] = b2;
-            UInt32[3] = b3;
-            High = 0;
-        }
-
-        public BigInteger256(ulong b0, ulong b1, ulong b2, ulong b3) {
-            UInt64[0] = b0;
-            UInt64[1] = b1;
-            UInt64[2] = b2;
-            UInt64[3] = b3;
-        }
-
-        public BigInteger256(uint b0, uint b1, uint b2, uint b3, uint b4, uint b5, uint b6, uint b7) {
-            UInt32[0] = b0;
-            UInt32[1] = b1;
-            UInt32[2] = b2;
-            UInt32[3] = b3;
-            UInt32[4] = b4;
-            UInt32[5] = b5;
-            UInt32[6] = b6;
-            UInt32[7] = b7;
-        }
-
-        public BigInteger256(ulong value) {
-            UInt64[0] = value;
-            UInt64[1] = 0;
-            UInt64[2] = 0;
-            UInt64[3] = 0;
-        }
-
-        public BigInteger256(UInt128 low) {
-            Low = low;
-            High = 0;
-        }
-
-        public BigInteger256(UInt128 low, UInt128 high) {
-            Low = low;
-            High = high;
-        }
-
-        public BigInteger256(in BigInteger256 other) {
-            Low = other.Low;
-            High = other.High;
-        }
-
-        public BigInteger256(in BigInteger value) {
-            var data = value.ToByteArray(isBigEndian: false);
-            for (var i = 0; i < BYTES_SIZE; i++) {
-                Bytes[i] = i < data.Length ? data[i] : (byte)0;
-            }
-        }
-
-        public BigInteger256(Span<byte> data) {
-            var si = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                var bt0 = si < data.Length ? data[si++] : 0;
-                var bt1 = si < data.Length ? data[si++] : 0;
-                var bt2 = si < data.Length ? data[si++] : 0;
-                var bt3 = si < data.Length ? data[si++] : 0;
-                Data[i] = (uint)(bt3 << 24 | bt2 << 16 | bt1 << 8 | bt0);
-            }
-        }
+        [FieldOffset(16)]
+        public BigInteger128 BiHigh;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly byte GetByte(int index) {
@@ -132,16 +51,12 @@ namespace Ecc.Math {
 
         public readonly bool GetBit(int index) {
             var btIndex = index >> 5;
-            return (Data[btIndex] & (1 << (index & 0x1f))) != 0;
+            return (UInt32[btIndex] & (1 << (index & 0x1f))) != 0;
         }
 
         public void SetBit(int index) {
             var btIndex = index >> 5;
-            Data[btIndex] |= (uint)(1 << (index & 0x1f));
-        }
-
-        public readonly uint GetItem(int index) {
-            return Data[index];
+            UInt32[btIndex] |= (uint)(1 << (index & 0x1f));
         }
 
         public readonly bool IsZero {
@@ -159,7 +74,7 @@ namespace Ecc.Math {
         public readonly bool IsEven {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get {
-                return ((int)Data[0] & 0x1) == 0;
+                return (Bytes[0] & 0x1) == 0;
             }
         }
 
@@ -359,83 +274,6 @@ namespace Ecc.Math {
             return DivRem(left, right, out var _);
         }
 
-        private static BigInteger256 Square128(UInt128 value) {
-            if (value == 0 || value == 1) {
-                return new BigInteger256(value);
-            }
-            var ah = value >> 64;
-            var al = (UInt128)(ulong)value;
-
-            var low = new BigInteger256(al * al);
-
-            var mid = new BigInteger256(al * ah);
-            mid.AssignLeftShiftQuarter();
-
-            var high = new BigInteger256(0, ah * ah);
-
-            return low + mid + mid + high;
-        }
-
-        private static BigInteger256 Mul128(UInt128 left, UInt128 right) {
-            if (left == 0 || right == 0) {
-                return new BigInteger256(0);
-            }
-            if (left == 1) {
-                return new BigInteger256(right);
-            }
-            if (right == 1) {
-                return new BigInteger256(left);
-            }
-            var ah = left >> 64;
-            var al = (UInt128)(ulong)left;
-            var bh = right >> 64;
-            var bl = (UInt128)(ulong)right;
-
-            var x0 = new BigInteger256(al * bl, 0);
-            var x1 = new BigInteger256(al * bh, 0) + new BigInteger256(ah * bl, 0);
-            x1.AssignLeftShiftQuarter();
-            var x2 = new BigInteger256(0, ah * bh);
-
-            return x0 + x1 + x2;
-        }
-
-        private static BigInteger256 Mul128(UInt128 left, ulong right) {
-            var ah = left >> 64;
-            var al = (UInt128)(ulong)left;
-            var bl = (UInt128)right;
-
-            var x0 = new BigInteger256(al * bl, 0);
-            var x1 = new BigInteger256(ah * bl, 0);
-            x1.AssignLeftShiftQuarter();
-
-            return x0 + x1;
-        }
-
-        private static UInt128 Mul128Low(UInt128 left, UInt128 right) {
-            var ah = left >> 64;
-            var al = (UInt128)(ulong)left;
-            var bh = right >> 64;
-            var bl = (UInt128)(ulong)right;
-
-            var x0 = al * bl;
-            var x1 = (al * bh + ah * bl) << 64; //todo: we can use Mul64Low here check if it is faster
-
-            return x0 + x1;
-        }
-
-        private static UInt128 Mul64(ulong left, ulong right) {
-            var ah = left >> 32;
-            var al = (ulong)(uint)left;
-            var bh = right >> 32;
-            var bl = (ulong)(uint)right;
-
-            var x0 = new UInt128(0, al * bl);
-            var x1 = (new UInt128(0, al * bh) + new UInt128(0, ah * bl)) << 32;
-            var x2 = new UInt128(ah * bh, 0);
-
-            return x0 + x1 + x2;
-        }
-
         public static BigInteger256 operator %(in BigInteger256 left, in BigInteger256 right) {
             DivRem(left, right, out var remainder);
             return remainder;
@@ -468,44 +306,25 @@ namespace Ecc.Math {
         }
 
         public readonly int Log2() {
-            //BitOperations.LeadingZeroCount(UInt64[3]); //todo
-            int res = BITS_SIZE;
-            for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
-                var item = GetItem(i); //todo: use UInt128 items
-                var mask = 0x8000_0000;
-                while (mask != 0) {
-                    if ((item & mask) != 0) {
-                        return res;
-                    }
-                    mask >>= 1;
-                    res--;
-                }
-            }
-            return res;
+            return BITS_SIZE - LeadingZeroCount();
         }
 
         public readonly bool TryWrite(Span<byte> buffer) {
             if (buffer.Length < BYTES_SIZE) {
                 return false;
             }
-            var ptr = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                var val = Data[i];
-                buffer[ptr++] = (byte)(val & 0xff);
-                val >>= 8;
-                buffer[ptr++] = (byte)(val & 0xff);
-                val >>= 8;
-                buffer[ptr++] = (byte)(val & 0xff);
-                val >>= 8;
-                buffer[ptr++] = (byte)val;
+            for (var i = 0; i < BYTES_SIZE; i++) {
+                var val = Bytes[i];
+                buffer[i] = val;
             }
             return true;
         }
 
         public readonly void WriteBigEndian(Span<byte> buffer) {
+            //todo: simplify using byte access
             var ptr = 0;
-            for (var i = ITEMS_SIZE - 1; i >= 0; i--) {
-                var val = Data[i];
+            for (var i = UINT32_SIZE - 1; i >= 0; i--) {
+                var val = UInt32[i];
                 buffer[ptr + 3] = (byte)(val & 0xff);
                 val >>= 8;
                 buffer[ptr + 2] = (byte)(val & 0xff);
@@ -519,8 +338,8 @@ namespace Ecc.Math {
 
         public override int GetHashCode() {
             uint res = 0;
-            for (var i = 1; i < ITEMS_SIZE; i++) {
-                res ^= Data[i];
+            for (var i = 1; i < UINT32_SIZE; i++) {
+                res ^= UInt32[i];
             }
             return (int)res;
         }
