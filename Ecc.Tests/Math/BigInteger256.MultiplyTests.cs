@@ -69,7 +69,7 @@ namespace Ecc.Tests.Math {
         }
 
         [TestCaseSource(nameof(ModPowCases))]
-        public void ModMontgomeryTest(string valueHex, string expHex, string expectedHex) {
+        public void ModPowTest(string valueHex, string expHex, string expectedHex) {
             var value = BigInteger256.ParseHexUnsigned(valueHex);
             var exponent = BigInteger256.ParseHexUnsigned(expHex);
             var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
@@ -124,23 +124,6 @@ namespace Ecc.Tests.Math {
 
         }
 
-        [Test]
-        public void SomeTest() {
-            var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
-            var ctx = new MontgomeryContext256(modulus);
-
-            var val = BigInteger256.ParseHexUnsigned("f68d6baa084effcf7222c3f72d9ae49c974ced4078afe384291b7966149ac12c");
-
-            var square = val.ModSquare(modulus);
-            Assert.That(square.ToHexUnsigned(), Is.EqualTo("4b6401fe5e473e64611d2b20187f103af350633cf0d4d487fe5435683223210d"));
-
-            var squareM = ctx.ToMontgomery(square);
-
-            var valM = ctx.ToMontgomery(val);
-            var mm = ctx.ModSquare(valM);
-
-            Assert.That(squareM.ToHexUnsigned(), Is.EqualTo(mm.ToHexUnsigned()));
-        }
 
         [Test]
         public void GenerateBarrettReductionConstTest() {

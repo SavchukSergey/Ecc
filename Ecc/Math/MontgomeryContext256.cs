@@ -4,7 +4,7 @@ namespace Ecc.Math {
         public readonly BigInteger256 Modulus;
         private readonly BigInteger512 _r;
         private readonly BigInteger256 _rm;
-        private readonly BigInteger256 _beta; //check actual size. 0 <= beta < r
+        private readonly BigInteger256 _beta;
 
         public MontgomeryContext256(in BigInteger256 modulus) {
             // k is supposed to be 256
@@ -20,12 +20,12 @@ namespace Ecc.Math {
             return x.ModMul(_rm, Modulus);
         }
 
-        public BigInteger256 ModMul(BigInteger256 u, BigInteger256 v) {
+        public readonly BigInteger256 ModMul(in BigInteger256 u, in BigInteger256 v) {
             var x = u * v;
             return Reduce(x);
         }
 
-        public BigInteger256 ModSquare(BigInteger256 u) {
+        public readonly BigInteger256 ModSquare(in BigInteger256 u) {
             var x = u.Square();
             return Reduce(x);
         }
@@ -35,11 +35,13 @@ namespace Ecc.Math {
             var s1 = x.Low;                 // s1 = x % r
             var s2 = BigInteger256.MulLow(s1, _beta);
             var s3 = Modulus * s2;
-            var t = (x + s3).High;
-            if (t >= Modulus) {
+            // x + s3 requires extra one bit precission
+            var carry = s3.AssignAdd(x);
+            var t = s3.High;
+            if (carry || t >= Modulus) {
                 t -= Modulus;
             }
-            return t;
+            return new BigInteger256(t);
         }
 
         public readonly BigInteger256 Reduce(in BigInteger256 x) {
@@ -47,15 +49,18 @@ namespace Ecc.Math {
             var s1 = x;                 // s1 = x % r
             var s2 = BigInteger256.MulLow(s1, _beta);
             var s3 = Modulus * s2;
-            var t = (s3 + x).High;
-            if (t >= Modulus) {
+
+            // x + s3 requires extra one bit precission
+            var carry = s3.AssignAdd(x);
+            var t = s3.High;
+            if (carry || t >= Modulus) {
                 t -= Modulus;
             }
-            return t;
+            return new BigInteger256(t);
         }
 
         /*
-         * 
+         *
         private readonly BigInteger Reduce(in BigInteger x) {
             var s1 = x % _r;              // s1 = x % r
             var s2 = (s1 * _beta) % _r;
