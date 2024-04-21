@@ -3,6 +3,10 @@ using System;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger512 {
 
+        public static BigInteger256 operator %(in BigInteger512 left, in BigInteger256 right) {
+            return new BigInteger256(left.ToNative() % right.ToNative());
+        }
+
         public static BigInteger512 DivRem64(in BigInteger512 dividend, ulong divisor, out BigInteger512 remainder) {
             if (divisor <= uint.MaxValue) {
                 return DivRem32(dividend, (uint)divisor, out remainder);

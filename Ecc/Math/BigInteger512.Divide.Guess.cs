@@ -3,7 +3,7 @@ using System;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger512 {
 
-        public static BigInteger512 DivRemGuess128(in BigInteger512 dividend, in BigInteger256 divisor, out BigInteger512 remainder) {
+        public static BigInteger512 DivRemGuess(in BigInteger512 dividend, in BigInteger256 divisor, out BigInteger512 remainder) {
             var divShiftBits = divisor.LeadingZeroCount();
             if (divShiftBits >= BITS_SIZE - 32) {
                 return DivRem32(dividend, divisor.UInt32[0], out remainder);
@@ -28,7 +28,7 @@ namespace Ecc.Math {
             while (true) {
                 var remainderLZC = remainder.LeadingZeroCount();
                 if (remainderLZC == divShiftBits) {
-                    if (remainder > divisor) {
+                    if (remainder >= divisor) {
                         remainder.AssignSub(divisor);
                         q256.AssignIncrement();
                     }
@@ -88,7 +88,7 @@ namespace Ecc.Math {
             while (true) {
                 var remainderLZC = remainder.LeadingZeroCount();
                 if (remainderLZC == divShiftBits) {
-                    if (remainder > divisor) {
+                    if (remainder >= divisor) {
                         remainder.AssignSub(divisor);
                         q.AssignIncrement();
                     }

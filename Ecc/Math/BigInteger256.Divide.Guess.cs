@@ -31,7 +31,7 @@ namespace Ecc.Math {
             while (true) {
                 var remainderLZC = remainder.LeadingZeroCount();
                 if (remainderLZC == divShiftBits) {
-                    if (remainder > divisor) {
+                    if (remainder >= divisor) {
                         remainder.AssignSub(divisor);
                         q128.AssignIncrement();
                     }
@@ -88,7 +88,7 @@ namespace Ecc.Math {
             while (true) {
                 var remainderLZC = remainder.LeadingZeroCount();
                 if (remainderLZC == divShiftBits) {
-                    if (remainder.Low > divisor.UInt128) {
+                    if (remainder.BiLow >= divisor) {
                         remainder.BiLow.AssignSub(divisor);
                         q.AssignIncrement();
                     }

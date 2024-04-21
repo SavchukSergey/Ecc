@@ -157,10 +157,6 @@ namespace Ecc.Math {
             return new BigInteger512(ToNative().ModInverse(modulus.ToNative()));
         }
 
-        public static BigInteger256 operator %(in BigInteger512 left, in BigInteger256 right) {
-            return new BigInteger256(left.ToNative() % right.ToNative());
-        }
-
         public static BigInteger512 operator +(in BigInteger512 left, in BigInteger512 right) {
             var res = new BigInteger512(left);
             res.AssignAdd(right);

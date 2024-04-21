@@ -259,8 +259,7 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger256 ModInverse(in BigInteger256 modulus) {
-            //todo: for mod inverse we use half of eucli ext alg
-            return BigInteger256Ext.EuclidExtended(this, modulus).X;
+            return EuclidExtendedX(this, modulus);
         }
 
         public readonly BigInteger256 ModInversePrime(in BigInteger256 primeModulus) {
@@ -352,7 +351,7 @@ namespace Ecc.Math {
         }
 
         public static BigInteger256 Gcd(in BigInteger256 a, in BigInteger256 b) {
-            return BigInteger256Ext.EuclidExtended(a, b).Gcd;
+            return EuclidExtended(a, b).Gcd;
         }
 
         //todo: one
