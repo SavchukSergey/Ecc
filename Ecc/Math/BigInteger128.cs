@@ -12,6 +12,9 @@ namespace Ecc.Math {
         public const int BYTES_SIZE = BITS_SIZE / 8;
         private const int ITEM_BITS_SIZE = 32;
         internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
+        internal const int UINT64_SIZE = BITS_SIZE / 64;
+        internal const int UINT32_SIZE = BITS_SIZE / 32;
+        internal const int UINT16_SIZE = BITS_SIZE / 16;
 
         [FieldOffset(0)]
         internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
@@ -20,11 +23,19 @@ namespace Ecc.Math {
         internal fixed byte Bytes[BYTES_SIZE];
 
         [FieldOffset(0)]
+        internal fixed uint UInt32[UINT32_SIZE];
+
+        [FieldOffset(0)]
+        internal fixed ulong UInt64[UINT64_SIZE];
+
+        [FieldOffset(0)]
         internal ulong Low;
 
         [FieldOffset(0)]
         public UInt128 UInt128;
 
+        [FieldOffset(8)]
+        internal ulong HighUInt64;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly byte GetByte(int index) {
@@ -67,6 +78,26 @@ namespace Ecc.Math {
                 array[i] = bt;
             }
             return new BigInteger(array, isUnsigned: true, isBigEndian: false);
+        }
+
+        public readonly BigInteger128 Clone() {
+            return new BigInteger128(UInt128);
+        }
+
+        public readonly int LeadingZeroCount() {
+            var val = 0;
+            for (var i = UINT64_SIZE - 1; i >= 0; i--) {
+                var cnt = BitOperations.LeadingZeroCount(UInt64[i]);
+                if (cnt < 64) {
+                    return val + cnt;
+                }
+                val += 64;
+            }
+            return val;
+        }
+
+        public void AssignLeftShift(int count) {
+            UInt128 <<= count;
         }
     }
 }

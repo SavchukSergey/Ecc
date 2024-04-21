@@ -33,6 +33,9 @@ namespace Ecc.Math {
         public UInt128 High;
 
 
+        [FieldOffset(24)]
+        internal ulong HighUInt64;
+
         [FieldOffset(0)]
         public BigInteger128 BiLow;
 
@@ -253,6 +256,7 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger256 ModInverse(in BigInteger256 modulus) {
+            //todo: for mod inverse we use half of eucli ext alg
             return BigInteger256Ext.EuclidExtended(this, modulus).X;
         }
 

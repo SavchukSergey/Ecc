@@ -59,11 +59,11 @@ namespace Ecc.Tests.Math {
         }
 
         [TestCaseSource(nameof(DivideCases))]
-        public void DivRem2Test(string leftHex, string rightHex, string qHex, string remHex) {
+        public void DivRemGuessTest(string leftHex, string rightHex, string qHex, string remHex) {
             var left = BigInteger256.ParseHexUnsigned(leftHex);
             var right = BigInteger256.ParseHexUnsigned(rightHex);
 
-            var res = BigInteger256.DivRem2(left, right, out var remainder);
+            var res = BigInteger256.DivRemGuess(left, right, out var remainder);
 
             var nativeRes = BigInteger.DivRem(left.ToNative(), right.ToNative(), out var nativeRemainder);
             ClassicAssert.AreEqual(qHex, new BigInteger256(nativeRes).ToHexUnsigned(), "native.quotient");

@@ -457,7 +457,7 @@ namespace Ecc.Tests.Math {
             var sw4 = new Stopwatch();
             sw4.Start();
             for (var i = 0; i < cnt; i++) {
-                BigInteger256.DivRem2(left, right, out var _);
+                BigInteger256.DivRemGuess(left, right, out var _);
             }
             sw4.Stop();
 
@@ -470,7 +470,7 @@ namespace Ecc.Tests.Math {
             Console.WriteLine($"Ecc div bits per second:      {format(swBits)}");
             Console.WriteLine($"Ecc div full bits per second: {format(swBitsFull)}");
             Console.WriteLine($"Ecc div newton per second:    {format(sw3)}");
-            Console.WriteLine($"Ecc div 2 per second:         {format(sw4)}");
+            Console.WriteLine($"Ecc div guess per second:     {format(sw4)}");
             Console.WriteLine($"Native div per second:        {format(swNative)}");
         }
 

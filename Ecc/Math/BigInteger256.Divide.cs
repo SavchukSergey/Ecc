@@ -5,7 +5,7 @@ namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
         public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-            return DivRemBits(dividend, divisor, out remainder);
+            return DivRemGuess(dividend, divisor, out remainder);
         }
 
         public static BigInteger256 DivRemBits(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
@@ -114,8 +114,7 @@ namespace Ecc.Math {
             return q;
         }
 
-        //todo: use it?
-        public static BigInteger256 DivRem2(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
+        public static BigInteger256 DivRemGuess(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
 
             var divShiftBits = divisor.LeadingZeroCount();
             if (divShiftBits >= BITS_SIZE - 32) {
@@ -124,30 +123,39 @@ namespace Ecc.Math {
             if (divShiftBits >= BITS_SIZE - 64) {
                 return DivRem64(dividend, divisor.UInt64[0], out remainder);
             }
+            //todo:
+            /*
+            if (divShiftBits >= BITS_SIZE - 128) {
+                return DivRemGuess128(dividend, divisor.BiLow, out remainder);
+            }
+            */
 
             var q = new BigInteger256();
 
             var divisorN = divisor.Clone();
             divisorN.AssignLeftShift(divShiftBits);
 
-            var divPart64 = (UInt128)(divisorN.UInt64[3]) + 1; // +1 pessimistic guess
+            var divPart64 = (UInt128)divisorN.HighUInt64;
 
             remainder = dividend;
 
             //todo: estimate division by divisor rounded by highest 64 bits. and then refine with expensive routine below
             //todo: it performs better with division by byte rather then u64
 
+            //tood: optimize as divisor is >= 2^128 here
             while (remainder >= divisor) {
+                //todo: optimize with lzc's gets equals
                 var remainderAdjust = remainder.LeadingZeroCount();
                 var remainderAdjusted = new BigInteger256(remainder);
                 remainderAdjusted.AssignLeftShift(remainderAdjust);
 
                 var remPart128 = remainderAdjusted.High;
 
-                UInt128 guess = remPart128 / divPart64;
+                // pessimistic guess
+                UInt128 guess = divPart64 != ulong.MaxValue ? remPart128 / (divPart64 + 1) : remPart128 >> 64;
                 var correction = remainderAdjust - divShiftBits + 64;
                 if (correction > 0) {
-                    //starting fractional part
+                    //trim fractional part
                     guess >>= correction;
                     correction = 0;
                 }
@@ -165,6 +173,59 @@ namespace Ecc.Math {
 
             return q;
         }
+        /*
+        public static BigInteger256 DivRemGuess128(in BigInteger256 dividend, in BigInteger128 divisor, out BigInteger256 remainder) {
+            //todo: implement
+            var divShiftBits = divisor.LeadingZeroCount();
+            if (divShiftBits >= BITS_SIZE - 32) {
+                return DivRem32(dividend, divisor.UInt32[0], out remainder);
+            }
+            if (divShiftBits >= BITS_SIZE - 64) {
+                return DivRem64(dividend, divisor.UInt64[0], out remainder);
+            }
+
+            var q = new BigInteger256();
+
+            var divisorN = divisor.Clone();
+            divisorN.AssignLeftShift(divShiftBits);
+
+            var divPart64 = (UInt128)divisorN.HighUInt64;
+
+            remainder = dividend;
+
+            //todo: estimate division by divisor rounded by highest 64 bits. and then refine with expensive routine below
+            //todo: it performs better with division by byte rather then u64
+
+            while (remainder >= divisor) {
+                //todo: optimize with lzc's gets equals
+                var remainderAdjust = remainder.LeadingZeroCount();
+                var remainderAdjusted = new BigInteger256(remainder);
+                remainderAdjusted.AssignLeftShift(remainderAdjust);
+
+                var remPart128 = remainderAdjusted.High;
+
+                // pessimistic guess
+                UInt128 guess = divPart64 != ulong.MaxValue ? remPart128 / (divPart64 + 1) : remPart128 >> 64;
+                var correction = remainderAdjust - divShiftBits + 64;
+                if (correction > 0) {
+                    //trim fractional part
+                    guess >>= correction;
+                    correction = 0;
+                }
+
+                var delta = MulLow(divisor, guess);
+
+                var guessQ = new BigInteger256(guess);
+                if (correction < 0) {
+                    delta.AssignLeftShift(-correction);
+                    guessQ.AssignLeftShift(-correction);
+                }
+                remainder.AssignSub(delta);
+                q.AssignAdd(guessQ);
+            }
+
+            return q;
+        }*/
 
         public static BigInteger256 DivRem64(in BigInteger256 dividend, ulong divisor, out BigInteger256 remainder) {
             //todo: we have extra divisions here that can be avoided
