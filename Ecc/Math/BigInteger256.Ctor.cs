@@ -74,6 +74,11 @@ namespace Ecc.Math {
             High = other.High;
         }
 
+        public BigInteger256(BigInteger128 low, BigInteger128 high) {
+            BiLow = low;
+            BiHigh = high;
+        }
+
         public BigInteger256(in BigInteger value) {
             var data = value.ToByteArray(isBigEndian: false);
             for (var i = 0; i < BYTES_SIZE; i++) {

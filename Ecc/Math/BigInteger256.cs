@@ -142,8 +142,8 @@ namespace Ecc.Math {
             return carry > 0;
         }
 
-        public void AssignAddHigh(UInt128 other) {
-            High += other;
+        public void AssignAddHigh(BigInteger128 other) {
+            High += other.UInt128;
         }
 
         public void AssignNegate() {
@@ -151,15 +151,15 @@ namespace Ecc.Math {
             Low = -Low;
             High = -High;
             if (borrow) {
-                High--;
+                BiHigh.AssignDecrement();
             }
         }
 
         public void AssignDecrement() {
-            if (Low == 0) {
-                High--;
+            if (BiLow.IsZero) {
+                BiHigh.AssignDecrement();
             }
-            Low--;
+            BiLow.AssignDecrement();
         }
 
         public void AssignIncrement() {

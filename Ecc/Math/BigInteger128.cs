@@ -121,8 +121,19 @@ namespace Ecc.Math {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AssignAddHigh(ulong other) {
+            High += other;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AssignIncrement() {
             UInt128++;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AssignDecrement() {
+            UInt128--;
         }
 
         public readonly bool IsZero {
