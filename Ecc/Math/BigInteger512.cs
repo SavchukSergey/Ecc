@@ -8,15 +8,8 @@ namespace Ecc.Math {
 
         public const int BITS_SIZE = 512;
         public const int BYTES_SIZE = BITS_SIZE / 8;
-        private const int ITEM_BITS_SIZE = 32;
-        [Obsolete]
-        internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
         internal const int UINT32_SIZE = BITS_SIZE / 32;
         internal const int UINT64_SIZE = BITS_SIZE / 64;
-
-        [Obsolete]
-        [FieldOffset(0)]
-        internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
 
         [FieldOffset(0)]
         public BigInteger256 Low;
@@ -36,20 +29,19 @@ namespace Ecc.Math {
         [FieldOffset(0)]
         internal fixed ulong UInt64[UINT64_SIZE];
 
+        [FieldOffset(48)]
+        internal UInt128 HighUInt128;
+
         public readonly byte GetByte(int index) {
             return Bytes[index];
         }
 
         [Obsolete]
         public readonly BigInteger ToNative() {
-            var array = new byte[BYTES_SIZE];
-            var ai = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                var bt = Data[i];
-                array[ai++] = (byte)(bt >> 0);
-                array[ai++] = (byte)(bt >> 8);
-                array[ai++] = (byte)(bt >> 16);
-                array[ai++] = (byte)(bt >> 24);
+            Span<byte> array = stackalloc byte[BYTES_SIZE];
+            for (var i = 0; i < BYTES_SIZE; i++) {
+                var bt = Bytes[i];
+                array[i] = bt;
             }
             return new BigInteger(array, isUnsigned: true, isBigEndian: false);
         }
@@ -114,6 +106,11 @@ namespace Ecc.Math {
             }
         }
 
+        public void AssignSub(in BigInteger128 other) {
+            //todo:
+            AssignSub(new BigInteger256(other));
+        }
+
         public readonly BigInteger512 Sub(in BigInteger512 other, out bool carry) {
             carry = false;
             var res = new BigInteger512(this);
@@ -132,6 +129,13 @@ namespace Ecc.Math {
                 High.AssignDecrement();
             }
             Low.AssignDecrement();
+        }
+
+        public void AssignIncrement() {
+            Low.AssignIncrement();
+            if (Low.IsZero) {
+                High.AssignIncrement();
+            }
         }
 
 
@@ -194,16 +198,8 @@ namespace Ecc.Math {
             if (buffer.Length < BYTES_SIZE) {
                 return false;
             }
-            var ptr = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                var val = Data[i];
-                buffer[ptr++] = (byte)(val & 0xff);
-                val >>= 8;
-                buffer[ptr++] = (byte)(val & 0xff);
-                val >>= 8;
-                buffer[ptr++] = (byte)(val & 0xff);
-                val >>= 8;
-                buffer[ptr++] = (byte)val;
+            for (var i = 0; i < BYTES_SIZE; i++) {
+                buffer[i] = Bytes[i];
             }
             return true;
         }

@@ -15,29 +15,6 @@ namespace Ecc.Math {
             return x0 + x1;
         }
 
-
-        public static BigInteger512 operator *(in BigInteger256 left, in UInt128 right) {
-            if (left.IsZero || right == 0) {
-                return new BigInteger512(0);
-            }
-            if (left.IsOne) {
-                return new BigInteger512(right);
-            }
-            if (right == 1) {
-                return new BigInteger512(left);
-            }
-
-            var ah = left.High;
-            var al = left.Low;
-            var bl = right;
-
-            var x0 = new BigInteger512(BigInteger128.Mul128(al, bl));
-            var x1 = new BigInteger512(BigInteger128.Mul128(ah, bl));
-            x1.AssignLeftShiftQuarter();
-
-            return x0 + x1;
-        }
-
         public static BigInteger512 operator *(in BigInteger256 left, in BigInteger256 right) {
             var ah = left.High;
             var al = left.Low;
@@ -51,6 +28,30 @@ namespace Ecc.Math {
             var x2 = new BigInteger512(zero, BigInteger128.Mul128(ah, bh));
 
             return x0 + x1 + x2;
+        }
+
+        public static BigInteger512 operator *(in BigInteger256 left, in BigInteger128 right) {
+            var ah = left.BiHigh;
+            var al = left.BiLow;
+            var bl = right;
+
+            var x0 = new BigInteger512(al * bl);
+            var x1 = new BigInteger512(ah * bl);
+            x1.AssignLeftShiftQuarter();
+
+            return x0 + x1;
+        }
+
+        public static BigInteger512 operator *(in BigInteger256 left, in UInt128 right) {
+            var ah = left.BiHigh;
+            var al = left.BiLow;
+            var bl = right;
+
+            var x0 = new BigInteger512(al * bl);
+            var x1 = new BigInteger512(ah * bl);
+            x1.AssignLeftShiftQuarter();
+
+            return x0 + x1;
         }
 
         /// <summary>

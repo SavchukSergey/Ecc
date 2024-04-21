@@ -33,6 +33,14 @@ namespace Ecc.Math {
             return 0;
         }
 
+        public static int Compare(in BigInteger256 left, in BigInteger128 right) {
+            if (!left.BiHigh.IsZero) {
+                return 1;
+            }
+
+            return BigInteger128.Compare(left.BiLow, right);
+        }
+
         public static int Compare(in BigInteger256 left, ulong right) {
             if (left.High > 0) {
                 return -1;

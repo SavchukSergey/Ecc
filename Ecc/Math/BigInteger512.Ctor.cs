@@ -24,6 +24,12 @@ namespace Ecc.Math {
             }
         }
 
+        public BigInteger512(BigInteger128 value) {
+            Low.BiLow = value;
+            Low.BiHigh = new BigInteger128();
+            High = new BigInteger256();
+        }
+
         public BigInteger512(in BigInteger256 value) {
             Low = value;
             High = new BigInteger256(0);

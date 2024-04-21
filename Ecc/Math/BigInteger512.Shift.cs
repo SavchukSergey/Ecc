@@ -103,18 +103,6 @@ namespace Ecc.Math {
             return new BigInteger512(High, new BigInteger256(0));
         }
 
-        public uint ShiftLeft() {
-            uint carry = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                var sum = (ulong)carry;
-                sum += Data[i];
-                sum += Data[i];
-                Data[i] = (uint)sum;
-                carry = (uint)(sum >> 32);
-            }
-            return carry;
-        }
-
         public BigInteger512 LeftShift(int count) {
             var res = new BigInteger512(this);
             res.AssignLeftShift(count);
@@ -172,6 +160,12 @@ namespace Ecc.Math {
         public readonly BigInteger512 RightShift(int count) {
             var res = new BigInteger512(this);
             res.AssignRightShift(count);
+            return res;
+        }
+
+        public static BigInteger512 operator <<(in BigInteger512 value, int count) {
+            var res = new BigInteger512(value);
+            res.AssignLeftShift(count);
             return res;
         }
     }

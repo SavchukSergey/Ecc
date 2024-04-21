@@ -29,7 +29,10 @@ namespace Ecc.Math {
         internal fixed ulong UInt64[UINT64_SIZE];
 
         [FieldOffset(0)]
-        internal ulong Low;
+        public ulong Low;
+
+        [FieldOffset(8)]
+        public ulong High;
 
         [FieldOffset(0)]
         public UInt128 UInt128;
@@ -42,6 +45,7 @@ namespace Ecc.Math {
             return Bytes[index];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BigInteger128(UInt128 value) {
             UInt128 = value;
         }
@@ -96,8 +100,44 @@ namespace Ecc.Math {
             return val;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AssignLeftShift(int count) {
             UInt128 <<= count;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AssignSub(in BigInteger128 other) {
+            UInt128 -= other.UInt128;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AssignAdd(in BigInteger128 other) {
+            UInt128 += other.UInt128;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AssignAdd(in UInt128 other) {
+            UInt128 += other;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AssignIncrement() {
+            UInt128++;
+        }
+
+        public readonly bool IsZero {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get {
+                return UInt128 == 0;
+            }
+        }
+
+        public readonly bool IsOne {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get {
+                return UInt128 == 1;
+            }
+        }
+
     }
 }

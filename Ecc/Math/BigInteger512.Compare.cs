@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.CompilerServices;
 
 namespace Ecc.Math {
     public unsafe partial struct BigInteger512 {
@@ -111,6 +111,44 @@ namespace Ecc.Math {
         }
 
         public static bool operator !=(in BigInteger512 left, in BigInteger256 right) {
+            return Compare(left, right) != 0;
+        }
+
+        #endregion
+
+
+        #region Compare to BigInteger128
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Compare(in BigInteger512 left, in BigInteger128 right) {
+            if (!left.High.IsZero) {
+                return 1;
+            }
+
+            return BigInteger256.Compare(left.Low, right);
+        }
+
+        public static bool operator <(in BigInteger512 left, in BigInteger128 right) {
+            return Compare(left, right) < 0;
+        }
+
+        public static bool operator >(in BigInteger512 left, in BigInteger128 right) {
+            return Compare(left, right) > 0;
+        }
+
+        public static bool operator <=(in BigInteger512 left, in BigInteger128 right) {
+            return Compare(left, right) <= 0;
+        }
+
+        public static bool operator >=(in BigInteger512 left, in BigInteger128 right) {
+            return Compare(left, right) >= 0;
+        }
+
+        public static bool operator ==(in BigInteger512 left, in BigInteger128 right) {
+            return Compare(left, right) == 0;
+        }
+
+        public static bool operator !=(in BigInteger512 left, in BigInteger128 right) {
             return Compare(left, right) != 0;
         }
 

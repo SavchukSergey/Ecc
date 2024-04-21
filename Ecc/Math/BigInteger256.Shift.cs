@@ -88,5 +88,10 @@ namespace Ecc.Math {
             return res;
         }
 
+        public static BigInteger256 operator <<(in BigInteger256 value, int count) {
+            var res = new BigInteger256(value);
+            res.AssignLeftShift(count);
+            return res;
+        }
     }
 }

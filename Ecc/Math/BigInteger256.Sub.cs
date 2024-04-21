@@ -36,5 +36,13 @@ namespace Ecc.Math {
             }
         }
 
+        public void AssignSub(in BigInteger128 other) {
+            var borrow = BiLow < other;
+            Low -= other.Low;
+            if (borrow) {
+                High--;
+            }
+        }
+
     }
 }

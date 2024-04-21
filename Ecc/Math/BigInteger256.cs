@@ -36,6 +36,9 @@ namespace Ecc.Math {
         [FieldOffset(24)]
         internal ulong HighUInt64;
 
+        [FieldOffset(16)]
+        internal UInt128 HighUInt128;
+
         [FieldOffset(0)]
         public BigInteger128 BiLow;
 
@@ -160,9 +163,9 @@ namespace Ecc.Math {
         }
 
         public void AssignIncrement() {
-            Low++;
-            if (Low == 0) {
-                High++;
+            BiLow.AssignIncrement();
+            if (BiLow.IsZero) {
+                BiHigh.AssignIncrement();
             }
         }
 

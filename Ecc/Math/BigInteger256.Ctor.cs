@@ -59,6 +59,11 @@ namespace Ecc.Math {
             High = 0;
         }
 
+        public BigInteger256(BigInteger128 low) {
+            BiLow = low;
+            High = 0;
+        }
+
         public BigInteger256(UInt128 low, UInt128 high) {
             Low = low;
             High = high;

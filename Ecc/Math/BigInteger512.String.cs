@@ -19,7 +19,7 @@ namespace Ecc.Math {
             }
             var ptr = 0;
             var charPtr = str.Length - 1;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
+            for (var i = 0; i < UINT32_SIZE; i++) {
                 uint part = 0;
                 for (var j = 0; j < 32 && charPtr >= 0; j += 4) {
                     var hd = StringUtils.GetHexDigit(str[charPtr]);

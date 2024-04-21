@@ -34,6 +34,16 @@ namespace Ecc.Tests.Math {
             var right = BigInteger256.ParseHexUnsigned(rightHex);
 
             var res = BigInteger256.DivRem(left, right, out var remainder);
+            Assert.That(qHex,  Is.EqualTo(res.ToHexUnsigned()));
+            Assert.That(remHex,  Is.EqualTo(remainder.ToHexUnsigned()));
+        }
+
+        [TestCaseSource(nameof(DivideCases))]
+        public void DivRemFullBitsTest(string leftHex, string rightHex, string qHex, string remHex) {
+            var left = BigInteger256.ParseHexUnsigned(leftHex);
+            var right = BigInteger256.ParseHexUnsigned(rightHex);
+
+            var res = BigInteger256.DivRemFullBits(left, right, out var remainder);
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned());
             ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned());
         }

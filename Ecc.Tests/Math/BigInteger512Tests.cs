@@ -114,23 +114,6 @@ namespace Ecc.Tests.Math {
         }
 
         [Test]
-        public void ShiftLeftTest() {
-            var bi = new BigInteger512(0x123456789abcdef);
-            bi.ShiftLeft();
-            Span<byte> buffer = stackalloc byte[BigInteger512.BYTES_SIZE];
-            bi.TryWrite(buffer);
-            ClassicAssert.AreEqual(0xde, buffer[0]);
-            ClassicAssert.AreEqual(0x9b, buffer[1]);
-            ClassicAssert.AreEqual(0x57, buffer[2]);
-            ClassicAssert.AreEqual(0x13, buffer[3]);
-            ClassicAssert.AreEqual(0xcf, buffer[4]);
-            ClassicAssert.AreEqual(0x8a, buffer[5]);
-            ClassicAssert.AreEqual(0x46, buffer[6]);
-            ClassicAssert.AreEqual(0x02, buffer[7]);
-            ClassicAssert.AreEqual(0x00, buffer[8]);
-        }
-
-        [Test]
         public void ZeroExtend256Test() {
             var source = new BigInteger256(0x123456789abcdef);
             var bi = new BigInteger512(source);
