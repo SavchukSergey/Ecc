@@ -79,7 +79,6 @@ namespace Ecc.Math {
             High += other;
         }
 
-
         public bool AssignSub(in BigInteger512 other) {
             bool carry = false;
             for (var i = 0; i < UINT64_SIZE; i++) {
@@ -137,7 +136,6 @@ namespace Ecc.Math {
                 High.AssignIncrement();
             }
         }
-
 
         public void AssignNegate() {
             bool carry = false;

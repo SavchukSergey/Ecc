@@ -40,6 +40,15 @@ namespace Ecc.Math {
         [FieldOffset(8)]
         internal ulong HighUInt64;
 
+        [FieldOffset(12)]
+        internal byte HighUInt32;
+
+        [FieldOffset(14)]
+        internal byte HighUInt16;
+
+        [FieldOffset(15)]
+        internal byte HighByte;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly byte GetByte(int index) {
             return Bytes[index];
@@ -48,6 +57,17 @@ namespace Ecc.Math {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BigInteger128(UInt128 value) {
             UInt128 = value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BigInteger128(ulong low, ulong high) {
+            Low = low;
+            High = high;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Clear() {
+            UInt128 = 0;
         }
 
         public BigInteger128(in BigInteger value) {

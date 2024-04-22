@@ -87,12 +87,12 @@ namespace Ecc.Math {
 
         public void AssignLeftShiftHalf() {
             High = Low;
-            Low = new BigInteger256(0);
+            Low.Clear();
         }
 
         public void AssignRightShiftHalf() {
             Low = High;
-            High = new BigInteger256(0);
+            High.Clear();
         }
 
         public readonly BigInteger512 LeftShiftHalf() {

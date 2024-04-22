@@ -34,5 +34,19 @@ namespace Ecc.Math {
 
             return 0;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+         public static int Compare(in BigInteger128 left, ulong right) {
+            if (left.High != 0) {
+                return 1;
+            }
+            if (left.Low < right) {
+                return -1;
+            }
+            if (left.Low > right) {
+                return 1;
+            }
+            return 0;
+        }
     }
 }

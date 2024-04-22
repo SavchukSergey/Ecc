@@ -12,10 +12,10 @@ namespace Ecc.Math {
                 return DivRem64(dividend, divisor.UInt64[0], out remainder);
             }
             if (divShiftBits >= BITS_SIZE - 128) {
-                return DivRemGuess128(dividend, divisor.BiLow, out remainder);
+                return DivRemGuess(dividend, divisor.BiLow, out remainder);
             }
 
-            var q256 = new BigInteger256();
+            var q = new BigInteger512();
 
             var divisorN = divisor.Clone();
             divisorN.AssignLeftShift(divShiftBits);
@@ -30,7 +30,7 @@ namespace Ecc.Math {
                 if (remainderLZC == divShiftBits) {
                     if (remainder >= divisor) {
                         remainder.AssignSub(divisor);
-                        q256.AssignIncrement();
+                        q.AssignIncrement();
                     }
                     break;
                 }
@@ -50,23 +50,23 @@ namespace Ecc.Math {
                     correction = 0;
                 }
 
-                // max quotient - 256 bits,
+                // max quotient - 512 bits,
                 // 128 bit <= divisor < 256 bits
-                var delta = BigInteger256.MulLow(divisor, guess);
+                var delta = divisor * guess;
 
-                var guessQ = new BigInteger256(guess);
+                var guessQ = new BigInteger512(guess);
                 if (correction < 0) {
                     delta.AssignLeftShift(-correction);
                     guessQ.AssignLeftShift(-correction);
                 }
                 remainder.AssignSub(delta);
-                q256.AssignAdd(guessQ);
+                q.AssignAdd(guessQ);
             }
 
-            return new BigInteger512(q256);
+            return q;
         }
 
-        public static BigInteger512 DivRemGuess128(in BigInteger512 dividend, in BigInteger128 divisor, out BigInteger512 remainder) {
+        public static BigInteger512 DivRemGuess(in BigInteger512 dividend, in BigInteger128 divisor, out BigInteger512 remainder) {
             var divShiftBits = divisor.LeadingZeroCount();
             if (divShiftBits >= BITS_SIZE - 32) {
                 return DivRem32(dividend, divisor.UInt32[0], out remainder);
@@ -112,7 +112,7 @@ namespace Ecc.Math {
 
                 // max quotient - 384 bits,
                 // 64 bit <= divisor < 128 bits
-                var delta = divisor * guess;
+                var delta = new BigInteger512(divisor * guess);
 
                 var guessQ = new BigInteger512(guess);
                 if (correction < 0) {

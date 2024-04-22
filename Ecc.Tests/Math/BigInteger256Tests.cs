@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
@@ -259,9 +259,9 @@ namespace Ecc.Tests.Math {
             }
             sw.Stop();
 
-            var swNative = new Stopwatch();
             var leftN = left.ToNative();
             var rightN = right.ToNative();
+            var swNative = new Stopwatch();
             swNative.Start();
             for (var i = 0; i < cnt; i++) {
                 var _ = leftN * rightN;

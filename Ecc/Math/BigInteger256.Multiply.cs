@@ -16,27 +16,18 @@ namespace Ecc.Math {
         }
 
         public static BigInteger512 operator *(in BigInteger256 left, in BigInteger256 right) {
-            var ah = left.BiHigh;
-            var al = left.BiLow;
-            var bh = right.BiHigh;
-            var bl = right.BiLow;
-
             var zero = new BigInteger256(0);
-            var x0 = new BigInteger512(al * bl);
-            var x1 = new BigInteger512(al * bh) + new BigInteger512(ah * bl);
+            var x0 = new BigInteger512(left.BiLow * right.BiLow);
+            var x1 = new BigInteger512(left.BiLow * right.BiHigh) + new BigInteger512(left.BiHigh * right.BiLow);
             x1.AssignLeftShiftQuarter();
-            var x2 = new BigInteger512(zero, ah * bh);
+            var x2 = new BigInteger512(zero, left.BiHigh * right.BiHigh);
 
             return x0 + x1 + x2;
         }
 
         public static BigInteger512 operator *(in BigInteger256 left, in BigInteger128 right) {
-            var ah = left.BiHigh;
-            var al = left.BiLow;
-            var bl = right;
-
-            var x0 = new BigInteger512(al * bl);
-            var x1 = new BigInteger512(ah * bl);
+            var x0 = new BigInteger512(left.BiLow * right);
+            var x1 = new BigInteger512(left.BiHigh * right);
             x1.AssignLeftShiftQuarter();
 
             return x0 + x1;

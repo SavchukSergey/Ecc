@@ -4,17 +4,17 @@ namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
         public void AssignLeftShift8() {
-            High = (High << 8) + (Low >> (128 - 8));
+            High = (High << 8) + BiLow.HighByte;
             Low <<= 8;
         }
 
         public void AssignLeftShift16() {
-            High = (High << 16) + (Low >> (128 - 16));
+            High = (High << 16) + BiLow.HighUInt16;
             Low <<= 16;
         }
 
         public void AssignLeftShift32() {
-            High = (High << 32) + (Low >> (128 - 32));
+            High = (High << 32) + BiLow.HighUInt32;
             Low <<= 32;
         }
 

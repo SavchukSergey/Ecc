@@ -5,20 +5,20 @@ namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
         public BigInteger256() {
-            Low = 0;
-            High = 0;
+            BiLow.Clear();
+            BiHigh.Clear();
         }
 
         public BigInteger256(uint value) {
             Low = value;
-            High = 0;
+            BiHigh.Clear();
         }
 
         public BigInteger256(uint b0, uint b1) {
             UInt32[0] = b0;
             UInt32[1] = b1;
             UInt64[1] = 0;
-            High = 0;
+            BiHigh.Clear();
         }
 
         public BigInteger256(uint b0, uint b1, uint b2, uint b3) {
@@ -26,7 +26,7 @@ namespace Ecc.Math {
             UInt32[1] = b1;
             UInt32[2] = b2;
             UInt32[3] = b3;
-            High = 0;
+            BiHigh.Clear();
         }
 
         public BigInteger256(ulong b0, ulong b1, ulong b2, ulong b3) {
@@ -56,12 +56,12 @@ namespace Ecc.Math {
 
         public BigInteger256(UInt128 low) {
             Low = low;
-            High = 0;
+            BiHigh.Clear();
         }
 
-        public BigInteger256(BigInteger128 low) {
+        public BigInteger256(in BigInteger128 low) {
             BiLow = low;
-            High = 0;
+            BiHigh.Clear();
         }
 
         public BigInteger256(UInt128 low, UInt128 high) {
@@ -74,7 +74,7 @@ namespace Ecc.Math {
             High = other.High;
         }
 
-        public BigInteger256(BigInteger128 low, BigInteger128 high) {
+        public BigInteger256(in BigInteger128 low, in BigInteger128 high) {
             BiLow = low;
             BiHigh = high;
         }

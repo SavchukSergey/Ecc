@@ -6,7 +6,7 @@ using NUnit.Framework.Legacy;
 namespace Ecc.Tests.Math {
     [TestFixture]
     [TestOf(typeof(BigInteger512))]
-    public class BigInteger512Tests {
+    public partial class BigInteger512Tests {
 
         [Test]
         public void CtorTest() {
