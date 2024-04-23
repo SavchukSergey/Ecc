@@ -126,6 +126,21 @@ namespace Ecc.Math {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AssignLeftShift8() {
+            UInt128 <<= 8;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AssignLeftShift16() {
+            UInt128 <<= 16;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AssignLeftShift32() {
+            UInt128 <<= 32;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AssignSub(in BigInteger128 other) {
             UInt128 -= other.UInt128;
         }

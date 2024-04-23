@@ -8,6 +8,10 @@ namespace Ecc.Math {
             return remainder.Low;
         }
 
+        public static BigInteger512 DivRem(in BigInteger512 dividend, in BigInteger512 divisor, out BigInteger512 remainder) {
+            return DivRemGuess(dividend, divisor, out remainder);
+        }
+
         public static BigInteger512 DivRem64(in BigInteger512 dividend, ulong divisor, out BigInteger512 remainder) {
             if (divisor <= uint.MaxValue) {
                 return DivRem32(dividend, (uint)divisor, out remainder);

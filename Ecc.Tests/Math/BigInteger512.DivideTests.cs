@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Numerics;
 using Ecc.Math;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
@@ -7,16 +6,23 @@ using NUnit.Framework.Legacy;
 namespace Ecc.Tests.Math {
     public partial class BigInteger512Tests {
 
+        [TestCaseSource(nameof(DivideCases512_512))]
+        public void DivRemGuess512Test(string leftHex, string rightHex, string qHex, string remHex) {
+            var left = BigInteger512.ParseHexUnsigned(leftHex);
+            var right = BigInteger512.ParseHexUnsigned(rightHex);
+
+            var res = BigInteger512.DivRemGuess(left, right, out var remainder);
+
+            ClassicAssert.AreEqual(qHex, res.ToHexUnsigned(), "quotient");
+            ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned(), "remainder");
+        }
+
         [TestCaseSource(nameof(DivideCases512_256))]
         public void DivRemGuess256Test(string leftHex, string rightHex, string qHex, string remHex) {
             var left = BigInteger512.ParseHexUnsigned(leftHex);
             var right = BigInteger512.ParseHexUnsigned(rightHex);
 
             var res = BigInteger512.DivRemGuess(left, right.Low, out var remainder);
-
-            var nativeRes = BigInteger.DivRem(left.ToNative(), right.ToNative(), out var nativeRemainder);
-            ClassicAssert.AreEqual(qHex, new BigInteger512(nativeRes).ToHexUnsigned(), "native.quotient");
-            ClassicAssert.AreEqual(remHex, new BigInteger512(nativeRemainder).ToHexUnsigned(), "native.remainder");
 
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned(), "quotient");
             ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned(), "remainder");
@@ -29,12 +35,17 @@ namespace Ecc.Tests.Math {
 
             var res = BigInteger512.DivRemGuess(left, right.Low.BiLow, out var remainder);
 
-            var nativeRes = BigInteger.DivRem(left.ToNative(), right.ToNative(), out var nativeRemainder);
-            ClassicAssert.AreEqual(qHex, new BigInteger512(nativeRes).ToHexUnsigned(), "native.quotient");
-            ClassicAssert.AreEqual(remHex, new BigInteger512(nativeRemainder).ToHexUnsigned(), "native.remainder");
-
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned(), "quotient");
             ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned(), "remainder");
+        }
+
+        public static IEnumerable<string[]> DivideCases512_512() {
+            yield return [
+                "ba42240ffb037f1a4c64905998460012cdf5f2e685baf6578d8eb71c34f932f81874bb356c05027886d076a3b80bad4d8122481d2b79b2135f4381e8326893e8",
+                "0000000000e43220d5e39ee79e8098c2cf65094404f6aad8d12f8bbff8b4ca17b77183acf90bfe17c68ef34e89e9650b0317d8c7b01949c45df01ad807af17a5",
+                "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d0f3e6e05b",
+                "0000000000909bbfb167d2810eea7984c0b2b96da890e5e2bceeceb97b360f82b856fc8637711d15aa00b57fba76933d25dd57c17343885a77c79f93653ccc41"
+            ];
         }
 
         public static IEnumerable<string[]> DivideCases512_256() {

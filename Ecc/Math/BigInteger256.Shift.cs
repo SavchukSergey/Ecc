@@ -5,17 +5,17 @@ namespace Ecc.Math {
 
         public void AssignLeftShift8() {
             High = (High << 8) + BiLow.HighByte;
-            Low <<= 8;
+            BiLow.AssignLeftShift8();
         }
 
         public void AssignLeftShift16() {
             High = (High << 16) + BiLow.HighUInt16;
-            Low <<= 16;
+            BiLow.AssignLeftShift16();
         }
 
         public void AssignLeftShift32() {
             High = (High << 32) + BiLow.HighUInt32;
-            Low <<= 32;
+            BiLow.AssignLeftShift32();
         }
 
         public void AssignLeftShiftQuarter() {

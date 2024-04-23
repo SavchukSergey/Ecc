@@ -1,3 +1,5 @@
+using System;
+
 namespace Ecc.Math {
     public unsafe partial struct BigInteger512 {
 
@@ -28,6 +30,20 @@ namespace Ecc.Math {
 
             return x0 + x1 + x2;
         }
+
+        /// <summary>
+        /// Multiplies 512-bit and 128-bit numbers and returns last 512 bits of result
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static BigInteger512 MulLow(in BigInteger512 left, UInt128 right) {
+            var x0 = left.Low * right;
+            var x1 = BigInteger256.MulLow(left.High, right);
+            x0.AssignAddHigh(x1);
+            return x0;
+        }
+
 
         /// <summary>
         /// Multiplies two 512-bit numbers and returns first 512 bits of result

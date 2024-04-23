@@ -29,6 +29,12 @@ namespace Ecc.Math {
         [FieldOffset(0)]
         internal fixed ulong UInt64[UINT64_SIZE];
 
+        [FieldOffset(56)]
+        internal ulong HighUInt64;
+
+        [FieldOffset(0)]
+        internal BigInteger128 Low128;
+
         [FieldOffset(48)]
         internal UInt128 HighUInt128;
 
@@ -58,12 +64,15 @@ namespace Ecc.Math {
             }
         }
 
+        public readonly BigInteger512 Clone() {
+            return new BigInteger512(Low, High);
+        }
+
         public void Clear() {
             for (var i = 0; i < UINT32_SIZE; i++) {
                 UInt32[i] = 0;
             }
         }
-
 
         public bool AssignDouble() {
             ulong carry = 0;
@@ -149,10 +158,6 @@ namespace Ecc.Math {
                 UInt64[i] = (ulong)acc;
                 carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
             }
-        }
-
-        public readonly BigInteger512 ModInverse(in BigInteger512 modulus) {
-            return new BigInteger512(ToNative().ModInverse(modulus.ToNative()));
         }
 
         public static BigInteger512 operator +(in BigInteger512 left, in BigInteger512 right) {

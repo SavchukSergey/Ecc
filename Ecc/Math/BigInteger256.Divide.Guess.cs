@@ -4,8 +4,8 @@ namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
         public static BigInteger256 DivRemGuess(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-
             var divShiftBits = divisor.LeadingZeroCount();
+
             if (divShiftBits >= BITS_SIZE - 32) {
                 return DivRem32(dividend, divisor.UInt32[0], out remainder);
             }
