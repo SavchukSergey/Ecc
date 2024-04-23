@@ -5,6 +5,7 @@ namespace Ecc.Math {
         private readonly BigInteger512 _r;
         private readonly BigInteger256 _rm;
         private readonly BigInteger256 _beta;
+        public readonly BigInteger256 One;
 
         public MontgomeryContext256(in BigInteger256 modulus) {
             // k is supposed to be 256
@@ -14,6 +15,8 @@ namespace Ecc.Math {
             _beta = (_r - new BigInteger512(modulus).ModInverse(_r)).Low;
 
             _rm = _r % Modulus;
+
+            One = _rm;
         }
 
         public readonly BigInteger256 ToMontgomery(in BigInteger256 x) {

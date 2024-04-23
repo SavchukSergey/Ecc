@@ -223,18 +223,16 @@ namespace Ecc.Math {
             var acc = new BigInteger256(1);
             var walker = Clone();
             for (var bit = 0; bit < BITS_SIZE; bit++) {
-                //todo: use even odd bits to use ModMul with out param
                 if (exp.GetBit(bit)) {
                     acc = acc.ModMul(walker, modulus);
                 }
                 walker = walker.ModSquare(modulus);
             }
             return acc;
-            //todo: above to slow?
         }
 
         public readonly BigInteger256 ModPow(in BigInteger256 exp, in MontgomeryContext256 ctx) {
-            var acc = ctx.ToMontgomery(new BigInteger256(1)); //todo: this can be cached in ctx
+            var acc = ctx.One;
             var walker = ctx.ToMontgomery(this);
             for (var bit = 0; bit < BITS_SIZE; bit++) {
                 if (exp.GetBit(bit)) {
@@ -318,18 +316,10 @@ namespace Ecc.Math {
         }
 
         public readonly void WriteBigEndian(Span<byte> buffer) {
-            //todo: simplify using byte access
             var ptr = 0;
-            for (var i = UINT32_SIZE - 1; i >= 0; i--) {
-                var val = UInt32[i];
-                buffer[ptr + 3] = (byte)(val & 0xff);
-                val >>= 8;
-                buffer[ptr + 2] = (byte)(val & 0xff);
-                val >>= 8;
-                buffer[ptr + 1] = (byte)(val & 0xff);
-                val >>= 8;
-                buffer[ptr] = (byte)val;
-                ptr += 4;
+            for (var i = BYTES_SIZE - 1; i >= 0; i--) {
+                var val = Bytes[i];
+                buffer[ptr++] = val;
             }
         }
 

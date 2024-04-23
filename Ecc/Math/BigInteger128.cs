@@ -10,14 +10,9 @@ namespace Ecc.Math {
 
         public const int BITS_SIZE = 128;
         public const int BYTES_SIZE = BITS_SIZE / 8;
-        private const int ITEM_BITS_SIZE = 32;
-        internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
         internal const int UINT64_SIZE = BITS_SIZE / 64;
         internal const int UINT32_SIZE = BITS_SIZE / 32;
         internal const int UINT16_SIZE = BITS_SIZE / 16;
-
-        [FieldOffset(0)]
-        internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
 
         [FieldOffset(0)]
         internal fixed byte Bytes[BYTES_SIZE];
@@ -75,24 +70,6 @@ namespace Ecc.Math {
             for (var i = 0; i < BYTES_SIZE; i++) {
                 Bytes[i] = i < data.Length ? data[i] : (byte)0;
             }
-        }
-
-        public static BigInteger128 DivRem(in BigInteger128 dividend, in BigInteger128 divisor, out BigInteger128 remainder) {
-            var res = new BigInteger128(dividend.UInt128 / divisor.UInt128);
-            remainder = new BigInteger128(dividend.UInt128 % divisor.UInt128);
-            return res;
-        }
-
-        public static BigInteger128 DivRem64(in BigInteger128 dividend, ulong divisor, out BigInteger128 remainder) {
-            var res = new BigInteger128(dividend.UInt128 / divisor);
-            remainder = new BigInteger128(dividend.UInt128 % divisor);
-            return res;
-        }
-
-        public static BigInteger128 DivRem64(in UInt128 dividend, ulong divisor, out BigInteger128 remainder) {
-            var res = new BigInteger128(dividend / divisor);
-            remainder = new BigInteger128(dividend % divisor);
-            return res;
         }
 
         public readonly BigInteger ToNative() {

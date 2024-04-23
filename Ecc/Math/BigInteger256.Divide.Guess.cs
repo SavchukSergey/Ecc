@@ -16,7 +16,7 @@ namespace Ecc.Math {
                 return DivRemGuess128(dividend, divisor.BiLow, out remainder);
             }
 
-            var q128 = new BigInteger128(); // quotient is 128 bit wide
+            var q128 = new BigInteger128(); // actual quotient is 128 bit wide
 
             var divisorN = divisor.Clone();
             divisorN.AssignLeftShift(divShiftBits);
@@ -25,7 +25,6 @@ namespace Ecc.Math {
 
             remainder = dividend;
 
-            //todo: estimate division by divisor rounded by highest 64 bits. and then refine with expensive routine below
             //todo: it performs better with division by byte rather then u64
 
             while (true) {
