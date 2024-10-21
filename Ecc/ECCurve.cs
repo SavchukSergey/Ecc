@@ -107,7 +107,7 @@ namespace Ecc {
             return ECPrivateKey.ParseHex(hex, this);
         }
 
-        public ECPrivateKey CreatePrivateKey(byte[] data) {
+        public ECPrivateKey CreatePrivateKey(ReadOnlySpan<byte> data) {
             return new ECPrivateKey(BigIntegerExt.FromBigEndianBytes(data), this);
         }
 
@@ -120,16 +120,18 @@ namespace Ecc {
             return new ECPublicKey(point);
         }
 
-        public BigInteger TruncateHash(byte[] hash) {
+        public BigInteger TruncateHash(ReadOnlySpan<byte> hash) {
             return TruncateHash(hash, BigIntegerExt.FromBigEndianBytes(hash));
         }
 
         public BigInteger TruncateHash(in BigInteger hash) {
-            var arr = hash.ToBigEndianBytes();
-            return TruncateHash(arr, hash);
+            var bytesCount = hash.GetBigEndianBytesCount();
+            Span<byte> data = stackalloc byte[bytesCount];
+            hash.ToBigEndianBytes(data);
+            return TruncateHash(data, hash);
         }
 
-        private BigInteger TruncateHash(byte[] data, BigInteger num) {
+        private BigInteger TruncateHash(ReadOnlySpan<byte> data, BigInteger num) {
             var maxLength = OrderSize;
             var len = data.Length * 8;
             var extra = maxLength - len;

@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -17,25 +18,37 @@ namespace Ecc {
 
         public readonly ECCurve Curve;
 
-        public readonly byte[] ToByteArray() {
+        public readonly int GetSignatureByteSize() {
             var order8 = (Curve.OrderSize + 7) / 8;
-            var r = R.ToBigEndianBytes();
-            var s = S.ToBigEndianBytes();
-            var rlen = r.Length;
-            var rstart = rlen - order8;
-            var slen = s.Length;
-            var sstart = slen - order8;
-            var res = new byte[order8 * 2];
-            for (var i = 0; i < order8; i++) {
-                res[i] = r[rstart + i];
-                res[i + order8] = s[sstart + i];
+            return (int)(order8 * 2);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly int GetSignatureHexSize() {
+            return GetSignatureByteSize() * 2;
+        }
+
+        public readonly bool TryWriteBytes(Span<byte> bytes) {
+            var size = GetSignatureByteSize();
+            if (bytes.Length < size) {
+                return false;
             }
-            return res;
+            bytes.Clear();
+            R.ToBigEndianBytes(bytes[..(size / 2)]);
+            S.ToBigEndianBytes(bytes[(size / 2)..]);
+            return true;
         }
 
         public readonly string ToHexString() {
-            var arr = ToByteArray();
-            return arr.ToHexString();
+            Span<char> signatureChars = stackalloc char[GetSignatureHexSize()];
+            ToHexString(signatureChars);
+            return new string(signatureChars);
+        }
+
+        public readonly void ToHexString(Span<char> output) {
+            Span<byte> signature = stackalloc byte[GetSignatureByteSize()];
+            TryWriteBytes(signature);
+            ((ReadOnlySpan<byte>)signature).ToHexString(output);
         }
 
     }

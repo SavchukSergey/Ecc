@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Ecc {
@@ -6,32 +7,30 @@ namespace Ecc {
 
         private const string HEX = "0123456789abcdef";
 
-        public static string ToHexString(this byte[] data) {
-            var sb = new StringBuilder(data.Length * 2);
-            return data.ToHexString(sb).ToString();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetHexCharsCount(this ReadOnlySpan<byte> bytes) {
+            return bytes.Length * 2;
+        }
+       
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetHexBytesCount(this ReadOnlySpan<char> bytes) {
+            return bytes.Length / 2;
         }
 
-        public static StringBuilder ToHexString(this byte[] data, StringBuilder sb) {
-            if (data == null)
-                throw new ArgumentNullException(nameof(data));
-
-            foreach (var bt in data) {
-                sb.Append(HEX[bt >> 4]);
-                sb.Append(HEX[bt & 0x0f]);
+        public static void ToHexString(this ReadOnlySpan<byte> data, Span<char> output) {
+            for (var i = 0; i < data.Length; i++) {
+                var bt = data[i];
+                output[i * 2] = HEX[bt >> 4];
+                output[i * 2 + 1] = HEX[bt & 0x0f];
             }
-            return sb;
         }
 
-        public static byte[] ToBytesFromHex(this string hex) {
-            var res = new byte[hex.Length / 2];
-
+        public static void ToBytesFromHex(this ReadOnlySpan<char> hex, Span<byte> output) {
             for (var i = 0; i < hex.Length; i++) {
                 var ch = hex[i];
-                res[i >> 1] <<= 4;
-                res[i >> 1] |= GetHexDigit(ch);
+                output[i >> 1] <<= 4;
+                output[i >> 1] |= GetHexDigit(ch);
             }
-
-            return res;
         }
 
         public static byte GetHexDigit(char ch) {

@@ -93,8 +93,10 @@ namespace Ecc.Tests {
             ClassicAssert.AreEqual(publicKeyHex, publicKey.ToString());
         }
 
-        private static byte[] GetBytes(string hex) {
-            return hex.ToBytesFromHex();
+        private static byte[] GetBytes(ReadOnlySpan<char> hex) {
+            Span<byte> bytes = stackalloc byte[hex.GetHexBytesCount()];
+            hex.ToBytesFromHex(bytes);
+            return bytes.ToArray();
         }
 
     }

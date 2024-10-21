@@ -14,26 +14,19 @@ namespace Ecc.Math {
             return a.ModMul(b.ModInversePrime(primeModulus), primeModulus);
         }
 
-        public static BigInteger256 FromBigEndianBytes(byte[] data) {
+        public static BigInteger256 FromBigEndianBytes(ReadOnlySpan<byte> data) {
             Span<byte> reverse = stackalloc byte[BigInteger256.BYTES_SIZE];
-            var len = System.Math.Min(data.Length, BigInteger256.BYTES_SIZE);
-            var ptr = data.Length - 1;
-            for (var i = 0; i < len; i++) {
-                reverse[i] = data[ptr--];
-            }
-            for (var i = len; i < BigInteger256.BYTES_SIZE; i++) {
-                reverse[i] = 0;
-            }
+            reverse.Clear();
+            data.CopyTo(reverse);
+            reverse.Reverse();
             return new BigInteger256(reverse);
         }
 
-        public static byte[] ToBigEndianBytes(this in BigInteger256 val) {
+        public static void ToBigEndianBytes(this in BigInteger256 val, Span<byte> output) {
             var ptr = BigInteger256.BYTES_SIZE - 1;
-            var reverse = new byte[BigInteger256.BYTES_SIZE];
             for (var i = 0; i < BigInteger256.BYTES_SIZE; i++) {
-                reverse[i] = val.GetByte(ptr--);
+                output[i] = val.GetByte(ptr--);
             }
-            return reverse;
         }
 
         public static BigInteger256 ModSqrt(this in BigInteger256 val, in BigInteger256 modulus) {
@@ -69,17 +62,17 @@ namespace Ecc.Math {
             throw new Exception("Unable to generate random");
         }
 
-        public static string ToBase64UrlUnsigned(this in BigInteger256 val, long length) {
-            var data = val.ToBigEndianBytes();
-            return Base64Url.Encode(data, data.Length - length, length);
+        public static string ToBase64UrlUnsigned(this in BigInteger256 val, int length) {
+            Span<byte> data = stackalloc byte[BigInteger256.BYTES_SIZE];
+            val.ToBigEndianBytes(data);
+            return Base64Url.Encode(data.Slice(data.Length - length, length));
         }
 
         public static BigInteger256 ParseBase64UrlUnsigned(string val) {
-            var data = Base64Url.Decode(val);
+            Span<byte> data = stackalloc byte[Base64Url.GetByteCount(val)];
+            Base64Url.Decode(val, data);
             return FromBigEndianBytes(data);
         }
-
-
 
     }
 }

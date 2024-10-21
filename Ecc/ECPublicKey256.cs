@@ -1,5 +1,5 @@
-﻿using System.Numerics;
-using Ecc.Math;
+﻿using System;
+using System.Numerics;
 
 namespace Ecc {
     public readonly struct ECPublicKey256 {
@@ -22,7 +22,7 @@ namespace Ecc {
             return signature.R.Equals(p.X);
         }
 
-        public readonly bool VerifySignature(byte[] hash, in ECSignature256 signature) {
+        public readonly bool VerifySignature(ReadOnlySpan<byte> hash, in ECSignature256 signature) {
             return VerifySignature(BigIntegerExt.FromBigEndianBytes(hash), signature);
         }
 

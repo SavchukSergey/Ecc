@@ -16,12 +16,12 @@ namespace Ecc {
             Curve = curve;
         }
 
-        public readonly ECSignature Sign(byte[] hash) {
+        public readonly ECSignature Sign(ReadOnlySpan<byte> hash) {
             var num = BigIntegerExt.FromBigEndianBytes(hash);
             return Sign(num);
         }
 
-        public readonly ECSignature? Sign(byte[] hash, in BigInteger random) {
+        public readonly ECSignature? Sign(ReadOnlySpan<byte> hash, in BigInteger random) {
             var num = BigIntegerExt.FromBigEndianBytes(hash);
             return Sign(num, random);
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
 using System.Numerics;
 using Ecc.EC256;
 using Ecc.Math;
@@ -103,7 +102,7 @@ namespace Ecc {
             return ECPrivateKey256.ParseHex(hex, this);
         }
 
-        public ECPrivateKey256 CreatePrivateKey(byte[] data) {
+        public ECPrivateKey256 CreatePrivateKey(ReadOnlySpan<byte> data) {
             return new ECPrivateKey256(BigInteger256Ext.FromBigEndianBytes(data), this);
         }
 
@@ -116,16 +115,18 @@ namespace Ecc {
             return new ECPublicKey256(point);
         }
 
-        public BigInteger256 TruncateHash(byte[] hash) {
+        public BigInteger256 TruncateHash(ReadOnlySpan<byte> hash) {
             return TruncateHash(hash, BigIntegerExt.FromBigEndianBytes(hash));
         }
 
         public BigInteger256 TruncateHash(in BigInteger hash) {
-            var arr = hash.ToBigEndianBytes();
-            return TruncateHash(arr, hash);
+            var bytesCount = hash.GetBigEndianBytesCount();
+            Span<byte> data = stackalloc byte[bytesCount];
+            hash.ToBigEndianBytes(data);
+            return TruncateHash(data, hash);
         }
 
-        private BigInteger256 TruncateHash(byte[] data, BigInteger num) {
+        private BigInteger256 TruncateHash(ReadOnlySpan<byte> data, BigInteger num) {
             var maxLength = OrderSize;
             var len = data.Length * 8;
             var extra = maxLength - len;

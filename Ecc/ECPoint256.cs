@@ -89,26 +89,49 @@ namespace Ecc {
             return acc;
         }
 
-        public readonly byte[] GetBytes(bool compress = true) {
-            if (IsInfinity) return [0];
-            var keySize = Curve.KeySize8; //todo: this implies that keysize is 256. But it foes not have to
+        public readonly int GetBytesCount(bool compress = true) {
+            if (IsInfinity) {
+                return 1;
+            }
+            var keySize = Curve.KeySize8;
             if (compress) {
-                var res = new byte[keySize + 1];
-                res[0] = Y.IsEven ? (byte)2 : (byte)3;
-                X.WriteBigEndian(res.AsSpan(1));
-                return res;
+                return keySize + 1;
             } else {
-                var res = new byte[2 * keySize + 1];
-                res[0] = 4;
-                X.WriteBigEndian(res.AsSpan(1));
-                Y.WriteBigEndian(res.AsSpan(1 + keySize));
-                return res;
+                return 2 * keySize + 1;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly int GetHexSize(bool compress = true) {
+            return GetBytesCount(compress) * 2;
+        }
+
+        public readonly void GetBytes(Span<byte> output, bool compress = true) {
+            if (IsInfinity) {
+                output[0] = 0;
+                return;
+            }
+            var keySize = Curve.KeySize8;
+            if (compress) {
+                output[0] = Y.IsEven ? (byte)2 : (byte)3;
+                X.WriteBigEndian(output[1..]);
+            } else {
+                output[0] = 4;
+                X.WriteBigEndian(output[1..]);
+                Y.WriteBigEndian(output[(1 + keySize)..]);
             }
         }
 
         public readonly string GetHex(bool compress = true) {
-            var bytes = GetBytes(compress);
-            return bytes.ToHexString();
+            Span<char> chars = stackalloc char[GetHexSize(compress)];
+            GetHex(chars, compress);
+            return new string(chars);
+        }
+
+        public readonly void GetHex(Span<char> output, bool compress = true) {
+            Span<byte> bytes = stackalloc byte[GetBytesCount(compress)];
+            GetBytes(bytes, compress);
+            ((ReadOnlySpan<byte>)bytes).ToHexString(output);
         }
 
         public readonly bool IsInfinity {
@@ -120,7 +143,7 @@ namespace Ecc {
 
         public override string ToString() => $"{{X: {X.ToHexUnsigned(Curve.KeySize8)}, Y: {Y.ToHexUnsigned(Curve.KeySize8)}}}";
 
-        private static readonly ECPoint256 _infinity = new ECPoint256(new BigInteger256(0), new BigInteger256(0), null!);
+        private static readonly ECPoint256 _infinity = new(new BigInteger256(0), new BigInteger256(0), null!);
 
         public static ref readonly ECPoint256 Infinity => ref _infinity;
 

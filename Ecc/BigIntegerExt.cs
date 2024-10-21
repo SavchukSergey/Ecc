@@ -38,10 +38,11 @@ namespace Ecc {
         }
 
         public static long Log2(this in BigInteger val) {
-            var n = val.ToByteArray();
-            var keySize = n.Length * 8;
-            for (var i = n.Length - 1; i >= 0; i--) {
-                var bt = n[i];
+            Span<byte> bytes = stackalloc byte[GetBigEndianBytesCount(val)];
+            val.ToBigEndianBytes(bytes);
+            var keySize = bytes.Length * 8;
+            for (var i = 0; i < bytes.Length; i++) {
+                var bt = bytes[i];
                 for (var j = 7; j >= 0; j--) {
                     if ((bt & (1 << j)) != 0) {
                         return keySize;
@@ -52,35 +53,24 @@ namespace Ecc {
             return keySize;
         }
 
-        public static BigInteger FromBigEndianBytes(byte[] data) {
-            var len = data.Length;
-            var reverse = new byte[len + 1];
-            for (var i = 0; i < len; i++) {
-                reverse[i] = data[len - i - 1];
-            }
-            return new BigInteger(reverse);
+        public static BigInteger FromBigEndianBytes(ReadOnlySpan<byte> data) {
+            return new BigInteger(data, isUnsigned: true, isBigEndian: true);
         }
 
-        public static byte[] ToBigEndianBytes(this in BigInteger val) {
-            var data = val.ToByteArray();
-            var len = data.Length;
-            var reverse = new byte[len];
-            for (var i = 0; i < len; i++) {
-                reverse[i] = data[len - i - 1];
-            }
-            return reverse;
+        public static int GetBigEndianBytesCount(this in BigInteger val) {
+            return val.GetByteCount(isUnsigned: true);
         }
 
-        public static byte[] ToBigEndianBytes(this in BigInteger val, byte[] data, int offset, int length) {
-            var src = val.ToByteArray();
-            var actualLength = System.Math.Min(src.Length, length);
-            for (var i = 0; i < actualLength; i++) {
-                data[i + offset] = src[actualLength - i - 1];
-            }
+        public static bool ToBigEndianBytes(this in BigInteger val, Span<byte> bytes) {
+            return val.TryWriteBytes(bytes, out var _, isUnsigned: true, isBigEndian: true);
+        }
+
+        public static void ToBigEndianBytes(this in BigInteger val, Span<byte> data, int length) {
+            val.ToBigEndianBytes(data);
+            var actualLength = System.Math.Min(val.GetBigEndianBytesCount(), length);
             for (var i = actualLength; i < length; i++) {
-                data[i + offset] = 0;
+                data[i] = 0;
             }
-            return data;
         }
 
         public static BigInteger ModSqrt(this in BigInteger val, in BigInteger modulus) {
@@ -139,13 +129,15 @@ namespace Ecc {
             return sb.ToString();
         }
 
-        public static string ToBase64UrlUnsigned(this in BigInteger val, long length) {
-            var data = val.ToBigEndianBytes();
-            return Base64Url.Encode(data, data.Length - length, length);
+        public static string ToBase64UrlUnsigned(this in BigInteger val, int length) {
+            Span<byte> data = stackalloc byte[val.GetBigEndianBytesCount()];
+            val.ToBigEndianBytes(data);
+            return Base64Url.Encode(data.Slice(data.Length - length, length));
         }
 
         public static BigInteger ParseBase64UrlUnsigned(string val) {
-            var data = Base64Url.Decode(val);
+            Span<byte> data = stackalloc byte[Base64Url.GetByteCount(val)];
+            Base64Url.Decode(val, data);
             return FromBigEndianBytes(data);
         }
 

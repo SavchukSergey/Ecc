@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using Ecc.Math;
 
@@ -15,12 +16,12 @@ namespace Ecc {
             Curve = curve;
         }
 
-        public readonly ECSignature256 Sign(byte[] hash) {
+        public readonly ECSignature256 Sign(ReadOnlySpan<byte> hash) {
             var num = BigIntegerExt.FromBigEndianBytes(hash);
             return Sign(num);
         }
 
-        public readonly ECSignature256? Sign(byte[] hash, in BigInteger256 random) {
+        public readonly ECSignature256? Sign(ReadOnlySpan<byte> hash, in BigInteger256 random) {
             var num = BigIntegerExt.FromBigEndianBytes(hash);
             return Sign(num, random);
         }

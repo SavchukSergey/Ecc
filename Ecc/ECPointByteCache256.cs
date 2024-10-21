@@ -29,7 +29,7 @@ namespace Ecc {
             }
         }
 
-        private ECPointByteCache256(in Span<ECPoint256> points) {
+        private ECPointByteCache256(in ReadOnlySpan<ECPoint256> points) {
             _points = new ECPoint256[TOTAL_POINTS_COUNT];
             _keyBytesCount = BigInteger256.BYTES_SIZE;
             for (var i = 0; i < TOTAL_POINTS_COUNT; i++) {
