@@ -34,6 +34,16 @@ namespace Ecc.Math {
         [FieldOffset(56)]
         internal ulong HighUInt64;
 
+
+        [FieldOffset(0)]
+        internal UInt128 UInt128_0;
+        [FieldOffset(16)]
+        internal UInt128 UInt128_1;
+        [FieldOffset(32)]
+        internal UInt128 UInt128_2;
+        [FieldOffset(48)]
+        internal UInt128 UInt128_3;
+
         [FieldOffset(0)]
         internal BigInteger128 Low128;
 

@@ -131,10 +131,11 @@ namespace Ecc.Math {
 
             var mid = new BigInteger256(al * ah);
             mid.AssignLeftShiftQuarter();
+            mid.AssignDouble();
 
             var high = new BigInteger256(0, ah * ah);
 
-            return low + mid + mid + high;
+            return low + mid + high;
         }
     }
 }

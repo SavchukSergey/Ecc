@@ -92,5 +92,7 @@ namespace Ecc.Math {
                 Bytes[i] = i < data.Length ? data[i] : (byte)0;
             }
         }
+
+        public static readonly BigInteger256 Zero = new();
     }
 }

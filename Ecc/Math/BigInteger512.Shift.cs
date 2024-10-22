@@ -63,26 +63,32 @@ namespace Ecc.Math {
             UInt64[7] = 0;
         }
 
+        public void AssignLeftShift128() {
+            UInt128_3 = UInt128_2;
+            UInt128_2 = UInt128_1;
+            UInt128_1 = UInt128_0;
+            UInt128_0 = UInt128.Zero;
+        }
+
         public void AssignLeftShiftQuarter() {
-            UInt64[7] = UInt64[5];
-            UInt64[6] = UInt64[4];
-            UInt64[5] = UInt64[3];
-            UInt64[4] = UInt64[2];
-            UInt64[3] = UInt64[1];
-            UInt64[2] = UInt64[0];
-            UInt64[1] = 0;
-            UInt64[0] = 0;
+            UInt128_3 = UInt128_2;
+            UInt128_2 = UInt128_1;
+            UInt128_1 = UInt128_0;
+            UInt128_0 = UInt128.Zero;
+        }
+
+        public void AssignRightShift128() {
+            UInt128_0 = UInt128_1;
+            UInt128_1 = UInt128_2;
+            UInt128_2 = UInt128_3;
+            UInt128_3 = UInt128.Zero;
         }
 
         public void AssignRightShiftQuarter() {
-            UInt64[0] = UInt64[2];
-            UInt64[1] = UInt64[3];
-            UInt64[2] = UInt64[4];
-            UInt64[3] = UInt64[5];
-            UInt64[4] = UInt64[6];
-            UInt64[5] = UInt64[7];
-            UInt64[6] = 0;
-            UInt64[7] = 0;
+            UInt128_0 = UInt128_1;
+            UInt128_1 = UInt128_2;
+            UInt128_2 = UInt128_3;
+            UInt128_3 = UInt128.Zero;
         }
 
         public void AssignLeftShiftHalf() {
@@ -114,9 +120,9 @@ namespace Ecc.Math {
                 AssignLeftShiftHalf();
                 count -= BITS_SIZE / 2;
             }
-            if (count >= BITS_SIZE / 4) {
-                AssignLeftShiftQuarter();
-                count -= BITS_SIZE / 4;
+            if (count >= 128) {
+                AssignLeftShift128();
+                count -= 128;
             }
             if (count >= 64) {
                 AssignLeftShift64();

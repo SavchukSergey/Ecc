@@ -16,11 +16,10 @@ namespace Ecc.Math {
         }
 
         public static BigInteger512 operator *(in BigInteger256 left, in BigInteger256 right) {
-            var zero = new BigInteger256(0);
             var x0 = new BigInteger512(left.BiLow * right.BiLow);
             var x1 = new BigInteger512(left.BiLow * right.BiHigh) + new BigInteger512(left.BiHigh * right.BiLow);
             x1.AssignLeftShiftQuarter();
-            var x2 = new BigInteger512(zero, left.BiHigh * right.BiHigh);
+            var x2 = new BigInteger512(Zero, left.BiHigh * right.BiHigh);
 
             return x0 + x1 + x2;
         }
@@ -112,16 +111,15 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger512 Square() {
-            var zero = new BigInteger256(0);
-
             var low = new BigInteger512(BiLow.Square());
 
             var mid = new BigInteger512(BiLow * BiHigh);
             mid.AssignLeftShiftQuarter();
+            mid.AssignDouble();
 
-            var high = new BigInteger512(zero, BiHigh.Square());
+            var high = new BigInteger512(Zero, BiHigh.Square());
 
-            return low + mid + mid + high;
+            return low + mid + high;
         }
 
     }

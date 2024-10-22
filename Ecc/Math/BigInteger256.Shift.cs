@@ -18,6 +18,18 @@ namespace Ecc.Math {
             BiLow.AssignLeftShift32();
         }
 
+        public void AssignLeftShift64() {
+            UInt64[3] = UInt64[2];
+            UInt64[2] = UInt64[1];
+            UInt64[1] = UInt64[0];
+            UInt64[0] = 0;
+        }
+
+        public void AssignLeftShift128() {
+            High = Low;
+            Low = UInt128.Zero;
+        }
+
         public void AssignLeftShiftQuarter() {
             UInt64[3] = UInt64[2];
             UInt64[2] = UInt64[1];
@@ -31,13 +43,13 @@ namespace Ecc.Math {
         }
 
         public void AssignLeftShift(int count) {
-            if (count >= BITS_SIZE / 2) {
-                AssignLeftShiftHalf();
-                count -= BITS_SIZE / 2;
+            if (count >= 128) {
+                AssignLeftShift128();
+                count -= 128;
             }
-            if (count >= BITS_SIZE / 4) {
-                AssignLeftShiftQuarter();
-                count -= BITS_SIZE / 4;
+            if (count >= 64) {
+                AssignLeftShift64();
+                count -= 64;
             }
             if (count > 0) {
                 ulong carry = 0;
