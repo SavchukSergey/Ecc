@@ -141,7 +141,7 @@ namespace Ecc {
             }
         }
 
-        public override string ToString() => $"{{X: {X.ToHexUnsigned(Curve.KeySize8)}, Y: {Y.ToHexUnsigned(Curve.KeySize8)}}}";
+        public override string ToString() => $"{{X: {X.ToHexUnsigned()}, Y: {Y.ToHexUnsigned()}}}";
 
         private static readonly ECPoint256 _infinity = new(new BigInteger256(0), new BigInteger256(0), null!);
 

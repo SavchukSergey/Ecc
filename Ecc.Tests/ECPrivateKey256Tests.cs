@@ -25,8 +25,8 @@ namespace Ecc.Tests {
             var random = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var signature = privateKey.Sign(msg, random);
             ClassicAssert.IsNotNull(signature, "signature must not be null");
-            var rhex = signature.Value.R.ToHexUnsigned(32);
-            var shex = signature.Value.S.ToHexUnsigned(32);
+            var rhex = signature.Value.R.ToHexUnsigned();
+            var shex = signature.Value.S.ToHexUnsigned();
             ClassicAssert.AreEqual("2794dd08b1dfa958552bc37916515a3accb0527e40f9291d62cc4316047d24dd", rhex);
             ClassicAssert.AreEqual("5dd1f95f962bb6871967dc17b22217100daa00a3756feb1e16be3e6936fd8594", shex);
             ClassicAssert.AreEqual("2794dd08b1dfa958552bc37916515a3accb0527e40f9291d62cc4316047d24dd5dd1f95f962bb6871967dc17b22217100daa00a3756feb1e16be3e6936fd8594", signature.Value.ToHexString());
@@ -41,8 +41,8 @@ namespace Ecc.Tests {
             var random = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var signature = privateKey.Sign(msg, random);
             ClassicAssert.IsNotNull(signature, "signature must not be null");
-            var rhex = signature.Value.R.ToHexUnsigned(32);
-            var shex = signature.Value.S.ToHexUnsigned(32);
+            var rhex = signature.Value.R.ToHexUnsigned();
+            var shex = signature.Value.S.ToHexUnsigned();
             ClassicAssert.AreEqual("2794dd08b1dfa958552bc37916515a3accb0527e40f9291d62cc4316047d24dd", rhex);
             ClassicAssert.AreEqual("5dd1f95f962bb6871967dc17b22217100daa00a3756feb1e16be3e6936fd8594", shex);
             ClassicAssert.AreEqual("2794dd08b1dfa958552bc37916515a3accb0527e40f9291d62cc4316047d24dd5dd1f95f962bb6871967dc17b22217100daa00a3756feb1e16be3e6936fd8594", signature.Value.ToHexString());

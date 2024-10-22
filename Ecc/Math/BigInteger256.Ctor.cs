@@ -80,9 +80,10 @@ namespace Ecc.Math {
         }
 
         public BigInteger256(in BigInteger value) {
-            var data = value.ToByteArray(isBigEndian: false);
+            Span<byte> bytes = stackalloc byte[value.GetByteCount()];
+            value.TryWriteBytes(bytes, out var _, isUnsigned: true, isBigEndian: false);
             for (var i = 0; i < BYTES_SIZE; i++) {
-                Bytes[i] = i < data.Length ? data[i] : (byte)0;
+                Bytes[i] = i < bytes.Length ? bytes[i] : (byte)0;
             }
         }
 

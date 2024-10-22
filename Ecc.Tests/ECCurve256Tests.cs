@@ -129,7 +129,7 @@ namespace Ecc.Tests {
             var hash = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(msg));
             var curve = ECCurve256.Secp256k1;
             var res = curve.TruncateHash(hash);
-            var actual = res.ToHexUnsigned(curve.KeySize8);
+            var actual = res.ToHexUnsigned();
             ClassicAssert.AreEqual("a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e", actual);
         }
 

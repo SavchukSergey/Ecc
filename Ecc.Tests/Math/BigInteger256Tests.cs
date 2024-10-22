@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Diagnostics;
 using System.Numerics;
 using Ecc.Math;
@@ -136,8 +135,6 @@ namespace Ecc.Tests.Math {
             ClassicAssert.AreEqual(0xfe, buffer[4]);
             ClassicAssert.AreEqual(0xff, buffer[5]);
         }
-
-
 
         [Test]
         public void ShiftVsDoublePerformanceTest() {

@@ -14,6 +14,8 @@ namespace Ecc.Math {
         internal const int UINT32_SIZE = BITS_SIZE / 32;
         internal const int UINT16_SIZE = BITS_SIZE / 16;
 
+        public const int HEX_SIZE = BYTES_SIZE * 2;
+
         [FieldOffset(0)]
         internal fixed byte Bytes[BYTES_SIZE];
 
@@ -66,9 +68,10 @@ namespace Ecc.Math {
         }
 
         public BigInteger128(in BigInteger value) {
-            var data = value.ToByteArray(isBigEndian: false);
+            Span<byte> bytes = stackalloc byte[value.GetByteCount()];
+            value.TryWriteBytes(bytes, out var _, isUnsigned: true, isBigEndian: false);
             for (var i = 0; i < BYTES_SIZE; i++) {
-                Bytes[i] = i < data.Length ? data[i] : (byte)0;
+                Bytes[i] = i < bytes.Length ? bytes[i] : (byte)0;
             }
         }
 

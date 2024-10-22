@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
-using System.Text;
-
 namespace Ecc {
     public static class BigIntegerExt {
 
@@ -111,22 +110,34 @@ namespace Ecc {
             throw new Exception("Unable to generate random");
         }
 
-        public static string ToHexUnsigned(this in BigInteger val, long length) {
-            var sbLength = (int)length * 2;
-            var sb = new StringBuilder(sbLength, sbLength);
-            var data = val.ToByteArray();
-            var dataLength = data.Length;
+        public static string ToHexUnsigned(this in BigInteger val, int length) {
+            var size = val.GetHexSize(length);
+            Span<char> chars = stackalloc char[size];
+            val.ToHexUnsigned(chars, length);
+            return new string(chars);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetHexSize(this in BigInteger _, int inputLength) {
+            return inputLength * 2;
+        }
+
+        public static void ToHexUnsigned(this in BigInteger val, Span<char> output, long inputLength) {
+            var dataLength = val.GetByteCount();
+            Span<byte> bytes = stackalloc byte[dataLength];
+            val.TryWriteBytes(bytes, out var _, isUnsigned: true, isBigEndian: true);
+            var actualDataLength = System.Math.Min(dataLength, inputLength);
             const string hex = "0123456789abcdef";
-            for (var i = length - 1; i >= 0; i--) {
-                if (i < dataLength) {
-                    var ch = data[i];
-                    sb.Append(hex[ch >> 4]);
-                    sb.Append(hex[ch & 0x0f]);
-                } else {
-                    sb.Append("00");
-                }
+            var ptr = 0;
+            for (var i = 0; i < actualDataLength; i++) {
+                var ch = bytes[i];
+                output[ptr++] = hex[ch >> 4];
+                output[ptr++] = hex[ch & 0x0f];
             }
-            return sb.ToString();
+            for (var i = dataLength; i < inputLength; i++) {
+                output[ptr++] = '0';
+                output[ptr++] = '0';
+            }
         }
 
         public static string ToBase64UrlUnsigned(this in BigInteger val, int length) {
@@ -135,7 +146,7 @@ namespace Ecc {
             return Base64Url.Encode(data.Slice(data.Length - length, length));
         }
 
-        public static BigInteger ParseBase64UrlUnsigned(string val) {
+        public static BigInteger ParseBase64UrlUnsigned(ReadOnlySpan<char> val) {
             Span<byte> data = stackalloc byte[Base64Url.GetByteCount(val)];
             Base64Url.Decode(val, data);
             return FromBigEndianBytes(data);

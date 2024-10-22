@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using System;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Ecc.Math {
     [StructLayout(LayoutKind.Explicit, Size = 128)]
@@ -12,6 +11,8 @@ namespace Ecc.Math {
         private const int ITEM_BITS_SIZE = 32;
         internal const int ITEMS_SIZE = BITS_SIZE / ITEM_BITS_SIZE;
         internal const int UINT64_SIZE = BITS_SIZE / 64;
+
+        public const int HEX_SIZE = BYTES_SIZE * 2;
 
         [FieldOffset(0)]
         internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
@@ -75,15 +76,15 @@ namespace Ecc.Math {
         }
 
         public bool AssignAdd(in BigInteger1024 other) {
-            bool carry = false;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                ulong acc = Data[i];
-                acc += other.Data[i];
-                acc += carry ? 1ul : 0ul;
-                Data[i] = (uint)acc;
-                carry = acc > uint.MaxValue;
+            byte carry = 0;
+            for (var i = 0; i < UINT64_SIZE; i++) {
+                UInt128 acc = UInt64[i];
+                acc += other.UInt64[i];
+                acc += carry;
+                UInt64[i] = (ulong)acc;
+                carry = (byte)(acc >> 64);
             }
-            return carry;
+            return carry > 0;
         }
 
         public bool AssignSub(in BigInteger1024 other) {
@@ -124,21 +125,24 @@ namespace Ecc.Math {
             return res;
         }
 
-        public readonly string ToHexUnsigned(int length = 256) {
-            var sbLength = (int)length * 2;
-            var sb = new StringBuilder(sbLength, sbLength);
-            var dataLength = BYTES_SIZE;
-            const string hex = "0123456789abcdef";
-            for (var i = length - 1; i >= 0; i--) {
-                if (i < dataLength) {
-                    var ch = GetByte(i);
-                    sb.Append(hex[ch >> 4]);
-                    sb.Append(hex[ch & 0x0f]);
-                } else {
-                    sb.Append("00");
-                }
+        public readonly string ToHexUnsigned() {
+            Span<char> chars = stackalloc char[HEX_SIZE];
+            TryWriteHex(chars);
+            return new string(chars);
+        }
+
+        public readonly bool TryWriteHex(Span<char> output) {
+            if (output.Length < HEX_SIZE) {
+                return false;
             }
-            return sb.ToString();
+            const string hex = "0123456789abcdef";
+            var ptr = 0;
+            for (var i = BYTES_SIZE - 1; i >= 0; i--) {
+                var ch = GetByte(i);
+                output[ptr++] = hex[ch >> 4];
+                output[ptr++] = hex[ch & 0x0f];
+            }
+            return true;
         }
     }
 }

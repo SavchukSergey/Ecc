@@ -11,6 +11,8 @@ namespace Ecc.Math {
         internal const int UINT32_SIZE = BITS_SIZE / 32;
         internal const int UINT64_SIZE = BITS_SIZE / 64;
 
+        public const int HEX_SIZE = BYTES_SIZE * 2;
+
         [FieldOffset(0)]
         public BigInteger256 Low;
 

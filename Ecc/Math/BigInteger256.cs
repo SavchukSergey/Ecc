@@ -14,6 +14,8 @@ namespace Ecc.Math {
         internal const int UINT32_SIZE = BITS_SIZE / 32;
         internal const int UINT16_SIZE = BITS_SIZE / 16;
 
+        public const int HEX_SIZE = BYTES_SIZE * 2;
+
         [FieldOffset(0)]
         internal fixed byte Bytes[BYTES_SIZE];
 
@@ -118,18 +120,6 @@ namespace Ecc.Math {
             if (carry > 0 || this >= modulus) {
                 AssignSub(modulus);
             }
-        }
-
-        public bool AssignAdd(in BigInteger256 other) {
-            UInt128 carry = 0;
-            for (var i = 0; i < UINT64_SIZE; i++) {
-                UInt128 acc = UInt64[i];
-                acc += other.UInt64[i];
-                acc += carry;
-                UInt64[i] = (ulong)acc;
-                carry = acc >> 64;
-            }
-            return carry > 0;
         }
 
         public bool AssignDouble() {
