@@ -21,7 +21,7 @@ namespace Ecc.Math {
             var divisorN = divisor.Clone();
             divisorN.AssignLeftShift(divShiftBits);
 
-            var divPart64 = (UInt128)divisorN.HighUInt64;
+            var partialDivisor = divisorN.HighUInt64 + 1;
 
             remainder = dividend;
 
@@ -39,12 +39,9 @@ namespace Ecc.Math {
                 if (remainderLZC > divShiftBits) {
                     break;
                 }
-                var remainderAdjusted = remainder << remainderLZC;
-
-                var remPart128 = remainderAdjusted.HighUInt128;
 
                 // pessimistic guess
-                UInt128 guess = divPart64 != ulong.MaxValue ? remPart128 / (divPart64 + 1) : remPart128 >> 64;
+                UInt128 guess = partialDivisor != 0 ? remainder.ExtractHigh128(remainderLZC).UInt128 / partialDivisor : remainder.ExtractHigh64(remainderLZC);
                 var correction = remainderLZC - divShiftBits + 64;
                 if (correction > 0) {
                     //trim fractional part
@@ -80,7 +77,7 @@ namespace Ecc.Math {
             divisorN.AssignLeftShift(divShiftBits);
             divShiftBits += BITS_SIZE - BigInteger128.BITS_SIZE;
 
-            var divPart64 = (UInt128)divisorN.HighUInt64;
+            var partialDivisor = divisorN.HighUInt64 + 1;
 
             remainder = dividend;
 
@@ -96,12 +93,9 @@ namespace Ecc.Math {
                 if (remainderLZC > divShiftBits) {
                     break;
                 }
-                var remainderAdjusted = remainder << remainderLZC;
-
-                var remPart128 = remainderAdjusted.HighUInt128;
 
                 // pessimistic guess
-                UInt128 guess = divPart64 != ulong.MaxValue ? remPart128 / (divPart64 + 1) : remPart128 >> 64;
+                UInt128 guess = partialDivisor != 0 ? remainder.ExtractHigh128(remainderLZC).UInt128 / partialDivisor : remainder.ExtractHigh64(remainderLZC);
                 var correction = remainderLZC - divShiftBits + 64;
                 if (correction > 0) {
                     //trim fractional part

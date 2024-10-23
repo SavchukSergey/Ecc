@@ -174,5 +174,22 @@ namespace Ecc.Math {
             res.AssignLeftShift(count);
             return res;
         }
+
+        public readonly BigInteger128 ExtractHigh128(int skipCount) {
+            if (skipCount >= 256) {
+                return Low.ExtractHigh128(skipCount - 256);
+            }
+            //todo:
+            return new BigInteger128((this << skipCount).HighUInt128);
+        }
+
+        public readonly ulong ExtractHigh64(int skipCount) {
+            if (skipCount >= 256) {
+                return Low.ExtractHigh64(skipCount - 256);
+            }
+
+            //todo:
+            return (this << skipCount).HighUInt64;
+        }
     }
 }
