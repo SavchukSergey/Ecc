@@ -48,11 +48,12 @@ namespace Ecc.Math {
             UInt32[7] = b7;
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BigInteger256(ulong value) {
             UInt64[0] = value;
             UInt64[1] = 0;
-            UInt64[2] = 0;
-            UInt64[3] = 0;
+            BiHigh.Clear();
         }
 
         public BigInteger256(UInt128 low) {

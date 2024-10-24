@@ -5,7 +5,7 @@ namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
         public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-            return DivRemGuess(dividend, divisor, out remainder);
+            return DivRemGuess(in dividend, in divisor, out remainder);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -37,7 +37,7 @@ namespace Ecc.Math {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger256 DivRem32(in BigInteger256 dividend, uint divisor, out BigInteger256 remainder) {
-            var res = DivRem32(dividend, divisor, out uint remainder32);
+            var res = DivRem32(in dividend, divisor, out uint remainder32);
             remainder = new BigInteger256(remainder32);
             return res;
         }

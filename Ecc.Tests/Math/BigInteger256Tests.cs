@@ -67,8 +67,7 @@ namespace Ecc.Tests.Math {
 
         [Test]
         public void ReadFromHexTest() {
-            var bi = new BigInteger256();
-            bi.ReadFromHex("0123456789abcdef");
+            var bi = BigInteger256.ParseHexUnsigned("0123456789abcdef");
             Span<byte> buffer = stackalloc byte[BigInteger256.BYTES_SIZE];
             bi.TryWrite(buffer);
             ClassicAssert.AreEqual(0xef, buffer[0]);
@@ -84,8 +83,7 @@ namespace Ecc.Tests.Math {
 
         [Test]
         public void ReadFromHexHalfByteTest() {
-            var bi = new BigInteger256();
-            bi.ReadFromHex("f");
+            var bi = BigInteger256.ParseHexUnsigned("f");
             Span<byte> buffer = stackalloc byte[BigInteger256.BYTES_SIZE];
             bi.TryWrite(buffer);
             ClassicAssert.AreEqual(0x0f, buffer[0]);

@@ -4,18 +4,15 @@ using System;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger512 {
 
-        public static BigInteger512 ParseHexUnsigned(ReadOnlySpan<char> val) {
+        public static BigInteger512 ParseHexUnsigned(ReadOnlySpan<char> str) {
             var res = new BigInteger512();
-            res.ReadFromHex(val);
-            return res;
-        }
-
-        public void ReadFromHex(ReadOnlySpan<char> str) {
-            if (str.StartsWith("0x")) {
-                str = str[2..];
+            if (str.Length >= 2) {
+                if (str[0] == '0' && str[1] == 'x') {
+                    str = str[2..];
+                }
             }
-            if (str.Length > BYTES_SIZE * 2) {
-                throw new ArgumentException($"Expected hex string with {BYTES_SIZE * 2} characters");
+            if (str.Length > HEX_SIZE) {
+                throw new ArgumentException($"Expected hex string with {HEX_SIZE} characters, was {str.Length}");
             }
             var ptr = 0;
             var charPtr = str.Length - 1;
@@ -26,8 +23,9 @@ namespace Ecc.Math {
                     part |= ((uint)hd << j);
                     charPtr--;
                 }
-                UInt32[ptr++] = part;
+                res.UInt32[ptr++] = part;
             }
+            return res;
         }
 
         public readonly string ToHexUnsigned() {
@@ -51,7 +49,7 @@ namespace Ecc.Math {
         }
 
         public readonly string ToHexFixedPoint() {
-            var sbLength = 129;
+            var sbLength = HEX_SIZE + 1;
             var sb = new StringBuilder(sbLength, sbLength);
             var dataLength = BYTES_SIZE;
             const string hex = "0123456789abcdef";

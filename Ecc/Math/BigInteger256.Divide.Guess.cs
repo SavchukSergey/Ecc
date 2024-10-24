@@ -8,13 +8,19 @@ namespace Ecc.Math {
             var divShiftBits = divisor.LeadingZeroCount();
 
             if (divShiftBits >= BITS_SIZE - 32) {
-                return DivRem32(dividend, divisor.UInt32[0], out remainder);
+                var res = DivRem32(dividend, divisor.UInt32[0], out uint remainder32);
+                remainder = new BigInteger256(remainder32);
+                return res;
             }
             if (divShiftBits >= BITS_SIZE - 64) {
-                return DivRem64(dividend, divisor.UInt64[0], out remainder);
+                var res = DivRem64(dividend, divisor.UInt64[0], out ulong remainder64);
+                remainder = new BigInteger256(remainder64);
+                return res;
             }
             if (divShiftBits >= BITS_SIZE - 128) {
-                return DivRemGuess128(dividend, divisor.BiLow, out remainder);
+                var res = DivRemGuess128(dividend, divisor.BiLow, out BigInteger128 remainder128);
+                remainder = new BigInteger256(remainder128);
+                return res;
             }
 
             var q128 = new BigInteger128(); // actual quotient is 128 bit wide
