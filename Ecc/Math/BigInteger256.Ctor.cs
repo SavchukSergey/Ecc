@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
@@ -59,9 +60,15 @@ namespace Ecc.Math {
             BiHigh.Clear();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BigInteger256(in BigInteger128 low) {
             BiLow = low;
             BiHigh.Clear();
+        }
+
+        public BigInteger256(in BigInteger192 low) {
+            BiLow192 = low;
+            HighUInt64 = 0;
         }
 
         public BigInteger256(UInt128 low, UInt128 high) {

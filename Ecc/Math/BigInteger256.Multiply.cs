@@ -3,14 +3,13 @@ using System;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
-        public static BigInteger512 operator *(in BigInteger256 left, ulong right) {
+        public static BigInteger384 operator *(in BigInteger256 left, ulong right) {
             var ah = left.BiHigh;
             var al = left.BiLow;
             var bl = right;
 
-            var x0 = new BigInteger512(al * bl);
-            var x1 = new BigInteger512(ah * bl);
-            x1.AssignLeftShiftQuarter();
+            var x0 = new BigInteger384(al * bl);
+            var x1 = new BigInteger384(0, ah * bl);
 
             return x0 + x1;
         }
@@ -51,7 +50,7 @@ namespace Ecc.Math {
         /// <param name="right"></param>
         /// <returns></returns>
         public static BigInteger256 MulLow(in BigInteger256 left, ulong right) {
-            var x0 = left.BiLow * right;
+            var x0 = new BigInteger256(left.BiLow * right);
             var x1 = BigInteger128.MulLow(left.BiHigh, right);
             x0.AssignAddHigh(x1);
             return x0;

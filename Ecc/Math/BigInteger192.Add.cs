@@ -1,9 +1,9 @@
 using System;
 
 namespace Ecc.Math {
-    public unsafe partial struct BigInteger256 {
+    public unsafe partial struct BigInteger192 {
 
-        public bool AssignAdd(in BigInteger256 other) {
+        public bool AssignAdd(in BigInteger192 other) {
             byte carry = 0;
             for (var i = 0; i < UINT64_SIZE; i++) {
                 UInt128 acc = UInt64[i];
@@ -15,8 +15,8 @@ namespace Ecc.Math {
             return carry > 0;
         }
 
-        public static BigInteger256 operator +(in BigInteger256 left, in BigInteger256 right) {
-            var res = new BigInteger256(left);
+       public static BigInteger192 operator +(in BigInteger192 left, in BigInteger192 right) {
+            var res = new BigInteger192(left);
             res.AssignAdd(right);
             return res;
         }

@@ -15,7 +15,7 @@ namespace Ecc.Math {
                 str = str[2..];
             }
             if (str.Length > BYTES_SIZE * 2) {
-                throw new ArgumentException($"Expected hex string with {BYTES_SIZE * 2} characters");
+                throw new ArgumentException($"Expected hex string with {BYTES_SIZE * 2} characters, was {str.Length}");
             }
             var ptr = 0;
             var charPtr = str.Length - 1;

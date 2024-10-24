@@ -47,6 +47,9 @@ namespace Ecc.Math {
         [FieldOffset(16)]
         public BigInteger128 BiHigh;
 
+        [FieldOffset(0)]
+        public BigInteger192 BiLow192;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly byte GetByte(int index) {
             return Bytes[index];
@@ -262,12 +265,6 @@ namespace Ecc.Math {
         public static BigInteger256 operator %(in BigInteger256 left, in BigInteger256 right) {
             DivRem(left, right, out var remainder);
             return remainder;
-        }
-
-        public static BigInteger256 operator +(in BigInteger256 left, in BigInteger256 right) {
-            var res = new BigInteger256(left);
-            res.AssignAdd(right);
-            return res;
         }
 
         public readonly int LeadingZeroCount() {

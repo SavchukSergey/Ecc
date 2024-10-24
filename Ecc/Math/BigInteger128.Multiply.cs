@@ -4,16 +4,20 @@ using System.Runtime.CompilerServices;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger128 {
 
-        public static BigInteger256 Mul(BigInteger128 left, ulong right) {
+        public static BigInteger192 Mul(BigInteger128 left, ulong right) {
             var ah = left.High;
             var al = left.Low;
             var bl = right;
 
-            var x0 = new BigInteger256(Mul(al, bl));
-            var x1 = new BigInteger256(Mul(ah, bl));
-            x1.AssignLeftShiftQuarter();
+            var x0 = new BigInteger192(Mul(al, bl));
+            var x1 = new BigInteger192(0, Mul(ah, bl));
 
             return x0 + x1;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BigInteger192 operator *(in BigInteger128 left, ulong right) {
+            return Mul(left, right);
         }
 
         public static BigInteger256 Mul(BigInteger128 left, BigInteger128 right) {
@@ -69,7 +73,7 @@ namespace Ecc.Math {
             return x0;
         }
 
-        private static BigInteger128 Mul(ulong left, ulong right) {
+        public static BigInteger128 Mul(ulong left, ulong right) {
             // ulong high = 0;
             // var low = System.Runtime.Intrinsics.X86.Bmi2.X64.MultiplyNoFlags(left, right, &high);
 
