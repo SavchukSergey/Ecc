@@ -25,6 +25,9 @@ namespace Ecc.Math {
         [FieldOffset(0)]
         public BigInteger192 BiLow192;
 
+        [FieldOffset(0)]
+        public BigInteger384 BiLow384;
+
         [FieldOffset(24)]
         public BigInteger384 BiHigh384;
 
@@ -55,6 +58,9 @@ namespace Ecc.Math {
 
         [FieldOffset(48)]
         internal UInt128 HighUInt128;
+   
+        [FieldOffset(48)]
+        internal BigInteger128 BiHigh128;
 
         public readonly byte GetByte(int index) {
             return Bytes[index];

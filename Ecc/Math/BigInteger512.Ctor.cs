@@ -35,6 +35,11 @@ namespace Ecc.Math {
             High = new BigInteger256(0);
         }
 
+        public BigInteger512(in BigInteger384 value) {
+            BiLow384 = value;
+            BiHigh128 = BigInteger128.Zero;
+        }
+
         public BigInteger512(in BigInteger256 low, in BigInteger256 high) {
             Low = low;
             High = high;

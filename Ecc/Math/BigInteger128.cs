@@ -145,5 +145,6 @@ namespace Ecc.Math {
             }
         }
 
+        public static readonly BigInteger128 Zero = new();
     }
 }

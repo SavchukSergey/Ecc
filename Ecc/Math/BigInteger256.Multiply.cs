@@ -23,22 +23,16 @@ namespace Ecc.Math {
             return x0 + x1 + x2;
         }
 
-        public static BigInteger512 operator *(in BigInteger256 left, in BigInteger128 right) {
-            var x0 = new BigInteger512(left.BiLow * right);
-            var x1 = new BigInteger512(left.BiHigh * right);
-            x1.AssignLeftShiftQuarter();
+        public static BigInteger384 operator *(in BigInteger256 left, in BigInteger128 right) {
+            var x0 = new BigInteger384(left.BiLow * right);
+            var x1 = new BigInteger384(0, left.BiHigh * right);
 
             return x0 + x1;
         }
 
-        public static BigInteger512 operator *(in BigInteger256 left, in UInt128 right) {
-            var ah = left.BiHigh;
-            var al = left.BiLow;
-            var bl = right;
-
-            var x0 = new BigInteger512(al * bl);
-            var x1 = new BigInteger512(ah * bl);
-            x1.AssignLeftShiftQuarter();
+        public static BigInteger384 operator *(in BigInteger256 left, in UInt128 right) {
+            var x0 = new BigInteger384(left.BiLow * right);
+            var x1 = new BigInteger384(0, left.BiHigh * right);
 
             return x0 + x1;
         }

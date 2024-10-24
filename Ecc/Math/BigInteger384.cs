@@ -29,8 +29,17 @@ namespace Ecc.Math {
         [FieldOffset(0)]
         public ulong LowUInt64;
 
+        [FieldOffset(40)]
+        public ulong HighUInt64;
+
         [FieldOffset(0)]
         public BigInteger192 BiLow192;
+
+        [FieldOffset(0)]
+        public BigInteger256 BiLow256;
+
+        [FieldOffset(16)]
+        public BigInteger256 BiHigh256;
 
         [FieldOffset(24)]
         public BigInteger192 BiHigh192;
@@ -53,6 +62,16 @@ namespace Ecc.Math {
         public BigInteger384(in BigInteger192 low) {
             BiLow192 = low;
             BiHigh192 = BigInteger192.Zero;
+        }
+
+        public BigInteger384(in BigInteger256 low) {
+            BiLow256 = low;
+            HighUInt64 = 0;
+        }
+
+        public BigInteger384(ulong low, in BigInteger256 high) {
+            LowUInt64 = low;
+            BiHigh256 = high;
         }
 
         public BigInteger384(in BigInteger384 other) {

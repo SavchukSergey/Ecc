@@ -3,6 +3,7 @@ using System;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger512 {
 
+        //todo: BigInteger768
         public static BigInteger1024 operator *(in BigInteger512 left, in BigInteger256 right) {
             var ah = left.High;
             var al = left.Low;
@@ -38,7 +39,7 @@ namespace Ecc.Math {
         /// <param name="right"></param>
         /// <returns></returns>
         public static BigInteger512 MulLow(in BigInteger512 left, UInt128 right) {
-            var x0 = left.Low * right;
+            var x0 = new BigInteger512(left.Low * right); //todo: 
             var x1 = BigInteger256.MulLow(left.High, right);
             x0.AssignAddHigh(x1);
             return x0;
