@@ -23,6 +23,9 @@ namespace Ecc.Math {
         public BigInteger256 Middle; // for 256.256 fixed point arithmetics
 
         [FieldOffset(0)]
+        public BigInteger128 BiLow128;
+
+        [FieldOffset(0)]
         public BigInteger192 BiLow192;
 
         [FieldOffset(0)]

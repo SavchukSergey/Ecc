@@ -22,7 +22,7 @@ namespace Ecc.Tests.Math {
             var left = BigInteger512.ParseHexUnsigned(leftHex);
             var right = BigInteger512.ParseHexUnsigned(rightHex);
 
-            var res = BigInteger512.DivRemGuess(left, right.Low, out var remainder);
+            var res = BigInteger512.DivRemGuess(left, right.Low, out BigInteger512 remainder);
 
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned(), "quotient");
             ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned(), "remainder");
@@ -33,7 +33,7 @@ namespace Ecc.Tests.Math {
             var left = BigInteger512.ParseHexUnsigned(leftHex);
             var right = BigInteger512.ParseHexUnsigned(rightHex);
 
-            var res = BigInteger512.DivRemGuess(left, right.Low.BiLow, out var remainder);
+            var res = BigInteger512.DivRemGuess(left, right.Low.BiLow, out BigInteger512 remainder);
 
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned(), "quotient");
             ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned(), "remainder");
