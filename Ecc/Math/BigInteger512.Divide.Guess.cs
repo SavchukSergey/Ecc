@@ -8,12 +8,12 @@ namespace Ecc.Math {
             var divShiftBits = divisor.LeadingZeroCount();
 
             if (divShiftBits >= BITS_SIZE - 32) {
-                var res = DivRem32(in dividend, divisor.UInt32[0], out uint remainder32);
+                var res = DivRem(in dividend, divisor.UInt32[0], out uint remainder32);
                 remainder = new BigInteger512(remainder32);
                 return res;
             }
             if (divShiftBits >= BITS_SIZE - 64) {
-                var res = DivRem64(in dividend, divisor.UInt64[0], out ulong remainder64);
+                var res = DivRem(in dividend, divisor.UInt64[0], out ulong remainder64);
                 remainder = new BigInteger512(remainder64);
                 return res;
             }
@@ -84,12 +84,12 @@ namespace Ecc.Math {
         public static BigInteger512 DivRemGuess(in BigInteger512 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
             var divShiftBits = divisor.LeadingZeroCount();
             if (divShiftBits >= BITS_SIZE - 32) {
-                var res = DivRem32(dividend, divisor.UInt32[0], out uint remainder32);
+                var res = DivRem(dividend, divisor.UInt32[0], out uint remainder32);
                 remainder = new BigInteger256(remainder32);
                 return res;
             }
             if (divShiftBits >= BITS_SIZE - 64) {
-                var res = DivRem64(dividend, divisor.UInt64[0], out ulong remainder64);
+                var res = DivRem(dividend, divisor.UInt64[0], out ulong remainder64);
                 remainder = new BigInteger256(remainder64);
                 return res;
             }
@@ -158,12 +158,12 @@ namespace Ecc.Math {
         public static BigInteger512 DivRemGuess(in BigInteger512 dividend, in BigInteger128 divisor, out BigInteger128 remainder) {
             var divShiftBits = divisor.LeadingZeroCount();
             if (divShiftBits >= BITS_SIZE - 32) {
-                var res = DivRem32(dividend, divisor.UInt32[0], out uint remainder32);
+                var res = DivRem(dividend, divisor.UInt32[0], out uint remainder32);
                 remainder = new BigInteger128(remainder32);
                 return res;
             }
             if (divShiftBits >= BITS_SIZE - 64) {
-                var res = DivRem64(dividend, divisor.UInt64[0], out ulong remainder64);
+                var res = DivRem(dividend, divisor.UInt64[0], out ulong remainder64);
                 remainder = new BigInteger128(remainder64);
                 return res;
             }

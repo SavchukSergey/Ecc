@@ -4,20 +4,87 @@ using System.Runtime.CompilerServices;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
             return DivRemGuess(in dividend, in divisor, out remainder);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger256 DivRem64(in BigInteger256 dividend, ulong divisor, out BigInteger256 remainder) {
-            var res = DivRem64(in dividend, divisor, out ulong remainder64);
+        public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger192 divisor, out BigInteger192 remainder) {
+            return DivRemGuess(in dividend, in divisor, out remainder);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger128 divisor, out BigInteger128 remainder) {
+            return DivRemGuess(in dividend, in divisor, out remainder);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger192 divisor, out BigInteger256 remainder) {
+            var res = DivRem(in dividend, in divisor, out BigInteger192 remainder192);
+            remainder = new BigInteger256(remainder192);
+            return res;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger128 divisor, out BigInteger256 remainder) {
+            var res = DivRem(in dividend, in divisor, out BigInteger128 remainder128);
+            remainder = new BigInteger256(remainder128);
+            return res;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger128 divisor, out BigInteger192 remainder) {
+            var res = DivRem(in dividend, divisor, out BigInteger128 remainder128);
+            remainder = new BigInteger192(remainder128);
+            return res;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BigInteger256 DivRem(in BigInteger256 dividend, ulong divisor, out BigInteger256 remainder) {
+            var res = DivRem(in dividend, divisor, out ulong remainder64);
             remainder = new BigInteger256(remainder64);
             return res;
         }
 
-        public static BigInteger256 DivRem64(in BigInteger256 dividend, ulong divisor, out ulong remainder) {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BigInteger256 DivRem(in BigInteger256 dividend, ulong divisor, out BigInteger192 remainder) {
+            var res = DivRem(in dividend, divisor, out ulong remainder64);
+            remainder = new BigInteger192(remainder64);
+            return res;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BigInteger256 DivRem(in BigInteger256 dividend, ulong divisor, out BigInteger128 remainder) {
+            var res = DivRem(in dividend, divisor, out ulong remainder64);
+            remainder = new BigInteger128(remainder64);
+            return res;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BigInteger256 DivRem(in BigInteger256 dividend, uint divisor, out BigInteger256 remainder) {
+            var res = DivRem(in dividend, divisor, out uint remainder32);
+            remainder = new BigInteger256(remainder32);
+            return res;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BigInteger256 DivRem(in BigInteger256 dividend, uint divisor, out BigInteger192 remainder) {
+            var res = DivRem(in dividend, divisor, out uint remainder32);
+            remainder = new BigInteger192(remainder32);
+            return res;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BigInteger256 DivRem(in BigInteger256 dividend, uint divisor, out BigInteger128 remainder) {
+            var res = DivRem(in dividend, divisor, out uint remainder32);
+            remainder = new BigInteger128(remainder32);
+            return res;
+        }
+
+        public static BigInteger256 DivRem(in BigInteger256 dividend, ulong divisor, out ulong remainder) {
             if (divisor <= uint.MaxValue) {
-                var res = DivRem32(dividend, (uint)divisor, out uint remainder32);
+                var res = DivRem(dividend, (uint)divisor, out uint remainder32);
                 remainder = remainder32;
                 return res;
             }
@@ -35,14 +102,7 @@ namespace Ecc.Math {
             return quotient;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger256 DivRem32(in BigInteger256 dividend, uint divisor, out BigInteger256 remainder) {
-            var res = DivRem32(in dividend, divisor, out uint remainder32);
-            remainder = new BigInteger256(remainder32);
-            return res;
-        }
-
-        public static BigInteger256 DivRem32(in BigInteger256 dividend, uint divisor, out uint remainder) {
+        public static BigInteger256 DivRem(in BigInteger256 dividend, uint divisor, out uint remainder) {
             var quotient = new BigInteger256();
             var rem = 0ul;
             for (var i = UINT32_SIZE - 1; i >= 0; i--) {

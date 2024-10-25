@@ -1,6 +1,9 @@
+using System.Runtime.CompilerServices;
+
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly int Compare(in BigInteger256 other) {
             var h = BigInteger128.Compare(BiHigh, other.BiHigh);
             if (h != 0) {
@@ -9,16 +12,35 @@ namespace Ecc.Math {
             return BigInteger128.Compare(BiLow, other.BiLow);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Compare(in BigInteger256 left, in BigInteger256 right) {
-            var h = BigInteger128.Compare(left.BiHigh, right.BiHigh);
-            if (h != 0) {
-                return h;
+            if (left.HighUInt128 > right.HighUInt128) {
+                return 1;
             }
-            return BigInteger128.Compare(left.BiLow, right.BiLow);
+            if (left.HighUInt128 < right.HighUInt128) {
+                return -1;
+            }
+            if (left.LowUInt128 > right.LowUInt128) {
+                return 1;
+            }
+            if (left.LowUInt128 < right.LowUInt128) {
+                return -1;
+            }
+            return 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Compare(in BigInteger256 left, in BigInteger192 right) {
+            if (left.HighUInt64 != 0) {
+                return 1;
+            }
+
+            return BigInteger192.Compare(left.BiLow192, right);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Compare(in BigInteger256 left, in BigInteger128 right) {
-            if (!left.BiHigh.IsZero) {
+            if (left.HighUInt128 != 0) {
                 return 1;
             }
 
@@ -55,14 +77,6 @@ namespace Ecc.Math {
             return Compare(left, right) <= 0;
         }
 
-        public static bool operator >=(in BigInteger256 left, ulong right) {
-            return Compare(left, right) >= 0;
-        }
-
-        public static bool operator <=(in BigInteger256 left, ulong right) {
-            return Compare(left, right) <= 0;
-        }
-
         public static bool operator >=(in BigInteger256 left, in BigInteger256 right) {
             return Compare(left, right) >= 0;
         }
@@ -73,6 +87,40 @@ namespace Ecc.Math {
 
         public static bool operator !=(in BigInteger256 left, in BigInteger256 right) {
             return Compare(left, right) != 0;
+        }
+
+
+        public static bool operator <(in BigInteger256 left, in BigInteger192 right) {
+            return Compare(left, right) < 0;
+        }
+
+        public static bool operator >(in BigInteger256 left, in BigInteger192 right) {
+            return Compare(left, right) > 0;
+        }
+
+        public static bool operator <=(in BigInteger256 left, in BigInteger192 right) {
+            return Compare(left, right) <= 0;
+        }
+
+        public static bool operator >=(in BigInteger256 left, in BigInteger192 right) {
+            return Compare(left, right) >= 0;
+        }
+
+        public static bool operator ==(in BigInteger256 left, in BigInteger192 right) {
+            return Compare(left, right) == 0;
+        }
+
+        public static bool operator !=(in BigInteger256 left, in BigInteger192 right) {
+            return Compare(left, right) != 0;
+        }
+
+        
+        public static bool operator >=(in BigInteger256 left, ulong right) {
+            return Compare(left, right) >= 0;
+        }
+
+        public static bool operator <=(in BigInteger256 left, ulong right) {
+            return Compare(left, right) <= 0;
         }
 
     }

@@ -34,6 +34,11 @@ namespace Ecc.Math {
         [FieldOffset(16)]
         public UInt128 High;
 
+        [FieldOffset(0)]
+        internal uint LowUInt32;
+        
+        [FieldOffset(0)]
+        internal ulong LowUInt64;
 
         [FieldOffset(24)]
         internal ulong HighUInt64;
@@ -42,7 +47,10 @@ namespace Ecc.Math {
         internal UInt128 HighUInt128;
 
         [FieldOffset(0)]
-        public BigInteger128 BiLow;
+        internal UInt128 LowUInt128;
+
+        [FieldOffset(0)]
+        public BigInteger128 BiLow; //todo: rename to BiLow128
 
         [FieldOffset(16)]
         public BigInteger128 BiHigh;

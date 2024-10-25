@@ -34,8 +34,8 @@ namespace Ecc.Tests.Math {
             var right = BigInteger256.ParseHexUnsigned(rightHex);
 
             var res = BigInteger256.DivRem(left, right, out var remainder);
-            Assert.That(qHex,  Is.EqualTo(res.ToHexUnsigned()));
-            Assert.That(remHex,  Is.EqualTo(remainder.ToHexUnsigned()));
+            Assert.That(qHex, Is.EqualTo(res.ToHexUnsigned()));
+            Assert.That(remHex, Is.EqualTo(remainder.ToHexUnsigned()));
         }
 
         [TestCaseSource(nameof(DivideCases))]
@@ -294,6 +294,37 @@ namespace Ecc.Tests.Math {
                 "6e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715487",
                 "0000000000000000000000000000000000000000000000000000000000000001",
                 "5f331d8a3cc5259694d330ba0ff414f2081bf3d40b1d33ec5b9ce29a477d0b5e"
+            ];
+
+            yield return [
+                "0cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe",
+                "6e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715487",
+                "0000000000000000000000000000000000000000000000000000000000000000",
+                "0cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe"
+            ];
+            yield return [
+                "0cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe",
+                "06e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf27271548",
+                "0000000000000000000000000000000000000000000000000000000000000001",
+                "05f331d8a3cc5259694d330ba0ff414f2081bf3d40b1d33ec5b9ce29a477d0b6"
+            ];
+            yield return [
+                "197d277f9200e92c608b4ee01b89d105ecb7a1bc492f7ada274a979ca1589194",
+                "01cbd1cb1e58064c11814b583f061e9d431cca8e4cea1313449bf97c840ae0ab",
+                "000000000000000000000000000000000000000000000000000000000000000e",
+                "0057ae63e93091036b79300ca934246c41248df414626fcc66c2f2cd68c0483a"
+            ];
+            yield return [
+                "000000000000000119088c1de6ce815ff2846ea135169bec3a9dbd58f7d62900",
+                "000000000000000050bf6b700c9d1160fbe38d2ebff9b62699075e141dfb294d",
+                "0000000000000000000000000000000000000000000000000000000000000003",
+                "000000000000000026ca49cdc0f74d3cfed9c714f52979786f87a31c9de4ad19"
+            ];
+            yield return [
+                "000000000000000000000000021f2aaa3dc041cdc12f88278c3ba95e33da9e77",
+                "000000000000000000000000016ca6eaedbec18da0d5c491da655c2e0b1a0c2f",
+                "0000000000000000000000000000000000000000000000000000000000000001",
+                "00000000000000000000000000b283bf500180402059c395b1d64d3028c09248"
             ];
         }
 

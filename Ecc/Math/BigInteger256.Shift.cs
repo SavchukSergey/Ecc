@@ -130,7 +130,7 @@ namespace Ecc.Math {
             }
 
             return new BigInteger128(
-                (UInt64[2] << skipCount) | (UInt64[1] >>> (64 - skipCount)),
+                (UInt64[2] << skipCount) | (UInt64[1] >> (64 - skipCount)),
                 (UInt64[3] << skipCount) | (UInt64[2] >> (64 - skipCount))
             );
         }

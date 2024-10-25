@@ -40,11 +40,11 @@ namespace Ecc.Math {
             if (left.High != 0) {
                 return 1;
             }
-            if (left.Low < right) {
-                return -1;
-            }
             if (left.Low > right) {
                 return 1;
+            }
+            if (left.Low < right) {
+                return -1;
             }
             return 0;
         }

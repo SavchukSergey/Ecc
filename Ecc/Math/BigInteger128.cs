@@ -69,9 +69,12 @@ namespace Ecc.Math {
 
         public BigInteger128(in BigInteger value) {
             Span<byte> bytes = stackalloc byte[value.GetByteCount()];
-            value.TryWriteBytes(bytes, out var _, isUnsigned: true, isBigEndian: false);
-            for (var i = 0; i < BYTES_SIZE; i++) {
+            value.TryWriteBytes(bytes, out var bytesWritten, isUnsigned: true, isBigEndian: false);
+            for (var i = 0; i < bytesWritten; i++) {
                 Bytes[i] = i < bytes.Length ? bytes[i] : (byte)0;
+            }
+            for (var i = bytesWritten; i < BYTES_SIZE; i++) {
+                Bytes[i] = 0;
             }
         }
 

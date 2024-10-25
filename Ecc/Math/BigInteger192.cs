@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -41,6 +42,9 @@ namespace Ecc.Math {
         public ulong HighUInt64;
 
         [FieldOffset(0)]
+        public uint LowUInt32;
+
+        [FieldOffset(0)]
         internal fixed byte Bytes[BYTES_SIZE];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -48,6 +52,13 @@ namespace Ecc.Math {
             LowUInt64 = low;
             MiddleUInt64 = middle;
             HighUInt64 = high;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BigInteger192(ulong low) {
+            LowUInt64 = low;
+            MiddleUInt64 = 0;
+            HighUInt64 = 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -71,6 +82,31 @@ namespace Ecc.Math {
        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly byte GetByte(int index) {
             return Bytes[index];
+        }
+
+        public readonly int LeadingZeroCount() {
+            var val = 0;
+            for (var i = UINT64_SIZE - 1; i >= 0; i--) {
+                var cnt = BitOperations.LeadingZeroCount(UInt64[i]);
+                if (cnt < 64) {
+                    return val + cnt;
+                }
+                val += 64;
+            }
+            return val;
+        }
+
+        public readonly BigInteger192 Clone() {
+            return new BigInteger192(LowUInt64, MiddleUInt64, HighUInt64);
+        }
+
+        public readonly BigInteger ToNative() {
+            Span<byte> array = stackalloc byte[BYTES_SIZE];
+            for (var i = 0; i < BYTES_SIZE; i++) {
+                var bt = Bytes[i];
+                array[i] = bt;
+            }
+            return new BigInteger(array, isUnsigned: true, isBigEndian: false);
         }
 
         public static readonly BigInteger192 Zero = new();

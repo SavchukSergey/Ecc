@@ -14,15 +14,15 @@ namespace Ecc.Math {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger512 DivRem64(in BigInteger512 dividend, ulong divisor, out BigInteger512 remainder) {
-            var res = DivRem64(in dividend, divisor, out ulong remainder64);
+        public static BigInteger512 DivRem(in BigInteger512 dividend, ulong divisor, out BigInteger512 remainder) {
+            var res = DivRem(in dividend, divisor, out ulong remainder64);
             remainder = new BigInteger512(remainder64);
             return res;
         }
 
-        public static BigInteger512 DivRem64(in BigInteger512 dividend, ulong divisor, out ulong remainder) {
+        public static BigInteger512 DivRem(in BigInteger512 dividend, ulong divisor, out ulong remainder) {
             if (divisor <= uint.MaxValue) {
-                var res = DivRem32(dividend, (uint)divisor, out uint remainder32);
+                var res = DivRem(dividend, (uint)divisor, out uint remainder32);
                 remainder = remainder32;
                 return res;
             }
@@ -42,13 +42,13 @@ namespace Ecc.Math {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger512 DivRem32(in BigInteger512 dividend, uint divisor, out BigInteger512 remainder) {
-            var res = DivRem32(in dividend, divisor, out uint remainder32);
+        public static BigInteger512 DivRem(in BigInteger512 dividend, uint divisor, out BigInteger512 remainder) {
+            var res = DivRem(in dividend, divisor, out uint remainder32);
             remainder = new BigInteger512(remainder32);
             return res;
         }
 
-        public static BigInteger512 DivRem32(in BigInteger512 dividend, uint divisor, out uint remainder) {
+        public static BigInteger512 DivRem(in BigInteger512 dividend, uint divisor, out uint remainder) {
             var quotient = new BigInteger512();
             var rem = 0ul;
             for (var i = UINT32_SIZE - 1; i >= 0; i--) {
