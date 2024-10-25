@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+
 namespace Ecc {
     public static class BigIntegerExt {
 

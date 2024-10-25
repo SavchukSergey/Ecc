@@ -24,6 +24,17 @@ namespace Ecc.Math {
             }
         }
 
+        public BigInteger512(ulong b0, ulong b1, ulong b2, ulong b3, ulong b4, ulong b5, ulong b6, ulong b7) {
+            UInt64[0] = b0;
+            UInt64[1] = b1;
+            UInt64[2] = b2;
+            UInt64[3] = b3;
+            UInt64[4] = b4;
+            UInt64[5] = b5;
+            UInt64[6] = b6;
+            UInt64[7] = b7;
+        }
+
         public BigInteger512(BigInteger128 value) {
             Low.BiLow = value;
             Low.BiHigh = new BigInteger128();

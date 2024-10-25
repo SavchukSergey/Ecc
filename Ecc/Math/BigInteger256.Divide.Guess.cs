@@ -91,7 +91,9 @@ namespace Ecc.Math {
                 }
 
                 // pessimistic guess
-                UInt128 guess = partialDivisor != 0 ? fullRemainder.ExtractHigh128(remainderLZC).UInt128 / partialDivisor : fullRemainder.ExtractHigh64(remainderLZC);
+                var guess = partialDivisor != 0 ? 
+                    fullRemainder.ExtractHigh128(remainderLZC) / partialDivisor :
+                    new BigInteger128(fullRemainder.ExtractHigh64(remainderLZC));
                 var correction = remainderLZC - divizorLZC + 64;
                 if (correction > 0) {
                     //trim fractional part

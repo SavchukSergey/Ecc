@@ -36,7 +36,7 @@ namespace Ecc.Math {
 
         [FieldOffset(0)]
         internal uint LowUInt32;
-        
+
         [FieldOffset(0)]
         internal ulong LowUInt64;
 
@@ -54,6 +54,12 @@ namespace Ecc.Math {
 
         [FieldOffset(16)]
         public BigInteger128 BiHigh;
+
+        [FieldOffset(0)]
+        public BigInteger128 BiLow128;
+
+        [FieldOffset(16)]
+        public BigInteger128 BiHigh128;
 
         [FieldOffset(0)]
         public BigInteger192 BiLow192;
@@ -163,6 +169,8 @@ namespace Ecc.Math {
             BiLow.AssignDecrement();
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AssignIncrement() {
             BiLow.AssignIncrement();
             if (BiLow.IsZero) {
@@ -264,15 +272,6 @@ namespace Ecc.Math {
                 array[i] = bt;
             }
             return new BigInteger(array, isUnsigned: true, isBigEndian: false);
-        }
-
-        public static BigInteger256 operator /(in BigInteger256 left, in BigInteger256 right) {
-            return DivRem(left, right, out var _);
-        }
-
-        public static BigInteger256 operator %(in BigInteger256 left, in BigInteger256 right) {
-            DivRem(left, right, out var remainder);
-            return remainder;
         }
 
         public readonly int LeadingZeroCount() {

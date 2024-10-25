@@ -44,10 +44,10 @@ namespace Ecc.Math {
         }
 
         public static BigInteger128 MulLow(BigInteger128 left, BigInteger128 right) {
-            var ah = (ulong)(left.UInt128 >> 64);
-            var al = (ulong)left.UInt128;
-            var bh = (ulong)(right.UInt128 >> 64);
-            var bl = (ulong)right.UInt128;
+            var ah = left.HighUInt64;
+            var al = left.LowUInt64;
+            var bh = right.HighUInt64;
+            var bl = right.LowUInt64;
 
             var x0 = Mul(al, bl);
             var x1 = MulLow(al, bh);
@@ -59,8 +59,8 @@ namespace Ecc.Math {
         }
 
         public static BigInteger128 MulLow(BigInteger128 left, UInt128 right) {
-            var ah = left.High;
-            var al = left.Low;
+            var ah = left.HighUInt64;
+            var al = left.LowUInt64;
             var bh = (ulong)(right >> 64);
             var bl = (ulong)right;
 
@@ -74,22 +74,24 @@ namespace Ecc.Math {
         }
 
         public static BigInteger128 Mul(ulong left, ulong right) {
-            // ulong high = 0;
-            // var low = System.Runtime.Intrinsics.X86.Bmi2.X64.MultiplyNoFlags(left, right, &high);
+            if (System.Runtime.Intrinsics.X86.Bmi2.IsSupported) {
+                ulong high = 0;
+                var low = System.Runtime.Intrinsics.X86.Bmi2.X64.MultiplyNoFlags(left, right, &high);
+                return new BigInteger128(high, low);
+            } else {
+                var ah = left >> 32;
+                var al = (ulong)(uint)left;
+                var bh = right >> 32;
+                var bl = (ulong)(uint)right;
 
-            // return new BigInteger128(high, low);
-            var ah = left >> 32;
-            var al = (ulong)(uint)left;
-            var bh = right >> 32;
-            var bl = (ulong)(uint)right;
+                var x0 = (UInt128)(al * bl);
+                var x1 = (UInt128)(al * bh) + (UInt128)(ah * bl);
+                x1 <<= 32;
+                var x2 = (UInt128)(ah * bh);
+                x2 <<= 64;
 
-            var x0 = (UInt128)(al * bl);
-            var x1 = (UInt128)(al * bh) + (UInt128)(ah * bl);
-            x1 <<= 32;
-            var x2 = (UInt128)(ah * bh);
-            x2 <<= 64;
-
-            return new BigInteger128(x0 + x1 + x2);
+                return new BigInteger128(x0 + x1 + x2);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -120,6 +122,7 @@ namespace Ecc.Math {
             return x0 + x1 + x2;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger256 operator *(in BigInteger128 left, in BigInteger128 right) {
             return Mul(left, right);
         }

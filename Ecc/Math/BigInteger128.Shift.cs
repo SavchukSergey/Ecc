@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 
 namespace Ecc.Math {
@@ -28,5 +29,9 @@ namespace Ecc.Math {
             UInt128 <<= 32;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BigInteger128 operator >>(in BigInteger128 left, int right) {
+            return new BigInteger128(left.UInt128 >> right);
+        }
     }
 }

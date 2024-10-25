@@ -34,6 +34,9 @@ namespace Ecc.Math {
         [FieldOffset(0)]
         public UInt128 UInt128;
 
+        [FieldOffset(0)]
+        internal ulong LowUInt64;
+
         [FieldOffset(8)]
         internal ulong HighUInt64;
 
@@ -122,7 +125,6 @@ namespace Ecc.Math {
         public void AssignAddHigh(ulong other) {
             High += other;
         }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AssignIncrement() {

@@ -88,18 +88,25 @@ namespace Ecc.Math {
                 remainder = remainder32;
                 return res;
             }
-            var quotient = new BigInteger256();
-            var rem = new UInt128();
-            for (var i = UINT64_SIZE - 1; i >= 0; i--) {
-                var partialDividend = (rem << 64) + dividend.UInt64[i];
-                var partialQuotient = partialDividend / divisor;
-                var partialRemainder = partialDividend % divisor;
-                quotient.UInt64[i] = (ulong)partialQuotient;
-                rem = partialRemainder;
-            }
-            remainder = (ulong)rem;
 
-            return quotient;
+            if (System.Runtime.Intrinsics.X86.X86Base.X64.IsSupported) {
+                var (q3, r3) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[3], 0, divisor);
+                var (q2, r2) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[2], r3, divisor);
+                var (q1, r1) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[1], r2, divisor);
+                (var q0, remainder) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[0], r1, divisor);
+                return new BigInteger256(q0, q1, q2, q3);
+            } else {
+                var quotient = new BigInteger256();
+                var rem = new UInt128();
+                for (var i = UINT64_SIZE - 1; i >= 0; i--) {
+                    var partialDividend = (rem << 64) + dividend.UInt64[i];
+                    var (partialQuotient, partialRemainder) = UInt128.DivRem(partialDividend, divisor);
+                    quotient.UInt64[i] = (ulong)partialQuotient;
+                    rem = partialRemainder;
+                }
+                remainder = (ulong)rem;
+                return quotient;
+            }
         }
 
         public static BigInteger256 DivRem(in BigInteger256 dividend, uint divisor, out uint remainder) {
@@ -107,8 +114,7 @@ namespace Ecc.Math {
             var rem = 0ul;
             for (var i = UINT32_SIZE - 1; i >= 0; i--) {
                 var partialDividend = (rem << 32) + dividend.UInt32[i];
-                var partialQuotient = partialDividend / divisor;
-                var partialRemainder = partialDividend % divisor;
+                var (partialQuotient, partialRemainder) = ulong.DivRem(partialDividend, divisor);
                 quotient.UInt32[i] = (uint)partialQuotient;
                 rem = partialRemainder;
             }
@@ -117,5 +123,13 @@ namespace Ecc.Math {
             return quotient;
         }
 
+        public static BigInteger256 operator /(in BigInteger256 left, in BigInteger256 right) {
+            return DivRem(left, right, out var _);
+        }
+
+        public static BigInteger256 operator %(in BigInteger256 left, in BigInteger256 right) {
+            DivRem(left, right, out var remainder);
+            return remainder;
+        }
     }
 }

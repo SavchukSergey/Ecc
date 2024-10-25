@@ -8,7 +8,7 @@ namespace Ecc.Tests.Math {
     public partial class BigInteger128Tests {
 
         [TestCaseSource(nameof(DivideCases))]
-        public void DivRem_128_64Test(string leftHex, string rightHex, string qHex, string remHex) {
+        public void DivRem_128_128Test(string leftHex, string rightHex, string qHex, string remHex) {
             var left = BigInteger128.ParseHexUnsigned(leftHex);
             var right = BigInteger128.ParseHexUnsigned(rightHex);
 
@@ -19,7 +19,13 @@ namespace Ecc.Tests.Math {
             var resN = BigInteger.DivRem(left.ToNative(), right.ToNative(), out var remainderN);
             ClassicAssert.AreEqual(qHex, new BigInteger128(resN).ToHexUnsigned());
             ClassicAssert.AreEqual(remHex, new BigInteger128(remainderN).ToHexUnsigned());
+        }
 
+        [Test]
+        public void DivRem_128_64_BigQTest() {
+            var res = BigInteger128.DivRem(BigInteger128.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1"), 6ul, out ulong remainder);
+            ClassicAssert.AreEqual("223d2bb3ad4647eb58fe9bbec7364eca", res.ToHexUnsigned());
+            ClassicAssert.AreEqual(5, remainder);
         }
 
         public static IEnumerable<string[]> DivideCases() {

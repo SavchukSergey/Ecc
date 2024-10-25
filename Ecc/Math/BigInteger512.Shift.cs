@@ -176,6 +176,9 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger128 ExtractHigh128(int skipCount) {
+            if (skipCount >= 512) {
+                return new BigInteger128();
+            }
             if (skipCount >= 256) {
                 return Low.ExtractHigh128(skipCount - 256);
             }
@@ -184,6 +187,9 @@ namespace Ecc.Math {
         }
 
         public readonly ulong ExtractHigh64(int skipCount) {
+            if (skipCount >= 512) {
+                return 0;
+            }
             if (skipCount >= 256) {
                 return Low.ExtractHigh64(skipCount - 256);
             }

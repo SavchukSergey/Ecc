@@ -30,13 +30,6 @@ namespace Ecc.Math {
             return x0 + x1;
         }
 
-        public static BigInteger384 operator *(in BigInteger256 left, in UInt128 right) {
-            var x0 = new BigInteger384(left.BiLow * right);
-            var x1 = new BigInteger384(0, left.BiHigh * right);
-
-            return x0 + x1;
-        }
-
         /// <summary>
         /// Multiplies 256-bit and 64-bit numbers and returns last 256 bits of result
         /// </summary>
@@ -44,8 +37,8 @@ namespace Ecc.Math {
         /// <param name="right"></param>
         /// <returns></returns>
         public static BigInteger256 MulLow(in BigInteger256 left, ulong right) {
-            var x0 = new BigInteger256(left.BiLow * right);
-            var x1 = BigInteger128.MulLow(left.BiHigh, right);
+            var x0 = new BigInteger256(left.BiLow128 * right);
+            var x1 = BigInteger128.MulLow(left.BiHigh128, right);
             x0.AssignAddHigh(x1);
             return x0;
         }
