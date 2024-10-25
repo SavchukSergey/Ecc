@@ -15,6 +15,13 @@ namespace Ecc.Math {
             return carry > 0;
         }
 
+       public void AssignIncrement() {
+            BiLow256.AssignIncrement();
+            if (BiLow256.IsZero) {
+                HighUInt128++;
+            }
+        }
+
         public static BigInteger384 operator +(in BigInteger384 left, in BigInteger384 right) {
             var res = new BigInteger384(left);
             res.AssignAdd(right);

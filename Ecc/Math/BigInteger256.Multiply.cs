@@ -24,8 +24,8 @@ namespace Ecc.Math {
         }
 
         public static BigInteger384 operator *(in BigInteger256 left, in BigInteger128 right) {
-            var x0 = new BigInteger384(left.BiLow * right);
-            var x1 = new BigInteger384(0, left.BiHigh * right);
+            var x0 = new BigInteger384(left.BiLow128 * right);
+            var x1 = new BigInteger384(0ul, left.BiHigh128 * right);
 
             return x0 + x1;
         }

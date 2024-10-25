@@ -117,6 +117,53 @@ namespace Ecc.Math {
         #endregion
 
 
+        #region Compare to BigInteger192
+
+        public static int Compare(in BigInteger512 left, in BigInteger192 right) {
+            if (left.UInt64[7] != 0) {
+                return 1;
+            }
+            if (left.UInt64[6] != 0) {
+                return 1;
+            }
+            if (left.UInt64[5] != 0) {
+                return 1;
+            }
+            if (left.UInt64[4] != 0) {
+                return 1;
+            }
+            if (left.UInt64[3] != 0) {
+                return 1;
+            }
+            return BigInteger192.Compare(left.BiLow192, right);
+        }
+
+        public static bool operator <(in BigInteger512 left, in BigInteger192 right) {
+            return Compare(left, right) < 0;
+        }
+
+        public static bool operator >(in BigInteger512 left, in BigInteger192 right) {
+            return Compare(left, right) > 0;
+        }
+
+        public static bool operator <=(in BigInteger512 left, in BigInteger192 right) {
+            return Compare(left, right) <= 0;
+        }
+
+        public static bool operator >=(in BigInteger512 left, in BigInteger192 right) {
+            return Compare(left, right) >= 0;
+        }
+
+        public static bool operator ==(in BigInteger512 left, in BigInteger192 right) {
+            return Compare(left, right) == 0;
+        }
+
+        public static bool operator !=(in BigInteger512 left, in BigInteger192 right) {
+            return Compare(left, right) != 0;
+        }
+
+        #endregion
+
         #region Compare to BigInteger128
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -61,7 +61,7 @@ namespace Ecc.Math {
 
         [FieldOffset(48)]
         internal UInt128 HighUInt128;
-   
+
         [FieldOffset(48)]
         internal BigInteger128 BiHigh128;
 
@@ -138,6 +138,23 @@ namespace Ecc.Math {
             }
             if (carry) {
                 High.AssignDecrement();
+            }
+        }
+
+        public void AssignSub(in BigInteger192 other) {
+            Int128 acc = 0;
+
+            for (var i = 0; i < 3; i++) {
+                acc += UInt64[i];
+                acc -= other.UInt64[i];
+                UInt64[i] = (ulong)acc;
+                acc >>= 64;
+            }
+
+            for (var i = 3; i < 8; i++) {
+                acc += UInt64[i];
+                UInt64[i] = (ulong)acc;
+                acc >>= 64;
             }
         }
 

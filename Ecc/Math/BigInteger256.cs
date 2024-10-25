@@ -211,8 +211,8 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger256 ModMul(in BigInteger256 other, in BigInteger256 modulus) {
-            //todo: optimize
-            return ModMulBit(other, modulus);
+            return (this * other) % modulus;
+            //return ModMulBit(other, modulus);
         }
 
         public readonly BigInteger256 ModMulBit(in BigInteger256 other, in BigInteger256 modulus) {

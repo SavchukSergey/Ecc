@@ -84,19 +84,24 @@ namespace Ecc.Math {
         }
 
         public static BigInteger512 DivRemGuess(in BigInteger512 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-            var divShiftBits = divisor.LeadingZeroCount();
-            if (divShiftBits >= BITS_SIZE - 32) {
+            var divisorLZC = divisor.LeadingZeroCount();
+            if (divisorLZC >= BITS_SIZE - 32) {
                 var res = DivRem(dividend, divisor.UInt32[0], out uint remainder32);
                 remainder = new BigInteger256(remainder32);
                 return res;
             }
-            if (divShiftBits >= BITS_SIZE - 64) {
+            if (divisorLZC >= BITS_SIZE - 64) {
                 var res = DivRem(dividend, divisor.UInt64[0], out ulong remainder64);
                 remainder = new BigInteger256(remainder64);
                 return res;
             }
-            if (divShiftBits >= BITS_SIZE - 128) {
-                var res = DivRemGuess(dividend, divisor.BiLow, out BigInteger128 remainder128);
+            if (divisorLZC >= BITS_SIZE - 128) {
+                var res = DivRemGuess(dividend, divisor.BiLow128, out BigInteger128 remainder128);
+                remainder = new BigInteger256(remainder128);
+                return res;
+            }
+            if (divisorLZC >= BITS_SIZE - 192) {
+                var res = DivRemGuess(dividend, divisor.BiLow192, out BigInteger192 remainder128);
                 remainder = new BigInteger256(remainder128);
                 return res;
             }
@@ -104,8 +109,8 @@ namespace Ecc.Math {
             var q = new BigInteger512();
 
             var divisorN = divisor.Clone();
-            divisorN.AssignLeftShift(divShiftBits);
-            divShiftBits += BITS_SIZE - BigInteger256.BITS_SIZE;
+            divisorN.AssignLeftShift(divisorLZC);
+            divisorLZC += BITS_SIZE - BigInteger256.BITS_SIZE;
 
             var partialDivisor = divisorN.HighUInt64 + 1;
 
@@ -113,14 +118,14 @@ namespace Ecc.Math {
 
             while (true) {
                 var remainderLZC = fullRemainder.LeadingZeroCount();
-                if (remainderLZC == divShiftBits) {
+                if (remainderLZC == divisorLZC) {
                     if (fullRemainder >= divisor) {
                         fullRemainder.AssignSub(divisor);
                         q.AssignIncrement();
                     }
                     break;
                 }
-                if (remainderLZC > divShiftBits) {
+                if (remainderLZC > divisorLZC) {
                     break;
                 }
 
@@ -128,7 +133,7 @@ namespace Ecc.Math {
                 var guess = partialDivisor != 0 ?
                     fullRemainder.ExtractHigh128(remainderLZC) / partialDivisor :
                     new BigInteger128(fullRemainder.ExtractHigh64(remainderLZC));
-                var correction = remainderLZC - divShiftBits + 64;
+                var correction = remainderLZC - divisorLZC + 64;
                 if (correction > 0) {
                     //trim fractional part
                     guess >>= correction;
@@ -150,6 +155,76 @@ namespace Ecc.Math {
 
             remainder = fullRemainder.Low;
             return q;
+        }
+
+        public static BigInteger512 DivRemGuess(in BigInteger512 dividend, in BigInteger192 divisor, out BigInteger192 remainder) {
+            var divisorLZC = divisor.LeadingZeroCount();
+            if (divisorLZC >= BITS_SIZE - 32) {
+                var res = DivRem(dividend, divisor.LowUInt32, out uint remainder32);
+                remainder = new BigInteger192(remainder32);
+                return res;
+            }
+            if (divisorLZC >= BITS_SIZE - 64) {
+                var res = DivRem(dividend, divisor.LowUInt64, out ulong remainder64);
+                remainder = new BigInteger192(remainder64);
+                return res;
+            }
+            if (divisorLZC >= BITS_SIZE - 128) {
+                var res = DivRemGuess(dividend, divisor.BiLow128, out BigInteger128 remainder128);
+                remainder = new BigInteger192(remainder128);
+                return res;
+            }
+            //divisor at least 129-bit wide, quotient is 384 bits at most
+
+            var q = new BigInteger384();
+
+            var divisorN = divisor.Clone();
+            divisorN.AssignLeftShift(divisorLZC);
+            divisorLZC += BITS_SIZE - BigInteger192.BITS_SIZE;
+
+            var partialDivisor = divisorN.HighUInt64 + 1;
+
+            var fullRemainder = dividend.Clone();
+
+            while (true) {
+                var remainderLZC = fullRemainder.LeadingZeroCount();
+                if (remainderLZC == divisorLZC) {
+                    if (fullRemainder >= divisor) {
+                        fullRemainder.AssignSub(divisor);
+                        q.AssignIncrement();
+                    }
+                    break;
+                }
+                if (remainderLZC > divisorLZC) {
+                    break;
+                }
+
+                // pessimistic guess
+                var guess = partialDivisor != 0 ?
+                    fullRemainder.ExtractHigh128(remainderLZC) / partialDivisor :
+                    new BigInteger128(fullRemainder.ExtractHigh64(remainderLZC));
+                var correction = remainderLZC - divisorLZC + 64;
+                if (correction > 0) {
+                    //trim fractional part
+                    guess >>= correction;
+                    correction = 0;
+                }
+
+                // max quotient - 512 bits,
+                // 128 bit <= divisor < 256 bits
+                var delta = new BigInteger512(new BigInteger256(divisor) * guess); //todo:
+
+                var guessQ = new BigInteger512(guess);
+                if (correction < 0) {
+                    delta.AssignLeftShift(-correction);
+                    guessQ.AssignLeftShift(-correction);
+                }
+                fullRemainder.AssignSub(delta);
+                q.AssignAdd(guessQ.BiLow384); //todo:
+            }
+
+            remainder = fullRemainder.BiLow192;
+            return new BigInteger512(q);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

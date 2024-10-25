@@ -5,8 +5,12 @@ namespace Ecc.Math {
     public unsafe partial struct BigInteger512 {
 
         public static BigInteger256 operator %(in BigInteger512 left, in BigInteger256 right) {
-            DivRemGuess(left, right, out BigInteger256 remainder);
+            DivRem(left, right, out BigInteger256 remainder);
             return remainder;
+        }
+
+        public static BigInteger512 DivRem(in BigInteger512 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
+            return DivRemGuess(dividend, divisor, out remainder);
         }
 
         public static BigInteger512 DivRem(in BigInteger512 dividend, in BigInteger512 divisor, out BigInteger512 remainder) {
