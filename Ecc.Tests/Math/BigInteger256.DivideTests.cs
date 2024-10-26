@@ -34,8 +34,12 @@ namespace Ecc.Tests.Math {
             var right = BigInteger256.ParseHexUnsigned(rightHex);
 
             var res = BigInteger256.DivRem(left, right, out var remainder);
-            Assert.That(qHex, Is.EqualTo(res.ToHexUnsigned()));
-            Assert.That(remHex, Is.EqualTo(remainder.ToHexUnsigned()));
+            ClassicAssert.AreEqual(qHex, res.ToHexUnsigned(), "quotient");
+            ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned(), "remainder");
+
+            var nativeRes = BigInteger.DivRem(left.ToNative(), right.ToNative(), out var nativeRemainder);
+            ClassicAssert.AreEqual(qHex, new BigInteger256(nativeRes).ToHexUnsigned(), "native.quotient");
+            ClassicAssert.AreEqual(remHex, new BigInteger256(nativeRemainder).ToHexUnsigned(), "native.remainder");
         }
 
         [TestCaseSource(nameof(DivideCases))]
@@ -66,21 +70,6 @@ namespace Ecc.Tests.Math {
             var res = BigInteger256.DivRemNewton(left, right, out var remainder);
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned());
             ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned());
-        }
-
-        [TestCaseSource(nameof(DivideCases))]
-        public void DivRemGuessTest(string leftHex, string rightHex, string qHex, string remHex) {
-            var left = BigInteger256.ParseHexUnsigned(leftHex);
-            var right = BigInteger256.ParseHexUnsigned(rightHex);
-
-            var res = BigInteger256.DivRemGuess(left, right, out var remainder);
-
-            var nativeRes = BigInteger.DivRem(left.ToNative(), right.ToNative(), out var nativeRemainder);
-            ClassicAssert.AreEqual(qHex, new BigInteger256(nativeRes).ToHexUnsigned(), "native.quotient");
-            ClassicAssert.AreEqual(remHex, new BigInteger256(nativeRemainder).ToHexUnsigned(), "native.remainder");
-
-            ClassicAssert.AreEqual(qHex, res.ToHexUnsigned(), "quotient");
-            ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned(), "remainder");
         }
 
         public static IEnumerable<string[]> DivideCases() {

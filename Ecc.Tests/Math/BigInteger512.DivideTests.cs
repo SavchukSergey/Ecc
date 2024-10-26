@@ -7,11 +7,11 @@ namespace Ecc.Tests.Math {
     public partial class BigInteger512Tests {
 
         [TestCaseSource(nameof(DivideCases512_512))]
-        public void DivRemGuess512Test(string leftHex, string rightHex, string qHex, string remHex) {
+        public void DivRem512Test(string leftHex, string rightHex, string qHex, string remHex) {
             var left = BigInteger512.ParseHexUnsigned(leftHex);
             var right = BigInteger512.ParseHexUnsigned(rightHex);
 
-            var res = BigInteger512.DivRemGuess(left, right, out var remainder);
+            var res = BigInteger512.DivRem(left, right, out var remainder);
 
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned(), "quotient");
             ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned(), "remainder");

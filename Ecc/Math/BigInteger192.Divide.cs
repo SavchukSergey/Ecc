@@ -5,16 +5,12 @@ namespace Ecc.Math {
     public unsafe partial struct BigInteger192 {
 
         public static BigInteger192 DivRem(in BigInteger192 dividend, in BigInteger192 divisor, out BigInteger192 remainder) {
-            var divizorLZC = divisor.LeadingZeroCount();
-
-            if (divizorLZC >= BITS_SIZE - 32) {
-                return DivRem(in dividend, divisor.LowUInt32, out remainder);
-            }
-            if (divizorLZC >= BITS_SIZE - 64) {
-                return DivRem(in dividend, divisor.LowUInt64, out remainder);
-            }
-            if (divizorLZC >= BITS_SIZE - 128) {
-                return DivRem(in dividend, in divisor.BiLow128, out remainder);
+            if (divisor.UInt64[2] == 0) {
+                if (divisor.UInt64[1] == 0) {
+                    return DivRem(in dividend, divisor.LowUInt64, out remainder);
+                } else {
+                    return DivRem(in dividend, in divisor.BiLow128, out remainder);
+                }
             }
 
             //todo: check is dividendLZC - divisorLZC < 64 then call SingleShot
@@ -25,7 +21,12 @@ namespace Ecc.Math {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger192 DivRem(in BigInteger192 dividend, in BigInteger128 divisor, out BigInteger128 remainder) {
-            return DivRemGuess(in dividend, in divisor, out remainder);
+            if (divisor.UInt64[1] == 0) {
+                return DivRem(in dividend, divisor.LowUInt64, out remainder);
+            }
+            return new BigInteger192(
+                DivRemGuess(in dividend, in divisor, out remainder)
+            );
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -13,6 +13,7 @@ namespace Ecc.Math {
             return DivRemGuess(dividend, divisor, out remainder);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger512 DivRem(in BigInteger512 dividend, in BigInteger512 divisor, out BigInteger512 remainder) {
             return DivRemGuess(dividend, divisor, out remainder);
         }

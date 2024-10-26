@@ -3,19 +3,19 @@ namespace Ecc.Math {
 
         public void AssignLeftShift(int count) {
             if (count >= 192) {
-                BiHigh128 = BigInteger128.Zero;
+                HighUInt128 = 0;
                 LowUInt64 = 0;
                 return;
             }
             if (count >= 128) {
                 HighUInt64 = LowUInt64 << (count - 128);
                 LowUInt128 = 0;
+                return;
             }
             if (count >= 64) {
-                count -= 64;
-                UInt64[2] = (UInt64[1] << count) | (UInt64[0] >> (64 - count));
-                UInt64[1] = UInt64[0] << count;
-                UInt64[0] = 0;;
+                HighUInt128 = LowUInt128 << (count - 64);
+                LowUInt64 = 0;
+                return;
             }
             if (count > 0) {
                 UInt64[2] = (UInt64[2] << count) | (UInt64[1] >> (64 - count));

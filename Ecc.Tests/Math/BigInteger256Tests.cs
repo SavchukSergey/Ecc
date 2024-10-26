@@ -452,7 +452,7 @@ namespace Ecc.Tests.Math {
             var sw4 = new Stopwatch();
             sw4.Start();
             for (var i = 0; i < cnt; i++) {
-                BigInteger256.DivRemGuess(left, right, out var _);
+                BigInteger256.DivRem(left, right, out var _);
             }
             sw4.Stop();
 

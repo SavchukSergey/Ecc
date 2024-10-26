@@ -116,6 +116,14 @@ namespace Ecc.Math {
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void AssignIncrement() {
+            LowUInt128++;
+            if (LowUInt128 == 0) {
+                HighUInt64++;
+            }
+        }
+
         public static readonly BigInteger192 Zero = new();
 
     }
