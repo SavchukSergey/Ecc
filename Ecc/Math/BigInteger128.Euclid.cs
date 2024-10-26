@@ -10,7 +10,7 @@ namespace Ecc.Math {
             //https://stackoverflow.com/questions/67097428/is-it-possible-to-implement-the-extended-euclidean-algorithm-with-unsigned-machi
             var cnt = false;
             while (!r1.IsZero) {
-                var quotient = DivRem(in r0, in r1, out var r2);
+                DivRem(in r0, in r1, out var quotient, out var r2);
                 var s2 = s0 + MulLow128(in quotient, in s1);
 
                 s0 = s1;

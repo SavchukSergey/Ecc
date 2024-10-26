@@ -8,7 +8,7 @@ namespace Ecc.Math {
         /// <param name="divisor">Must be >= 2^192</param>
         /// <param name="remainder"></param>
         /// <returns></returns>
-        private static ulong DivRemGuessSingleShot(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
+        private static void DivRemGuessSingleShot(in BigInteger256 dividend, in BigInteger256 divisor, out ulong quotient, out BigInteger256 remainder) {
             // actual quotient is 64 bit wide
             var divisorLZC = divisor.LeadingZeroCount();
             remainder = dividend;
@@ -35,15 +35,17 @@ namespace Ecc.Math {
                         q64++;
                     }
                 }
-                return q64;
+                quotient = q64;
+                return;
             } else {
                 //this can happen only if divisor starts with 64 ones, quotient will be either 0 or 1
                 if (remainder >= divisor) {
                     remainder.AssignSub(divisor);
-                    return 1;
+                    quotient = 1;
+                    return;
                 }
 
-                return 0;
+                quotient = 0;
             }
         }
 
@@ -54,10 +56,10 @@ namespace Ecc.Math {
         /// <param name="divisor">Must be >= 2^128</param>
         /// <param name="remainder"></param>
         /// <returns></returns>
-        private static BigInteger128 DivRemGuess(in BigInteger256 dividend, in BigInteger192 divisor, out BigInteger192 remainder) {
+        private static void DivRemGuess(in BigInteger256 dividend, in BigInteger192 divisor, out BigInteger128 quotient, out BigInteger192 remainder) {
             var divisorLZC = divisor.LeadingZeroCount();
 
-            var q128 = new BigInteger128(); // actual quotient is 128 bit wide
+            quotient = new BigInteger128(); // actual quotient is 128 bit wide
 
             var partialDivisor = divisor.ExtractHigh64(divisorLZC) + 1;
 
@@ -70,7 +72,7 @@ namespace Ecc.Math {
                 if (remainderLZC == divisorLZC) {
                     if (fullRemainder >= divisor) {
                         fullRemainder.AssignSub(divisor);
-                        q128.AssignIncrement();
+                        quotient.AssignIncrement();
                     }
                     break;
                 }
@@ -96,11 +98,10 @@ namespace Ecc.Math {
                     guess <<= -correction;
                 }
                 fullRemainder.AssignSub(delta);
-                q128.AssignAdd(guess);
+                quotient.AssignAdd(guess);
             }
 
             remainder = fullRemainder.BiLow192;
-            return q128;
         }
 
         /// <summary>
@@ -110,10 +111,10 @@ namespace Ecc.Math {
         /// <param name="divisor">Must be >= 2^64</param>
         /// <param name="remainder"></param>
         /// <returns></returns>
-        private static BigInteger192 DivRemGuess(in BigInteger256 dividend, in BigInteger128 divisor, out BigInteger128 remainder) {
+        private static void DivRemGuess(in BigInteger256 dividend, in BigInteger128 divisor, out BigInteger192 quotient, out BigInteger128 remainder) {
             var divisorLZC = divisor.LeadingZeroCount();
 
-            var q192 = new BigInteger192();
+            quotient = new BigInteger192();
 
             var divisorN = divisor.Clone();
             divisorN.AssignLeftShift(divisorLZC);
@@ -128,7 +129,7 @@ namespace Ecc.Math {
                 if (remainderLZC == divisorLZC) {
                     if (fullRemainder.BiLow128 >= divisor) {
                         fullRemainder.BiLow128.AssignSub(divisor);
-                        q192.AssignIncrement();
+                        quotient.AssignIncrement();
                     }
                     break;
                 }
@@ -158,11 +159,10 @@ namespace Ecc.Math {
                     guessQ.AssignLeftShift(-correction);
                 }
                 fullRemainder.AssignSub(delta);
-                q192.AssignAdd(guessQ);
+                quotient.AssignAdd(guessQ);
             }
 
             remainder = fullRemainder.BiLow128;
-            return q192;
         }
 
     }

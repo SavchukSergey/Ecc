@@ -4,88 +4,86 @@ using System.Runtime.CompilerServices;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger192 {
 
-        public static BigInteger192 DivRem(in BigInteger192 dividend, in BigInteger192 divisor, out BigInteger192 remainder) {
+        public static void DivRem(in BigInteger192 dividend, in BigInteger192 divisor, out BigInteger192 quotient, out BigInteger192 remainder) {
             if (divisor.UInt64[2] == 0) {
                 if (divisor.UInt64[1] == 0) {
-                    return DivRem(in dividend, divisor.LowUInt64, out remainder);
+                    DivRem(in dividend, divisor.LowUInt64, out quotient, out remainder);
+                    return;
                 } else {
-                    return DivRem(in dividend, in divisor.BiLow128, out remainder);
+                    DivRem(in dividend, in divisor.BiLow128, out quotient, out remainder);
+                    return;
                 }
             }
 
             //todo: check is dividendLZC - divisorLZC < 64 then call SingleShot
-            return new BigInteger192(
-                DivRemGuessSingleShot(in dividend, in divisor, out remainder)
+            DivRemGuessSingleShot(in dividend, in divisor, out var quotientSmall, out remainder);
+            quotient = new BigInteger192(
+                quotientSmall
             );
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger192 DivRem(in BigInteger192 dividend, in BigInteger128 divisor, out BigInteger128 remainder) {
+        public static void DivRem(in BigInteger192 dividend, in BigInteger128 divisor, out BigInteger192 quotient, out BigInteger128 remainder) {
             if (divisor.UInt64[1] == 0) {
-                return DivRem(in dividend, divisor.LowUInt64, out remainder);
+                DivRem(in dividend, divisor.LowUInt64, out quotient, out remainder);
+                return;
             }
-            return new BigInteger192(
-                DivRemGuess(in dividend, in divisor, out remainder)
-            );
+            DivRemGuess(in dividend, in divisor, out var quotientSmall, out remainder);
+            quotient = new BigInteger192(quotientSmall);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger192 DivRem(in BigInteger192 dividend, in BigInteger128 divisor, out BigInteger192 remainder) {
-            var dividendLZC = dividend.LeadingZeroCount();
-            if (dividendLZC >= 64) {
-                var res128 = BigInteger128.DivRem(in dividend.BiLow128, in divisor, out var remainderSmall);
+        public static void DivRem(in BigInteger192 dividend, in BigInteger128 divisor, out BigInteger192 quotient, out BigInteger192 remainder) {
+            if (dividend.HighUInt64 == 0) {
+                BigInteger128.DivRem(in dividend.BiLow128, in divisor, out var quotientSmall, out var remainderSmall);
                 remainder = new BigInteger192(remainderSmall);
-                return new BigInteger192(res128);
+                quotient = new BigInteger192(quotientSmall);
+                return;
             }
 
-            var res = DivRem(in dividend, in divisor, out BigInteger128 remainder128);
+            DivRem(in dividend, in divisor, out quotient, out BigInteger128 remainder128);
             remainder = new BigInteger192(remainder128);
-            return res;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger192 DivRem(in BigInteger192 dividend, ulong divisor, out BigInteger192 remainder) {
-            var res = DivRem(in dividend, divisor, out ulong remainder64);
+        public static void DivRem(in BigInteger192 dividend, ulong divisor, out BigInteger192 quotient, out BigInteger192 remainder) {
+            DivRem(in dividend, divisor, out quotient, out ulong remainder64);
             remainder = new BigInteger192(remainder64);
-            return res;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger192 DivRem(in BigInteger192 dividend, ulong divisor, out BigInteger128 remainder) {
-            var res = DivRem(in dividend, divisor, out ulong remainder64);
+        public static void DivRem(in BigInteger192 dividend, ulong divisor, out BigInteger192 quotient, out BigInteger128 remainder) {
+            DivRem(in dividend, divisor, out quotient, out ulong remainder64);
             remainder = new BigInteger128(remainder64);
-            return res;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger192 DivRem(in BigInteger192 dividend, uint divisor, out BigInteger192 remainder) {
-            var res = DivRem(in dividend, divisor, out uint remainder32);
+        public static void DivRem(in BigInteger192 dividend, uint divisor, out BigInteger192 quotient, out BigInteger192 remainder) {
+            DivRem(in dividend, divisor, out quotient, out uint remainder32);
             remainder = new BigInteger192(remainder32);
-            return res;
         }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger192 DivRem(in BigInteger192 dividend, uint divisor, out BigInteger128 remainder) {
-            var res = DivRem(in dividend, divisor, out uint remainder32);
+        public static void DivRem(in BigInteger192 dividend, uint divisor, out BigInteger192 quotient, out BigInteger128 remainder) {
+            DivRem(in dividend, divisor, out quotient, out uint remainder32);
             remainder = new BigInteger128(remainder32);
-            return res;
         }
 
-        public static BigInteger192 DivRem(in BigInteger192 dividend, ulong divisor, out ulong remainder) {
+        public static void DivRem(in BigInteger192 dividend, ulong divisor, out BigInteger192 quotient, out ulong remainder) {
             if (divisor <= uint.MaxValue) {
-                var res = DivRem(dividend, (uint)divisor, out uint remainder32);
+                DivRem(dividend, (uint)divisor, out quotient, out uint remainder32);
                 remainder = remainder32;
-                return res;
+                return;
             }
 
             if (System.Runtime.Intrinsics.X86.X86Base.X64.IsSupported) {
                 var (q2, r2) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[2], 0, divisor);
                 var (q1, r1) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[1], r2, divisor);
                 (var q0, remainder) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[0], r1, divisor);
-                return new BigInteger192(q0, q1, q2);
+                quotient = new BigInteger192(q0, q1, q2);
             } else {
-                var quotient = new BigInteger192();
+                quotient = new BigInteger192();
                 var rem = new UInt128();
                 for (var i = UINT64_SIZE - 1; i >= 0; i--) {
                     var partialDividend = (rem << 64) + dividend.UInt64[i];
@@ -94,12 +92,11 @@ namespace Ecc.Math {
                     rem = partialRemainder;
                 }
                 remainder = (ulong)rem;
-                return quotient;
             }
         }
 
-        public static BigInteger192 DivRem(in BigInteger192 dividend, uint divisor, out uint remainder) {
-            var quotient = new BigInteger192();
+        public static void DivRem(in BigInteger192 dividend, uint divisor, out BigInteger192 quotient, out uint remainder) {
+            quotient = new BigInteger192();
             var rem = 0ul;
             for (var i = UINT32_SIZE - 1; i >= 0; i--) {
                 var partialDividend = (rem << 32) + dividend.UInt32[i];
@@ -108,16 +105,15 @@ namespace Ecc.Math {
                 rem = partialRemainder;
             }
             remainder = (uint)rem;
-
-            return quotient;
         }
 
         public static BigInteger192 operator /(in BigInteger192 left, in BigInteger192 right) {
-            return DivRem(left, right, out var _);
+            DivRem(left, right, out var quotient, out var _);
+            return quotient;
         }
 
         public static BigInteger192 operator %(in BigInteger192 left, in BigInteger192 right) {
-            DivRem(left, right, out var remainder);
+            DivRem(left, right, out var _, out var remainder);
             return remainder;
         }
 

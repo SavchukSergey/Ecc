@@ -12,7 +12,7 @@ namespace Ecc.Tests.Math {
             var left = BigInteger128.ParseHexUnsigned(leftHex);
             var right = BigInteger128.ParseHexUnsigned(rightHex);
 
-            var res = BigInteger128.DivRem(left, right, out var remainder);
+            BigInteger128.DivRem(left, right, out var res, out var remainder);
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned());
             ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned());
 
@@ -23,7 +23,11 @@ namespace Ecc.Tests.Math {
 
         [Test]
         public void DivRem_128_64_BigQTest() {
-            var res = BigInteger128.DivRem(BigInteger128.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1"), 6ul, out ulong remainder);
+            BigInteger128.DivRem(
+                BigInteger128.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1"),
+                6ul,
+                out var res,
+                out ulong remainder);
             ClassicAssert.AreEqual("223d2bb3ad4647eb58fe9bbec7364eca", res.ToHexUnsigned());
             ClassicAssert.AreEqual(5, remainder);
         }
