@@ -33,5 +33,12 @@ namespace Ecc.Math {
         public static BigInteger128 operator >>(in BigInteger128 left, int right) {
             return new BigInteger128(left.UInt128 >> right);
         }
+
+        public readonly ulong ExtractHigh64(int skipCount) {
+            if (skipCount >= 128) {
+                return 0;
+            }
+            return (ulong)((UInt128 << skipCount) >> 64);
+        }
     }
 }

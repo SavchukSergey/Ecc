@@ -38,9 +38,9 @@ namespace Ecc.Math {
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        public static BigInteger512 MulLow(in BigInteger512 left, BigInteger128 right) {
+        public static BigInteger512 MulLow512(in BigInteger512 left, in BigInteger128 right) {
             var x0 = new BigInteger512(left.Low * right); //todo: 
-            var x1 = BigInteger256.MulLow(left.High, right);
+            var x1 = BigInteger256.MulLow256(left.High, right);
             x0.AssignAddHigh(x1);
             return x0;
         }
@@ -54,7 +54,7 @@ namespace Ecc.Math {
         /// <returns></returns>
         public static BigInteger512 MulLow(in BigInteger512 left, in BigInteger512 right) {
             var x0 = left.Low * right.Low;
-            x0.AssignAddHigh(BigInteger256.MulLow(left.Low, right.High) + BigInteger256.MulLow(left.High, right.Low));
+            x0.AssignAddHigh(BigInteger256.MulLow256(left.Low, right.High) + BigInteger256.MulLow256(left.High, right.Low));
 
             return x0;
         }

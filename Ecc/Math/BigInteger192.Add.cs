@@ -15,7 +15,15 @@ namespace Ecc.Math {
             return carry > 0;
         }
 
-       public static BigInteger192 operator +(in BigInteger192 left, in BigInteger192 right) {
+        public void AssignAddHigh(in BigInteger128 other) {
+            HighUInt128 += other.UInt128;
+        }
+
+        public void AssignAddHigh(ulong val) {
+            HighUInt64 += val;
+        }
+
+        public static BigInteger192 operator +(in BigInteger192 left, in BigInteger192 right) {
             var res = new BigInteger192(left);
             res.AssignAdd(right);
             return res;

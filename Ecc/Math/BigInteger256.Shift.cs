@@ -1,22 +1,24 @@
-using System;
 using System.Runtime.CompilerServices;
 
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AssignLeftShift8() {
-            High = (High << 8) + BiLow.HighByte;
-            BiLow.AssignLeftShift8();
+            HighUInt128 = (HighUInt128 << 8) + BiLow128.HighByte;
+            LowUInt128 <<= 8;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AssignLeftShift16() {
-            High = (High << 16) + BiLow.HighUInt16;
-            BiLow.AssignLeftShift16();
+            HighUInt128 = (HighUInt128 << 16) + BiLow128.HighUInt16;
+            LowUInt128 <<= 16;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AssignLeftShift32() {
-            High = (High << 32) + BiLow.HighUInt32;
-            BiLow.AssignLeftShift32();
+            HighUInt128 = (HighUInt128 << 32) + BiLow128.HighUInt32;
+            LowUInt128 <<= 32;
         }
 
         public void AssignLeftShift64() {
@@ -28,8 +30,8 @@ namespace Ecc.Math {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AssignLeftShift128() {
-            High = Low;
-            Low = UInt128.Zero;
+            HighUInt128 = LowUInt128;
+            LowUInt128 = 0;
         }
 
         public void AssignLeftShiftQuarter() {
@@ -39,16 +41,10 @@ namespace Ecc.Math {
             UInt64[0] = 0;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AssignLeftShiftHalf() {
-            High = Low;
-            Low = 0;
-        }
-
         public void AssignLeftShift(int count) {
             if (count >= 256) {
-                High = 0;
-                Low = 0;
+                HighUInt128 = 0;
+                LowUInt128 = 0;
                 return;
             }
             if (count >= 128) {
@@ -56,15 +52,15 @@ namespace Ecc.Math {
                 count -= 128;
             }
             if (count > 0) {
-                High = (High << count) | (Low >> (128 - count));
-                Low <<= count;
+                HighUInt128 = (HighUInt128 << count) | (LowUInt128 >> (128 - count));
+                LowUInt128 <<= count;
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AssignRightShiftHalf() {
-            Low = High;
-            High = 0;
+            LowUInt128 = HighUInt128;
+            HighUInt128 = 0;
         }
 
         public void AssignRightShiftQuarter() {
@@ -76,8 +72,8 @@ namespace Ecc.Math {
 
         public void AssignRightShift(int count) {
             if (count >= 256) {
-                High = 0;
-                Low = 0;
+                HighUInt128 = 0;
+                LowUInt128 = 0;
                 return;
             }
             if (count >= 128) {
@@ -85,8 +81,8 @@ namespace Ecc.Math {
                 count -= 128;
             }
             if (count > 0) {
-                Low = (Low >> count) | (High << (128 - count));
-                High >>= count;
+                LowUInt128 = (LowUInt128 >> count) | (HighUInt128 << (128 - count));
+                HighUInt128 >>= count;
             }
         }
 
@@ -107,7 +103,7 @@ namespace Ecc.Math {
                 return new BigInteger128();
             }
             if (skipCount >= 128) {
-                return BiLow << (skipCount - 128);
+                return BiLow128 << (skipCount - 128);
             }
 
             if (skipCount >= 64) {
@@ -126,7 +122,7 @@ namespace Ecc.Math {
             }
 
             if (skipCount == 0) {
-                return BiHigh;
+                return BiHigh128;
             }
 
             return new BigInteger128(
@@ -136,10 +132,20 @@ namespace Ecc.Math {
         }
 
         public readonly ulong ExtractHigh64(int skipCount) {
-            //todo:
-            var res = Clone();
-            res.AssignLeftShift(skipCount);
-            return res.HighUInt64;
+            if (skipCount >= 128) {
+                return BiLow128.ExtractHigh64(skipCount - 128);
+            }
+            if (skipCount >= 64) {
+                //todo:
+                var res = Clone();
+                res.AssignLeftShift(skipCount);
+                return res.HighUInt64;
+            }
+              if (skipCount == 0) {
+                return HighUInt64;
+            }
+
+            return (UInt64[3] << skipCount) | (UInt64[2] >> (64 - skipCount));
         }
     }
 }

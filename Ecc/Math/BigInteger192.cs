@@ -79,7 +79,7 @@ namespace Ecc.Math {
             HighUInt64 = other.HighUInt64;
         }
 
-       [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly byte GetByte(int index) {
             return Bytes[index];
         }
@@ -107,6 +107,13 @@ namespace Ecc.Math {
                 array[i] = bt;
             }
             return new BigInteger(array, isUnsigned: true, isBigEndian: false);
+        }
+
+        public readonly bool IsZero {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get {
+                return UInt64[0] == 0 && UInt64[1] == 0 && UInt64[2] == 0;
+            }
         }
 
         public static readonly BigInteger192 Zero = new();

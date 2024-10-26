@@ -1,8 +1,9 @@
 using System;
-namespace Ecc.Math {
-    public unsafe partial struct BigInteger256 {
 
-        public static BigInteger256 DivRemGuess(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
+namespace Ecc.Math {
+    public unsafe partial struct BigInteger192 {
+
+        public static BigInteger192 DivRemGuess(in BigInteger192 dividend, in BigInteger192 divisor, out BigInteger192 remainder) {
             var divizorLZC = divisor.LeadingZeroCount();
 
             if (divizorLZC >= BITS_SIZE - 32) {
@@ -14,16 +15,13 @@ namespace Ecc.Math {
             if (divizorLZC >= BITS_SIZE - 128) {
                 return DivRem(in dividend, in divisor.BiLow128, out remainder);
             }
-            if (divizorLZC >= BITS_SIZE - 192) {
-                return DivRem(in dividend, in divisor.BiLow192, out remainder);
-            }
 
-            return new BigInteger256(
+            return new BigInteger192(
                 DivRemGuessSingleShot(in dividend, in divisor, out remainder)
             );
         }
 
-        private static ulong DivRemGuessSingleShot(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
+        private static ulong DivRemGuessSingleShot(in BigInteger192 dividend, in BigInteger192 divisor, out BigInteger192 remainder) {
             // actual quotient is 64 bit wide
             var divizorLZC = divisor.LeadingZeroCount();
             remainder = dividend;
@@ -38,7 +36,7 @@ namespace Ecc.Math {
                 }
                 var q64 = q128.LowUInt64;
 
-                var delta = MulLow256(divisor, q64);
+                var delta = MulLow192(divisor, q64);
                 remainder.AssignSub(delta);
 
                 if (remainder >= divisor) {
@@ -62,7 +60,7 @@ namespace Ecc.Math {
             }
         }
 
-        public static BigInteger256 DivRemGuess(in BigInteger256 dividend, in BigInteger192 divisor, out BigInteger192 remainder) {
+        public static BigInteger192 DivRemGuess(in BigInteger192 dividend, in BigInteger128 divisor, out BigInteger128 remainder) {
             var divizorLZC = divisor.LeadingZeroCount();
 
             if (divizorLZC >= BITS_SIZE - 32) {
@@ -71,9 +69,6 @@ namespace Ecc.Math {
             if (divizorLZC >= BITS_SIZE - 64) {
                 return DivRem(in dividend, divisor.LowUInt64, out remainder);
             }
-            if (divizorLZC >= BITS_SIZE - 128) {
-                return DivRem(in dividend, in divisor.BiLow128, out remainder);
-            }
 
             var q128 = new BigInteger128(); // actual quotient is 128 bit wide
 
@@ -81,7 +76,7 @@ namespace Ecc.Math {
 
             var fullRemainder = dividend.Clone();
 
-            divizorLZC += 64; //pretend to be 256-bit wide
+            divizorLZC += 64; //pretend to be 192-bit wide
 
             while (true) {
                 var remainderLZC = fullRemainder.LeadingZeroCount();
@@ -107,7 +102,7 @@ namespace Ecc.Math {
                     correction = 0;
                 }
 
-                var delta = BigInteger192.MulLow256(divisor, guess);
+                var delta = BigInteger128.MulLow192(divisor, guess);
 
                 if (correction < 0) {
                     delta.AssignLeftShift(-correction);
@@ -117,73 +112,8 @@ namespace Ecc.Math {
                 q128.AssignAdd(guess);
             }
 
-            remainder = fullRemainder.BiLow192;
-            return new BigInteger256(q128);
-        }
-
-        public static BigInteger256 DivRemGuess(in BigInteger256 dividend, in BigInteger128 divisor, out BigInteger128 remainder) {
-            var divisorLZC = divisor.LeadingZeroCount();
-            if (divisorLZC >= BITS_SIZE - 32) {
-                var res = DivRem(dividend, divisor.LowUInt32, out uint remainder32);
-                remainder = new BigInteger128(remainder32);
-                return res;
-            }
-            if (divisorLZC >= BITS_SIZE - 64) {
-                var res = DivRem(dividend, divisor.LowUInt64, out ulong remainder64);
-                remainder = new BigInteger128(remainder64);
-                return res;
-            }
-
-            var q = new BigInteger256();
-
-            var divisorN = divisor.Clone();
-            divisorN.AssignLeftShift(divisorLZC);
-            divisorLZC += BITS_SIZE - BigInteger128.BITS_SIZE;
-
-            var partialDivisor = divisorN.HighUInt64 + 1;
-
-            var fullRemainder = dividend;
-
-            while (true) {
-                var remainderLZC = fullRemainder.LeadingZeroCount();
-                if (remainderLZC == divisorLZC) {
-                    if (fullRemainder.BiLow128 >= divisor) {
-                        fullRemainder.BiLow128.AssignSub(divisor);
-                        q.AssignIncrement();
-                    }
-                    break;
-                }
-                if (remainderLZC > divisorLZC) {
-                    break;
-                }
-
-                // pessimistic guess
-                var guess = partialDivisor != 0 ?
-                    fullRemainder.ExtractHigh128(remainderLZC) / partialDivisor :
-                    new BigInteger128(fullRemainder.ExtractHigh64(remainderLZC));
-                var correction = remainderLZC - divisorLZC + 64;
-                if (correction > 0) {
-                    //trim fractional part
-                    guess >>= correction;
-                    correction = 0;
-                }
-
-                // max quotient - 128 bits,
-                // 64 bit <= divisor < 128 bits
-                // guess - 128 bits
-                var delta = divisor * guess;
-
-                var guessQ = new BigInteger256(guess);
-                if (correction < 0) {
-                    delta.AssignLeftShift(-correction);
-                    guessQ.AssignLeftShift(-correction);
-                }
-                fullRemainder.AssignSub(delta);
-                q.AssignAdd(guessQ);
-            }
-
             remainder = fullRemainder.BiLow128;
-            return q;
+            return new BigInteger192(q128);
         }
 
     }

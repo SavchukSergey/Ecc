@@ -35,9 +35,9 @@ namespace Ecc.Math {
             UInt64[7] = b7;
         }
 
-        public BigInteger512(BigInteger128 value) {
-            Low.BiLow = value;
-            Low.BiHigh = new BigInteger128();
+        public BigInteger512(in BigInteger128 value) {
+            Low.BiLow128 = value;
+            Low.BiHigh128 = new BigInteger128();
             High = new BigInteger256();
         }
 
@@ -62,12 +62,12 @@ namespace Ecc.Math {
         }
 
         public BigInteger512(UInt128 l0) {
-            Low.Low = l0;
-            Low.High = 0;
+            Low.LowUInt128 = l0;
+            Low.HighUInt128 = 0;
             High = new BigInteger256(0);
         }
 
-        public BigInteger512(BigInteger192 low) {
+        public BigInteger512(in BigInteger192 low) {
             BiLow192 = low;
             BiHigh384 = BigInteger384.Zero;
         }

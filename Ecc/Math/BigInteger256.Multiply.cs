@@ -4,23 +4,19 @@ namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
         public static BigInteger384 operator *(in BigInteger256 left, ulong right) {
-            var ah = left.BiHigh;
-            var al = left.BiLow;
-            var bl = right;
-
-            var x0 = new BigInteger384(al * bl);
-            var x1 = new BigInteger384(0, ah * bl);
+            var x0 = new BigInteger384(left.BiLow128 * right);
+            var x1 = new BigInteger384(0, left.BiHigh128 * right);
 
             return x0 + x1;
         }
 
         public static BigInteger512 operator *(in BigInteger256 left, in BigInteger256 right) {
-            var x0 = new BigInteger512(left.BiLow * right.BiLow);
-            var x1 = new BigInteger512(left.BiLow * right.BiHigh) + new BigInteger512(left.BiHigh * right.BiLow);
+            var res = new BigInteger512(left.BiLow128 * right.BiLow128);
+            var x1 = new BigInteger512(left.BiLow128 * right.BiHigh128) + new BigInteger512(left.BiHigh128 * right.BiLow128);
             x1.AssignLeftShiftQuarter();
-            var x2 = new BigInteger512(Zero, left.BiHigh * right.BiHigh);
+            res.AssignAddHigh(left.BiHigh128 * right.BiHigh128);
 
-            return x0 + x1 + x2;
+            return res + x1;
         }
 
         public static BigInteger384 operator *(in BigInteger256 left, in BigInteger128 right) {
@@ -36,9 +32,9 @@ namespace Ecc.Math {
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        public static BigInteger256 MulLow(in BigInteger256 left, ulong right) {
+        public static BigInteger256 MulLow256(in BigInteger256 left, ulong right) {
             var x0 = new BigInteger256(left.BiLow128 * right);
-            var x1 = BigInteger128.MulLow(left.BiHigh128, right);
+            var x1 = BigInteger128.MulLow128(left.BiHigh128, right);
             x0.AssignAddHigh(x1);
             return x0;
         }
@@ -49,9 +45,9 @@ namespace Ecc.Math {
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        public static BigInteger256 MulLow(in BigInteger256 left, UInt128 right) {
-            var x0 = left.BiLow * right;
-            var x1 = BigInteger128.MulLow(left.BiHigh, right);
+        public static BigInteger256 MulLow256(in BigInteger256 left, UInt128 right) {
+            var x0 = left.BiLow128 * right;
+            var x1 = BigInteger128.MulLow128(left.BiHigh128, right);
             x0.AssignAddHigh(x1);
             return x0;
         }
@@ -62,9 +58,9 @@ namespace Ecc.Math {
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        public static BigInteger256 MulLow(in BigInteger256 left, BigInteger128 right) {
-            var x0 = left.BiLow * right;
-            var x1 = BigInteger128.MulLow(left.BiHigh, right);
+        public static BigInteger256 MulLow256(in BigInteger256 left, in BigInteger128 right) {
+            var x0 = left.BiLow128 * right;
+            var x1 = BigInteger128.MulLow128(left.BiHigh128, right);
             x0.AssignAddHigh(x1);
             return x0;
         }
@@ -75,10 +71,10 @@ namespace Ecc.Math {
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        public static BigInteger256 MulLow(in BigInteger256 left, in BigInteger256 right) {
-            var x0 = left.BiLow * right.BiLow;
-            var x1 = BigInteger128.MulLow(left.BiLow, right.BiHigh);
-            var x2 = BigInteger128.MulLow(left.BiHigh, right.BiLow);
+        public static BigInteger256 MulLow256(in BigInteger256 left, in BigInteger256 right) {
+            var x0 = left.BiLow128 * right.BiLow128;
+            var x1 = BigInteger128.MulLow128(in left.BiLow128, in right.BiHigh128);
+            var x2 = BigInteger128.MulLow128(in left.BiHigh128, in right.BiLow128);
 
             x0.AssignAddHigh(x1);
             x0.AssignAddHigh(x2);
@@ -97,15 +93,15 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger512 Square() {
-            var low = new BigInteger512(BiLow.Square());
+            var res = new BigInteger512(BiLow128.Square());
 
-            var mid = new BigInteger512(BiLow * BiHigh);
+            var mid = new BigInteger512(BiLow128 * BiHigh128);
             mid.AssignLeftShiftQuarter();
             mid.AssignDouble();
 
-            var high = new BigInteger512(Zero, BiHigh.Square());
+            res.AssignAddHigh(BiHigh128.Square());
 
-            return low + mid + high;
+            return res + mid;
         }
 
     }

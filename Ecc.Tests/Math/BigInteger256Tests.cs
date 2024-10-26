@@ -48,13 +48,13 @@ namespace Ecc.Tests.Math {
         [Test]
         public void LowTest() {
             var bi = BigInteger256.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
-            ClassicAssert.AreEqual("3cfcc1a04fafa2ddb6ca6869bf272715", bi.Low.ToString("x"));
+            ClassicAssert.AreEqual("3cfcc1a04fafa2ddb6ca6869bf272715", bi.LowUInt128.ToString("x"));
         }
 
         [Test]
         public void HighTest() {
             var bi = BigInteger256.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
-            ClassicAssert.AreEqual("7846e3be8abd2e089ed812475be9b51c", bi.High.ToString("x"));
+            ClassicAssert.AreEqual("7846e3be8abd2e089ed812475be9b51c", bi.HighUInt128.ToString("x"));
         }
 
 
@@ -268,7 +268,7 @@ namespace Ecc.Tests.Math {
         }
 
         [Test]
-        public void MulLowPerformanceTest() {
+        public void MulLow256PerformanceTest() {
             var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
 
@@ -276,13 +276,13 @@ namespace Ecc.Tests.Math {
 
             //warm up
             for (var i = 0; i < cnt; i++) {
-                BigInteger256.MulLow(left, right);
+                BigInteger256.MulLow256(left, right);
             }
 
             var sw = new Stopwatch();
             sw.Start();
             for (var i = 0; i < cnt; i++) {
-                BigInteger256.MulLow(left, right);
+                BigInteger256.MulLow256(left, right);
             }
             sw.Stop();
 
@@ -456,11 +456,11 @@ namespace Ecc.Tests.Math {
             }
             sw4.Stop();
 
-            var format = (Stopwatch sw) => {
+            string format(Stopwatch sw) {
                 var val = ((double)cnt / sw.Elapsed.TotalSeconds);
                 val = System.Math.Round(val);
                 return val.ToString().PadLeft(10, ' ');
-            };
+            }
 
             Console.WriteLine($"Ecc div bits per second:      {format(swBits)}");
             Console.WriteLine($"Ecc div full bits per second: {format(swBitsFull)}");
@@ -470,9 +470,9 @@ namespace Ecc.Tests.Math {
         }
 
         [Test]
-        public void AssignLeftShiftHalfTest() {
+        public void AssignLeftShift128Test() {
             var bi = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
-            bi.AssignLeftShiftHalf();
+            bi.AssignLeftShift128();
             ClassicAssert.AreEqual("d435f8cf054b0f5902237e8cb9ee5fe500000000000000000000000000000000", bi.ToHexUnsigned());
         }
 

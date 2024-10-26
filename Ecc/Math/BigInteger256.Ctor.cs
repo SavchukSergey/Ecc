@@ -6,20 +6,21 @@ namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
         public BigInteger256() {
-            BiLow.Clear();
-            BiHigh.Clear();
+            LowUInt128 = 0;
+            HighUInt128 = 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BigInteger256(uint value) {
-            Low = value;
-            BiHigh.Clear();
+            LowUInt128 = value;
+            HighUInt128 = 0;
         }
 
         public BigInteger256(uint b0, uint b1) {
             UInt32[0] = b0;
             UInt32[1] = b1;
             UInt64[1] = 0;
-            BiHigh.Clear();
+            HighUInt128 = 0;
         }
 
         public BigInteger256(uint b0, uint b1, uint b2, uint b3) {
@@ -27,7 +28,7 @@ namespace Ecc.Math {
             UInt32[1] = b1;
             UInt32[2] = b2;
             UInt32[3] = b3;
-            BiHigh.Clear();
+            HighUInt128 = 0;
         }
 
         public BigInteger256(ulong b0, ulong b1, ulong b2, ulong b3) {
@@ -51,40 +52,57 @@ namespace Ecc.Math {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BigInteger256(ulong value) {
-            UInt64[0] = value;
-            UInt64[1] = 0;
-            BiHigh.Clear();
+            LowUInt128 = value;
+            HighUInt128 = 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BigInteger256(UInt128 low) {
-            Low = low;
-            BiHigh.Clear();
+            LowUInt128 = low;
+            HighUInt128 = 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BigInteger256(in BigInteger128 low) {
-            BiLow = low;
-            BiHigh.Clear();
+            BiLow128 = low;
+            HighUInt128 = 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BigInteger256(in BigInteger192 low) {
             BiLow192 = low;
             HighUInt64 = 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BigInteger256(UInt128 low, UInt128 high) {
-            Low = low;
-            High = high;
+            LowUInt128 = low;
+            HighUInt128 = high;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BigInteger256(in BigInteger256 other) {
-            Low = other.Low;
-            High = other.High;
+            BiLow128 = other.BiLow128;
+            BiHigh128 = other.BiHigh128;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BigInteger256(in BigInteger128 low, in BigInteger128 high) {
-            BiLow = low;
-            BiHigh = high;
+            BiLow128 = low;
+            BiHigh128 = high;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BigInteger256(ulong low, in BigInteger192 high) {
+            LowUInt64 = low;
+            BiHigh192 = high;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BigInteger256(ulong low, in BigInteger128 high) {
+            LowUInt64 = low;
+            BiMiddle128 = high;
+            HighUInt64 = 0;
         }
 
         public BigInteger256(in BigInteger value) {

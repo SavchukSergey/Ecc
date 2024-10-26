@@ -78,5 +78,23 @@ namespace Ecc.Math {
             return Compare(left, right) != 0;
         }
 
+        public static bool Equals(in BigInteger384 left, in BigInteger384 right) {
+            return Compare(left, right) == 0;
+        }
+
+        public readonly override bool Equals(object? other) {
+            if (other is BigInteger384 val) {
+                return Equals(this, val);
+            }
+            return false;
+        }
+
+        public override int GetHashCode() {
+            uint res = 0;
+            for (var i = 1; i < UINT32_SIZE; i++) {
+                res ^= UInt32[i];
+            }
+            return (int)res;
+        }
     }
 }

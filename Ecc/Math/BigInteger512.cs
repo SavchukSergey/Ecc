@@ -69,7 +69,6 @@ namespace Ecc.Math {
             return Bytes[index];
         }
 
-        [Obsolete]
         public readonly BigInteger ToNative() {
             Span<byte> array = stackalloc byte[BYTES_SIZE];
             for (var i = 0; i < BYTES_SIZE; i++) {

@@ -29,40 +29,30 @@ namespace Ecc.Math {
         internal fixed ulong UInt16[UINT16_SIZE];
 
         [FieldOffset(0)]
-        public UInt128 Low;
-
-        [FieldOffset(16)]
-        public UInt128 High;
-
-        [FieldOffset(0)]
         internal uint LowUInt32;
-
         [FieldOffset(0)]
         internal ulong LowUInt64;
+        [FieldOffset(0)]
+        public UInt128 LowUInt128;
 
+        [FieldOffset(28)]
+        internal uint HighUInt32;
         [FieldOffset(24)]
         internal ulong HighUInt64;
-
         [FieldOffset(16)]
-        internal UInt128 HighUInt128;
-
-        [FieldOffset(0)]
-        internal UInt128 LowUInt128;
-
-        [FieldOffset(0)]
-        public BigInteger128 BiLow; //todo: rename to BiLow128
-
-        [FieldOffset(16)]
-        public BigInteger128 BiHigh;
+        public UInt128 HighUInt128;
 
         [FieldOffset(0)]
         public BigInteger128 BiLow128;
-
+        [FieldOffset(8)]
+        public BigInteger128 BiMiddle128;
         [FieldOffset(16)]
         public BigInteger128 BiHigh128;
 
         [FieldOffset(0)]
         public BigInteger192 BiLow192;
+        [FieldOffset(8)]
+        public BigInteger192 BiHigh192;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly byte GetByte(int index) {
@@ -85,14 +75,16 @@ namespace Ecc.Math {
         }
 
         public readonly bool IsZero {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get {
-                return Low == 0 && High == 0;
+                return LowUInt128 == 0 && HighUInt128 == 0;
             }
         }
 
         public readonly bool IsOne {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get {
-                return Low == 1 && High == 0;
+                return LowUInt128 == 1 && HighUInt128 == 0;
             }
         }
 
@@ -103,13 +95,15 @@ namespace Ecc.Math {
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly BigInteger256 Clone() {
-            return new BigInteger256(Low, High);
+            return new BigInteger256(LowUInt128, HighUInt128);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear() {
-            Low = 0;
-            High = 0;
+            LowUInt128 = 0;
+            HighUInt128 = 0;
         }
 
         public void AssignModAdd(in BigInteger256 other, in BigInteger256 modulus) {
@@ -149,32 +143,28 @@ namespace Ecc.Math {
             return carry > 0;
         }
 
-        public void AssignAddHigh(BigInteger128 other) {
-            High += other.UInt128;
-        }
-
         public void AssignNegate() {
-            var borrow = Low != 0;
-            Low = -Low;
-            High = -High;
+            var borrow = LowUInt128 != 0;
+            LowUInt128 = -LowUInt128;
+            HighUInt128 = -HighUInt128;
             if (borrow) {
-                BiHigh.AssignDecrement();
+                HighUInt128--;
             }
         }
 
         public void AssignDecrement() {
-            if (BiLow.IsZero) {
-                BiHigh.AssignDecrement();
+            if (LowUInt128 == 0) {
+                HighUInt128--;
             }
-            BiLow.AssignDecrement();
+            LowUInt128--;
         }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AssignIncrement() {
-            BiLow.AssignIncrement();
-            if (BiLow.IsZero) {
-                BiHigh.AssignIncrement();
+            LowUInt128++;
+            if (LowUInt128 == 0) {
+                HighUInt128++;
             }
         }
 
@@ -189,14 +179,14 @@ namespace Ecc.Math {
 
         public readonly BigInteger256 ModSub(in BigInteger256 other, in BigInteger256 modulus) {
             var res = this;
-            var borrow = res.Low < other.Low;
-            res.Low -= other.Low;
+            var borrow = res.LowUInt128 < other.LowUInt128;
+            res.LowUInt128 -= other.LowUInt128;
             if (borrow) {
-                borrow = res.High == 0;
-                res.High--;
+                borrow = res.HighUInt128 == 0;
+                res.HighUInt128--;
             }
-            borrow |= res.High < other.High;
-            res.High -= other.High;
+            borrow |= res.HighUInt128 < other.HighUInt128;
+            res.HighUInt128 -= other.HighUInt128;
             if (borrow) {
                 res.AssignAdd(modulus);
             }
@@ -315,14 +305,6 @@ namespace Ecc.Math {
                 var val = Bytes[i];
                 buffer[ptr++] = val;
             }
-        }
-
-        public override int GetHashCode() {
-            uint res = 0;
-            for (var i = 1; i < UINT32_SIZE; i++) {
-                res ^= UInt32[i];
-            }
-            return (int)res;
         }
 
         public static BigInteger256 Gcd(in BigInteger256 a, in BigInteger256 b) {

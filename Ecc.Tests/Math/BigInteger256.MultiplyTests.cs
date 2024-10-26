@@ -36,15 +36,14 @@ namespace Ecc.Tests.Math {
         }
 
         [Test]
-        public void MulLowTest() {
+        public void MulLow256Test() {
             var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
 
-            var result = BigInteger256.MulLow(left, right);
+            var result = BigInteger256.MulLow256(left, right);
 
             Assert.That(result.ToHexUnsigned(), Is.EqualTo("c8e132223ea0efaaacc367e707f312184698acd764db94aa6dc65ba8080cc0c9"));
         }
-
 
         [Test]
         public void ModMulTest() {

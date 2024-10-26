@@ -16,6 +16,8 @@ namespace Ecc.Math {
 
         [FieldOffset(0)]
         internal fixed ulong UInt64[UINT64_SIZE];
+        [FieldOffset(0)]
+        internal fixed uint UInt32[UINT32_SIZE];
 
         [FieldOffset(0)]
         public UInt128 LowUInt128;

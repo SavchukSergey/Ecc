@@ -62,7 +62,7 @@ namespace Ecc.Math {
                     correction = 0;
                 }
 
-                var delta = MulLow(divisor, guess);
+                var delta = MulLow512(divisor, guess);
 
                 var guessQ = new BigInteger256(guess);
                 if (correction < 0) {

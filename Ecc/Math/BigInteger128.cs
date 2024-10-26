@@ -35,6 +35,9 @@ namespace Ecc.Math {
         public UInt128 UInt128;
 
         [FieldOffset(0)]
+        internal uint LowUInt32;
+
+        [FieldOffset(0)]
         internal ulong LowUInt64;
 
         [FieldOffset(8)]
@@ -104,26 +107,6 @@ namespace Ecc.Math {
                 val += 64;
             }
             return val;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AssignSub(in BigInteger128 other) {
-            UInt128 -= other.UInt128;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AssignAdd(in BigInteger128 other) {
-            UInt128 += other.UInt128;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AssignAdd(in UInt128 other) {
-            UInt128 += other;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AssignAddHigh(ulong other) {
-            High += other;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

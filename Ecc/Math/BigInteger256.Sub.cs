@@ -5,11 +5,11 @@ namespace Ecc.Math {
 
         public static BigInteger256 operator -(in BigInteger256 left, in BigInteger256 right) {
             var res = left;
-            var borrow = left.Low < right.Low;
-            res.Low -= right.Low;
-            res.High -= right.High;
+            var borrow = left.LowUInt128 < right.LowUInt128;
+            res.LowUInt128 -= right.LowUInt128;
+            res.HighUInt128 -= right.HighUInt128;
             if (borrow) {
-                res.High--;
+                res.HighUInt128--;
             }
             return res;
         }
@@ -28,11 +28,11 @@ namespace Ecc.Math {
         }
 
         public void AssignSub(in BigInteger256 other) {
-            var borrow = Low < other.Low;
-            Low -= other.Low;
-            High -= other.High;
+            var borrow = LowUInt128 < other.LowUInt128;
+            LowUInt128 -= other.LowUInt128;
+            HighUInt128 -= other.HighUInt128;
             if (borrow) {
-                High--;
+                HighUInt128--;
             }
         }
 
@@ -46,10 +46,10 @@ namespace Ecc.Math {
         }
 
         public void AssignSub(in BigInteger128 other) {
-            var borrow = BiLow < other;
-            Low -= other.Low;
+            var borrow = LowUInt128 < other.UInt128;
+            LowUInt128 -= other.UInt128;
             if (borrow) {
-                High--;
+                HighUInt128--;
             }
         }
 

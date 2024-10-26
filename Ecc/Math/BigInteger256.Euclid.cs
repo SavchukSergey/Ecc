@@ -13,8 +13,8 @@ namespace Ecc.Math {
             var cnt = false;
             while (!r1.IsZero) {
                 var quotient = DivRem(in r0, in r1, out var r2);
-                var s2 = s0 + MulLow(in quotient, in s1);
-                var t2 = t0 + MulLow(in quotient, in t1);
+                var s2 = s0 + MulLow256(in quotient, in s1);
+                var t2 = t0 + MulLow256(in quotient, in t1);
 
                 s0 = s1;
                 s1 = s2;
@@ -48,7 +48,7 @@ namespace Ecc.Math {
             var cnt = false;
             while (!r1.IsZero) {
                 var quotient = DivRem(in r0, in r1, out var r2);
-                var s2 = s0 + MulLow(in quotient, in s1);
+                var s2 = s0 + MulLow256(in quotient, in s1);
 
                 s0 = s1;
                 s1 = s2;

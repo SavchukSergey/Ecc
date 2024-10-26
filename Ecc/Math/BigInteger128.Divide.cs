@@ -41,6 +41,7 @@ namespace Ecc.Math {
             return remainder;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger128 operator /(in BigInteger128 left, ulong right) {
             return DivRem(in left, right, out ulong _);
         }

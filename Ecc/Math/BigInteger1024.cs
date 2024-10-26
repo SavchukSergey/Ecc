@@ -15,6 +15,9 @@ namespace Ecc.Math {
         public const int HEX_SIZE = BYTES_SIZE * 2;
 
         [FieldOffset(0)]
+        internal fixed byte Bytes[BYTES_SIZE];
+
+        [FieldOffset(0)]
         internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
 
         [FieldOffset(0)]
@@ -55,16 +58,11 @@ namespace Ecc.Math {
             }
         }
 
-        [Obsolete]
         public readonly BigInteger ToNative() {
-            var array = new byte[BYTES_SIZE];
-            var ai = 0;
-            for (var i = 0; i < ITEMS_SIZE; i++) {
-                var bt = Data[i];
-                array[ai++] = (byte)(bt >> 0);
-                array[ai++] = (byte)(bt >> 8);
-                array[ai++] = (byte)(bt >> 16);
-                array[ai++] = (byte)(bt >> 24);
+            Span<byte> array = stackalloc byte[BYTES_SIZE];
+            for (var i = 0; i < BYTES_SIZE; i++) {
+                var bt = Bytes[i];
+                array[i] = bt;
             }
             return new BigInteger(array, isUnsigned: true, isBigEndian: false);
         }

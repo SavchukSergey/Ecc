@@ -1,4 +1,3 @@
-using System.Text;
 using System;
 
 namespace Ecc.Math {
@@ -51,23 +50,18 @@ namespace Ecc.Math {
         }
 
         public readonly string ToHexFixedPoint() {
-            var sbLength = 49;
-            var sb = new StringBuilder(sbLength, sbLength);
-            var dataLength = BYTES_SIZE;
+            Span<char> chars = stackalloc char[HEX_SIZE + 1];
+            var ptr = 0;
             const string hex = "0123456789abcdef";
-            for (var i = 31; i >= 0; i--) {
-                if (i == 15) {
-                    sb.Append('.');
+            for (var i = BYTES_SIZE - 1; i >= 0; i--) {
+                if (i == BYTES_SIZE / 2 - 1) {
+                    chars[ptr++] = '.';
                 }
-                if (i < dataLength) {
-                    var ch = GetByte(i);
-                    sb.Append(hex[ch >> 4]);
-                    sb.Append(hex[ch & 0x0f]);
-                } else {
-                    sb.Append("00");
-                }
+                var ch = GetByte(i);
+                chars[ptr++] = hex[ch >> 4];
+                chars[ptr++] = hex[ch & 0x0f];
             }
-            return sb.ToString();
+            return new string(chars);
         }
 
     }

@@ -4,9 +4,26 @@ using System.Runtime.CompilerServices;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-            return DivRemGuess(in dividend, in divisor, out remainder);
+            var divizorLZC = divisor.LeadingZeroCount();
+
+            if (divizorLZC >= BITS_SIZE - 32) {
+                return DivRem(in dividend, divisor.LowUInt32, out remainder);
+            }
+            if (divizorLZC >= BITS_SIZE - 64) {
+                return DivRem(in dividend, divisor.LowUInt64, out remainder);
+            }
+            if (divizorLZC >= BITS_SIZE - 128) {
+                return DivRem(in dividend, in divisor.BiLow128, out remainder);
+            }
+            if (divizorLZC >= BITS_SIZE - 192) {
+                return DivRem(in dividend, in divisor.BiLow192, out remainder);
+            }
+
+            //todo: check is dividendLZC - divisorLZC < 64 then call SingleShot
+            return new BigInteger256(
+                DivRemGuessSingleShot(in dividend, in divisor, out remainder)
+            );
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -21,6 +38,12 @@ namespace Ecc.Math {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger256 DivRem(in BigInteger256 dividend, in BigInteger192 divisor, out BigInteger256 remainder) {
+            if (dividend.HighUInt64 == 0) {
+                var res192 = BigInteger192.DivRem(in dividend.BiLow192, in divisor, out var remainderSmall);
+                remainder = new BigInteger256(remainderSmall);
+                return new BigInteger256(res192);
+            }
+
             var res = DivRem(in dividend, in divisor, out BigInteger192 remainder192);
             remainder = new BigInteger256(remainder192);
             return res;

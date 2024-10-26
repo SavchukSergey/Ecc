@@ -38,7 +38,7 @@ namespace Ecc.Math {
             t.AssignRightShift(BITS_SIZE - log2);
             var q = t.Low.High;
 
-            remainder = dividend - MulLow(q, divisor);
+            remainder = dividend - MulLow256(q, divisor);
             if (remainder >= divisor) {
                 remainder.AssignSub(divisor);
                 q.AssignDecrement();
@@ -52,7 +52,7 @@ namespace Ecc.Math {
         }
 
         private static BigInteger512 EstimateReciprocal(in BigInteger256 divisor256) {
-            var tableIndex = divisor256.High >> 64;
+            var tableIndex = divisor256.HighUInt128 >> 64;
             var max = new UInt128(0x8000_0000_0000_0000ul, 0); // 2 ^ 127
             var value = max / tableIndex;
 

@@ -4,15 +4,14 @@ using System.Runtime.CompilerServices;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger128 {
 
-        public static BigInteger192 Mul(BigInteger128 left, ulong right) {
-            var ah = left.High;
-            var al = left.Low;
+        public static BigInteger192 Mul(in BigInteger128 left, ulong right) {
+            var ah = left.HighUInt64;
+            var al = left.LowUInt64;
             var bl = right;
 
-            var x0 = new BigInteger192(Mul(al, bl));
-            var x1 = new BigInteger192(0, Mul(ah, bl));
-
-            return x0 + x1;
+            var res = new BigInteger192(Mul(al, bl));
+            res.AssignAddHigh(Mul(ah, bl));
+            return res;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -20,7 +19,7 @@ namespace Ecc.Math {
             return Mul(left, right);
         }
 
-        public static BigInteger256 Mul(BigInteger128 left, BigInteger128 right) {
+        public static BigInteger256 Mul(in BigInteger128 left, in BigInteger128 right) {
             if (left.IsZero || right.IsZero) {
                 return new BigInteger256(0);
             }
@@ -43,22 +42,31 @@ namespace Ecc.Math {
             return x0 + x1 + x2;
         }
 
-        public static BigInteger128 MulLow(BigInteger128 left, BigInteger128 right) {
+        public static BigInteger192 MulLow192(in BigInteger128 left, in BigInteger128 right) {
+            var ah = left.High;
+            var al = left.Low;
+            var bh = right.High;
+            var bl = right.Low;
+
+            var res = new BigInteger192(Mul(al, bl));
+            res.AssignAddHigh(Mul(al, bh) + Mul(ah, bl));//do not care about overflow
+            return res;
+        }
+
+        public static BigInteger128 MulLow128(in BigInteger128 left, in BigInteger128 right) {
             var ah = left.HighUInt64;
             var al = left.LowUInt64;
             var bh = right.HighUInt64;
             var bl = right.LowUInt64;
 
-            var x0 = Mul(al, bl);
-            var x1 = MulLow(al, bh);
-            var x2 = MulLow(ah, bl);
-            x0.AssignAddHigh(x1);
-            x0.AssignAddHigh(x2);
+            var res = Mul(al, bl);
+            res.AssignAddHigh(al * bh);
+            res.AssignAddHigh(ah * bl);
 
-            return x0;
+            return res;
         }
 
-        public static BigInteger128 MulLow(BigInteger128 left, UInt128 right) {
+        public static BigInteger128 MulLow128(in BigInteger128 left, UInt128 right) {
             var ah = left.HighUInt64;
             var al = left.LowUInt64;
             var bh = (ulong)(right >> 64);
@@ -73,11 +81,17 @@ namespace Ecc.Math {
             return x0;
         }
 
+        public static BigInteger128 MulLow128(in BigInteger128 left, ulong right) {
+            var res = Mul(left.LowUInt64, right);
+            res.AssignAddHigh(left.HighUInt64 * right);
+            return res;
+        }
+
         public static BigInteger128 Mul(ulong left, ulong right) {
             if (System.Runtime.Intrinsics.X86.Bmi2.IsSupported) {
-                ulong high = 0;
-                var low = System.Runtime.Intrinsics.X86.Bmi2.X64.MultiplyNoFlags(left, right, &high);
-                return new BigInteger128(high, low);
+                ulong low = 0;
+                var high = System.Runtime.Intrinsics.X86.Bmi2.X64.MultiplyNoFlags(left, right, &low);
+                return new BigInteger128(low, high);
             } else {
                 var ah = left >> 32;
                 var al = (ulong)(uint)left;

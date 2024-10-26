@@ -36,7 +36,7 @@ namespace Ecc.Math {
         public readonly BigInteger256 Reduce(in BigInteger512 x) {
             //todo: precalc beta * modulus?
             var s1 = x.Low;                 // s1 = x % r
-            var s2 = BigInteger256.MulLow(s1, _beta);
+            var s2 = BigInteger256.MulLow256(s1, _beta);
             var s3 = Modulus * s2;
             // x + s3 requires extra one bit precission
             var carry = s3.AssignAdd(x);
@@ -50,7 +50,7 @@ namespace Ecc.Math {
         public readonly BigInteger256 Reduce(in BigInteger256 x) {
             //todo: precalc beta * modulus?
             var s1 = x;                 // s1 = x % r
-            var s2 = BigInteger256.MulLow(s1, _beta);
+            var s2 = BigInteger256.MulLow256(s1, _beta);
             var s3 = Modulus * s2;
 
             // x + s3 requires extra one bit precission
