@@ -29,6 +29,9 @@ namespace Ecc.Math {
         public BigInteger192 BiLow192;
 
         [FieldOffset(0)]
+        public BigInteger256 BiLow256;
+
+        [FieldOffset(0)]
         public BigInteger384 BiLow384;
 
         [FieldOffset(24)]

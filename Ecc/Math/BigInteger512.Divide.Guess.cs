@@ -4,28 +4,28 @@ using System.Runtime.CompilerServices;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger512 {
 
-        public static BigInteger512 DivRemGuess(in BigInteger512 dividend, in BigInteger512 divisor, out BigInteger512 remainder) {
+        public static void DivRemGuess(in BigInteger512 dividend, in BigInteger512 divisor, out BigInteger512 quotient, out BigInteger512 remainder) {
             var divShiftBits = divisor.LeadingZeroCount();
 
             if (divShiftBits >= BITS_SIZE - 32) {
-                var res = DivRem(in dividend, divisor.UInt32[0], out uint remainder32);
+                quotient = DivRem(in dividend, divisor.UInt32[0], out uint remainder32);
                 remainder = new BigInteger512(remainder32);
-                return res;
+                return;
             }
             if (divShiftBits >= BITS_SIZE - 64) {
-                var res = DivRem(in dividend, divisor.UInt64[0], out ulong remainder64);
+                quotient = DivRem(in dividend, divisor.UInt64[0], out ulong remainder64);
                 remainder = new BigInteger512(remainder64);
-                return res;
+                return;
             }
             if (divShiftBits >= BITS_SIZE - 128) {
-                var res = DivRemGuess(in dividend, in divisor.Low128, out BigInteger128 remainder128);
+                quotient = DivRemGuess(in dividend, in divisor.Low128, out BigInteger128 remainder128);
                 remainder = new BigInteger512(remainder128);
-                return res;
+                return;
             }
             if (divShiftBits >= BITS_SIZE - 256) {
-                var res = DivRemGuess(in dividend, divisor.Low, out BigInteger256 remainder256);
+                quotient = DivRemGuess(in dividend, divisor.Low, out BigInteger256 remainder256);
                 remainder = new BigInteger512(remainder256);
-                return res;
+                return;
             }
 
             var q256 = new BigInteger256();
@@ -73,14 +73,19 @@ namespace Ecc.Math {
                 q256.AssignAdd(guessQ);
             }
 
-            return new BigInteger512(q256);
+            quotient = new BigInteger512(q256); //todo: limit quotient to 256-bit
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger512 DivRemGuess(in BigInteger512 dividend, in BigInteger256 divisor, out BigInteger512 remainder) {
-            var res = DivRemGuess(in dividend, in divisor, out BigInteger256 remainder256);
-            remainder = new BigInteger512(remainder256);
-            return res;
+            DivRemGuess(in dividend, in divisor, out var quotient, out remainder);
+            return quotient;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void DivRemGuess(in BigInteger512 dividend, in BigInteger256 divisor, out BigInteger512 quotient, out BigInteger512 remainder) {
+            remainder = new BigInteger512();
+            quotient = DivRemGuess(in dividend, in divisor, out remainder.BiLow256);
         }
 
         public static BigInteger512 DivRemGuess(in BigInteger512 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {

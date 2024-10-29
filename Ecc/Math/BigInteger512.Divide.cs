@@ -4,18 +4,26 @@ using System.Runtime.CompilerServices;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger512 {
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger256 operator %(in BigInteger512 left, in BigInteger256 right) {
-            DivRem(left, right, out BigInteger256 remainder);
+            DivRem(left, right, out var _, out BigInteger256 remainder);
             return remainder;
         }
 
-        public static BigInteger512 DivRem(in BigInteger512 dividend, in BigInteger256 divisor, out BigInteger256 remainder) {
-            return DivRemGuess(dividend, divisor, out remainder);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void DivRem(in BigInteger512 dividend, in BigInteger256 divisor, out BigInteger512 quotient, out BigInteger256 remainder) {
+            quotient = DivRemGuess(in dividend, in divisor, out remainder);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger512 DivRem(in BigInteger512 dividend, in BigInteger512 divisor, out BigInteger512 remainder) {
-            return DivRemGuess(dividend, divisor, out remainder);
+            DivRem(in dividend, in divisor, out var quotient, out remainder);
+            return quotient;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void DivRem(in BigInteger512 dividend, in BigInteger512 divisor, out BigInteger512 quotient, out BigInteger512 remainder) {
+            DivRemGuess(in dividend, in divisor, out quotient, out remainder);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
