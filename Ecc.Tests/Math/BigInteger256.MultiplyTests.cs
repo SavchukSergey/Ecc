@@ -77,6 +77,12 @@ namespace Ecc.Tests.Math {
             var result = value.ModPow(exponent, modulus);
 
             Assert.That(result.ToHexUnsigned(), Is.EqualTo(expectedHex));
+
+            var valueN = value.ToNative();
+            var expN = exponent.ToNative();
+            var modN = modulus.ToNative();
+            var resultN = BigInteger.ModPow(valueN, expN, modN);
+            Assert.That(new BigInteger256(resultN).ToHexUnsigned(), Is.EqualTo(expectedHex));
         }
 
         [TestCaseSource(nameof(ModPowCases))]
