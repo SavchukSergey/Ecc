@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
@@ -24,6 +25,14 @@ namespace Ecc.Math {
             var x1 = new BigInteger384(0ul, left.BiHigh128 * right);
 
             return x0 + x1;
+        }
+
+        public static void Mul(in BigInteger256 left, in BigInteger256 right, out BigInteger512 result) {
+            result = new BigInteger512(left.BiLow128 * right.BiLow128);
+            var x1 = new BigInteger512(left.BiLow128 * right.BiHigh128) + new BigInteger512(left.BiHigh128 * right.BiLow128);
+            x1.AssignLeftShiftQuarter();
+            result.AssignAdd(x1);
+            result.High.AssignAdd(left.BiHigh128 * right.BiHigh128);
         }
 
         /// <summary>
@@ -71,24 +80,29 @@ namespace Ecc.Math {
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger256 MulLow256(in BigInteger256 left, in BigInteger256 right) {
-            var x0 = left.BiLow128 * right.BiLow128;
+            MulLow256(in left, in right, out var result);
+            return result;
+        }
+
+        public static void MulLow256(in BigInteger256 left, in BigInteger256 right, out BigInteger256 result) {
+            result = left.BiLow128 * right.BiLow128;
             var x1 = BigInteger128.MulLow128(in left.BiLow128, in right.BiHigh128);
             var x2 = BigInteger128.MulLow128(in left.BiHigh128, in right.BiLow128);
 
-            x0.AssignAddHigh(x1);
-            x0.AssignAddHigh(x2);
-
-            return x0;
+            result.BiHigh128.AssignAdd(x1);
+            result.BiHigh128.AssignAdd(x2);
         }
 
+
         /// <summary>
-        /// Multiplies two 256-bit numbers and returns first 256 bits of result
+        /// Multiplies two 256-bit numbers and returns highest 256 bits of result
         /// </summary>
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        public static BigInteger256 MulHigh(in BigInteger256 left, in BigInteger256 right) {
+        public static BigInteger256 MulHigh256(in BigInteger256 left, in BigInteger256 right) {
             return (left * right).High;
         }
 

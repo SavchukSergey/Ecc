@@ -161,11 +161,15 @@ namespace Ecc.Math {
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AssignIncrement() {
+        public bool AssignIncrement() {
             LowUInt128++;
             if (LowUInt128 == 0) {
                 HighUInt128++;
+                if (HighUInt128 == 0) {
+                    return true;
+                }
             }
+            return false;
         }
 
         public readonly BigInteger256 ModAdd(in BigInteger256 other, in BigInteger256 modulus) {
@@ -201,8 +205,8 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger256 ModMul(in BigInteger256 other, in BigInteger256 modulus) {
-            return (this * other) % modulus;
-            //return ModMulBit(other, modulus);
+            Mul(in this, in other, out var temp);
+            return temp % modulus;
         }
 
         public readonly BigInteger256 ModMulBit(in BigInteger256 other, in BigInteger256 modulus) {
@@ -231,24 +235,18 @@ namespace Ecc.Math {
         }
 
         public readonly BigInteger256 ModPow(in BigInteger256 exp, in MontgomeryContext256 ctx) {
-            var acc = ctx.One;
-            var walker = ctx.ToMontgomery(this);
-            for (var bit = 0; bit < BITS_SIZE; bit++) {
-                if (exp.GetBit(bit)) {
-                    acc = ctx.ModMul(acc, walker);
-                }
-                walker = ctx.ModSquare(walker);
-            }
-            return ctx.Reduce(acc);
+            var mont = ctx.ToMontgomery(this);
+            ctx.ModPow(in mont, in exp, out var newMont);
+            return ctx.Reduce(in newMont);
         }
 
         public readonly BigInteger256 ModSquare(in BigInteger256 modulus) {
-            //todo: square can use just 3 multiplications instead of regular four
-            return ModMul(this, modulus);
+            var square = Square();
+            return square % modulus;
         }
 
         public readonly BigInteger256 ModCube(in BigInteger256 modulus) {
-            return ModMul(ModMul(this, modulus), modulus);
+            return ModMul(ModSquare(modulus), modulus);
         }
 
         public readonly BigInteger256 ModDouble(in BigInteger256 modulus) {

@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace Ecc.Math {
     public readonly struct MontgomeryContext256 {
 
@@ -23,59 +25,67 @@ namespace Ecc.Math {
             return x.ModMul(_rm, Modulus);
         }
 
-        public readonly BigInteger256 ModMul(in BigInteger256 u, in BigInteger256 v) {
-            var x = u * v;
-            return Reduce(x);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly BigInteger256 ModPow(in BigInteger256 value, in BigInteger256 exp) {
+            ModPow(in value, in exp, out var result);
+            return result;
         }
 
+        public readonly void ModPow(in BigInteger256 value, in BigInteger256 exp, out BigInteger256 result) {
+            result = One;
+            var walker = value;
+            for (var bit = 0; bit < BigInteger256.BITS_SIZE; bit++) {
+                if (exp.GetBit(bit)) {
+                    result = ModMul(result, walker);
+                }
+                walker = ModSquare(walker);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly BigInteger256 ModMul(in BigInteger256 u, in BigInteger256 v) {
+            ModMul(in u, in v, out var result);
+            return result;
+        }
+
+        public readonly void ModMul(in BigInteger256 u, in BigInteger256 v, out BigInteger256 result) {
+            BigInteger256.Mul(in u, in v, out var temp);
+            result = Reduce(in temp);
+            return;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly BigInteger256 ModSquare(in BigInteger256 u) {
-            var x = u.Square();
-            return Reduce(x);
+            ModSquare(in u, out var result);
+            return result;
+        }
+
+        public readonly void ModSquare(in BigInteger256 u, out BigInteger256 result) {
+            result = Reduce(u.Square());
         }
 
         public readonly BigInteger256 Reduce(in BigInteger512 x) {
-            //todo: precalc beta * modulus?
-            var s1 = x.Low;                 // s1 = x % r
-            var s2 = BigInteger256.MulLow256(s1, _beta);
-            var s3 = Modulus * s2;
+            BigInteger256.MulLow256(in x.Low, _beta, out var s2);
+            BigInteger256.Mul(in Modulus, in s2, out var s3);
             // x + s3 requires extra one bit precission
             var carry = s3.AssignAdd(x);
-            var t = s3.High;
-            if (carry || t >= Modulus) {
-                t -= Modulus;
+            if (carry || s3.High >= Modulus) {
+                s3.High.AssignSub(in Modulus);
             }
-            return new BigInteger256(t);
+            return s3.High;
         }
 
         public readonly BigInteger256 Reduce(in BigInteger256 x) {
-            //todo: precalc beta * modulus?
-            var s1 = x;                 // s1 = x % r
-            var s2 = BigInteger256.MulLow256(s1, _beta);
-            var s3 = Modulus * s2;
+            BigInteger256.MulLow256(x, _beta, out var s2);
+            BigInteger256.Mul(in Modulus, in s2, out var s3);
 
             // x + s3 requires extra one bit precission
             var carry = s3.AssignAdd(x);
-            var t = s3.High;
-            if (carry || t >= Modulus) {
-                t -= Modulus;
+            if (carry || s3.High >= Modulus) {
+                s3.High.AssignSub(in Modulus);
             }
-            return new BigInteger256(t);
+            return s3.High;
         }
-
-        /*
-         *
-        private readonly BigInteger Reduce(in BigInteger x) {
-            var s1 = x % _r;              // s1 = x % r
-            var s2 = (s1 * _beta) % _r;
-            var s3 = Modulus * s2;
-            var t = (x + s3) / _r;
-            if (t >= Modulus) {
-                t -= Modulus;
-            }
-            return t;
-        }
-
-        */
 
         public bool IsValid {
             get {

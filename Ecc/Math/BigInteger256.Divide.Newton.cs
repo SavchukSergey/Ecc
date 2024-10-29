@@ -19,7 +19,7 @@ namespace Ecc.Math {
 
             //todo: limit loop
             for (var i = 0; i < 5; i++) {
-                var dyLow256 = MulHigh(y, divisor256);// multiply fractional parts and use only first 256 bits of result fraction
+                var dyLow256 = MulHigh256(y, divisor256);// multiply fractional parts and use only first 256 bits of result fraction
 
                 var dx2 = dyLow256;
                 dx2.AssignAdd(divisor256); //sum is >= 1.0
@@ -28,7 +28,7 @@ namespace Ecc.Math {
                 }
                 dx2.AssignNegate();
 
-                var ysub256 = MulHigh(y, dx2);  //y and subL are below 1 and use only first 256 bits of result fraction
+                var ysub256 = MulHigh256(y, dx2);  //y and subL are below 1 and use only first 256 bits of result fraction
                 y.AssignAdd(dx2);
                 y.AssignAdd(ysub256);
             }

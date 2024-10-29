@@ -7,14 +7,15 @@ using NUnit.Framework;
 namespace Ecc.Tests.Math {
     public partial class BigInteger256Tests {
 
-        [Test]
-        public void MulTest() {
-            var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
-            var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+        [TestCase("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5", "0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715", "0005875c7f8293233d1997ee85937f86e630f16bbc37b05cd468c24fa0981e89c8e132223ea0efaaacc367e707f312184698acd764db94aa6dc65ba8080cc0c9")]
+        [TestCase("FA06E3B927A10AA9C448C6F1A36F66DDE5455690C05EC4C7ED0282C394612022", "FA06E3B927A10AA9C448C6F1A36F66DDE5455690C05EC4C7ED0282C394612022", "f43174f518a64691f92049fe2c52134a477ef2391d1bc8b20252899128d9b8bfba6f413f14d2a179d3f952ca73f3674fe8f213306fc163fd7b21edccadcc8484")]
+        public void MulTest(string leftHex, string rightHex, string expectedHex) {
+            var left = BigInteger256.ParseHexUnsigned(leftHex);
+            var right = BigInteger256.ParseHexUnsigned(rightHex);
 
             var result = left * right;
 
-            Assert.That(result.ToHexUnsigned(), Is.EqualTo("0005875c7f8293233d1997ee85937f86e630f16bbc37b05cd468c24fa0981e89c8e132223ea0efaaacc367e707f312184698acd764db94aa6dc65ba8080cc0c9"));
+            AssertExt.AssertEquals(expectedHex, result);
         }
 
         [Test]
@@ -26,11 +27,11 @@ namespace Ecc.Tests.Math {
         }
 
         [Test]
-        public void MulHighTest() {
+        public void MulHigh256Test() {
             var left = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var right = BigInteger256.ParseHexUnsigned("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
 
-            var result = BigInteger256.MulHigh(left, right);
+            var result = BigInteger256.MulHigh256(left, right);
 
             Assert.That(result.ToHexUnsigned(), Is.EqualTo("0005875c7f8293233d1997ee85937f86e630f16bbc37b05cd468c24fa0981e89"));
         }

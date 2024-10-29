@@ -16,13 +16,9 @@ namespace Ecc.Math {
         }
 
         public bool AssignAdd(in BigInteger256 other) {
-            bool carry = false;
-            for (var i = 0; i < UINT32_SIZE; i++) {
-                ulong acc = UInt32[i];
-                acc += i < BigInteger256.UINT32_SIZE ? other.UInt32[i] : 0; //todo: remove i < Itemssize
-                acc += carry ? 1ul : 0ul;
-                UInt32[i] = (uint)acc;
-                carry = acc > uint.MaxValue;
+            var carry = Low.AssignAdd(other);
+            if (carry) {
+                return High.AssignIncrement();
             }
             return carry;
         }
