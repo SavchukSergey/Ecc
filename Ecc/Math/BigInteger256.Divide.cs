@@ -16,7 +16,8 @@ namespace Ecc.Math {
             var partialDivisor = divisor.ExtractHigh64(divisorLZC) + 1;
             if (partialDivisor != 0) {
                 var remainderLZC = remainder.LeadingZeroCount();
-                var q128 = remainder.ExtractHigh128(remainderLZC) / partialDivisor;
+                var rem128 = remainder.ExtractHigh128(remainderLZC);
+                BigInteger128.DivRem(in rem128, partialDivisor, out var q128, out var _);
                 var correction = remainderLZC - divisorLZC + 64;
                 if (correction > 0) {
                     //trim fractional part
@@ -24,7 +25,7 @@ namespace Ecc.Math {
                 }
                 var q64 = q128.LowUInt64;
 
-                var delta = MulLow256(divisor, q64);
+                MulLow256(divisor, q64, out var delta);
                 remainder.AssignSub(delta);
 
                 if (remainder >= divisor) {

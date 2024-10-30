@@ -79,60 +79,74 @@ namespace Ecc.Math {
             return (int)res;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator <(in BigInteger256 left, in BigInteger256 right) {
             return Compare(left, right) < 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >(in BigInteger256 left, in BigInteger256 right) {
             return Compare(left, right) > 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator <=(in BigInteger256 left, in BigInteger256 right) {
             return Compare(left, right) <= 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >=(in BigInteger256 left, in BigInteger256 right) {
-            return Compare(left, right) >= 0;
+            return Compare(in left, in right) >= 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(in BigInteger256 left, in BigInteger256 right) {
             return Compare(left, right) == 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(in BigInteger256 left, in BigInteger256 right) {
             return Compare(left, right) != 0;
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator <(in BigInteger256 left, in BigInteger192 right) {
             return Compare(left, right) < 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >(in BigInteger256 left, in BigInteger192 right) {
             return Compare(left, right) > 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator <=(in BigInteger256 left, in BigInteger192 right) {
             return Compare(left, right) <= 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >=(in BigInteger256 left, in BigInteger192 right) {
             return Compare(left, right) >= 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(in BigInteger256 left, in BigInteger192 right) {
             return Compare(left, right) == 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(in BigInteger256 left, in BigInteger192 right) {
             return Compare(left, right) != 0;
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >=(in BigInteger256 left, ulong right) {
             return Compare(left, right) >= 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator <=(in BigInteger256 left, ulong right) {
             return Compare(left, right) <= 0;
         }

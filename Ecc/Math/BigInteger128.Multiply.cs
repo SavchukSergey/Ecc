@@ -14,6 +14,15 @@ namespace Ecc.Math {
             return res;
         }
 
+        public static void Mul(in BigInteger128 left, ulong right, out BigInteger192 result) {
+            var ah = left.HighUInt64;
+            var al = left.LowUInt64;
+            var bl = right;
+
+            result = new BigInteger192(Mul(al, bl));
+            result.AssignAddHigh(Mul(ah, bl));
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger192 operator *(in BigInteger128 left, ulong right) {
             return Mul(left, right);
@@ -87,6 +96,12 @@ namespace Ecc.Math {
             return res;
         }
 
+        public static void MulLow128(in BigInteger128 left, ulong right, out BigInteger128 result) {
+            result = Mul(left.LowUInt64, right);
+            result.AssignAddHigh(left.HighUInt64 * right);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger128 Mul(ulong left, ulong right) {
             if (System.Runtime.Intrinsics.X86.Bmi2.IsSupported) {
                 ulong low = 0;
