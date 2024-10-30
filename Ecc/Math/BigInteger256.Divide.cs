@@ -1,121 +1,62 @@
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Ecc.Math {
     public unsafe partial struct BigInteger256 {
 
         public static void DivRem(in BigInteger256 dividend, in BigInteger256 divisor, out BigInteger256 quotient, out BigInteger256 remainder) {
-            if (divisor.UInt64[3] == 0) {
-                if (divisor.UInt64[2] == 0) {
-                    if (divisor.UInt64[1] == 0) {
-                        DivRem(in dividend, divisor.LowUInt64, out quotient, out remainder);
-                        return;
-                    } else {
-                        DivRem(in dividend, in divisor.BiLow128, out quotient, out remainder);
-                        return;
+            if (divisor.HighUInt64 == 0) {
+                remainder = new BigInteger256();
+                DivRem(in dividend, in divisor.BiLow192, out quotient, out remainder.BiLow192);
+                return;
+            }
+
+            // actual quotient is 64 bit wide
+            var divisorLZC = divisor.LeadingZeroCount();
+            remainder = dividend;
+            var partialDivisor = divisor.ExtractHigh64(divisorLZC) + 1;
+            if (partialDivisor != 0) {
+                var remainderLZC = remainder.LeadingZeroCount();
+                var q128 = remainder.ExtractHigh128(remainderLZC) / partialDivisor;
+                var correction = remainderLZC - divisorLZC + 64;
+                if (correction > 0) {
+                    //trim fractional part
+                    q128 >>= correction;
+                }
+                var q64 = q128.LowUInt64;
+
+                var delta = MulLow256(divisor, q64);
+                remainder.AssignSub(delta);
+
+                if (remainder >= divisor) {
+                    remainder.AssignSub(divisor);
+                    q64++;
+
+                    if (remainder >= divisor) {
+                        remainder.AssignSub(divisor);
+                        q64++;
                     }
-                } else {
-                    DivRem(in dividend, in divisor.BiLow192, out quotient, out remainder);
-                    return;
                 }
-            }
-
-            //todo: check is dividendLZC - divisorLZC < 64 then call SingleShot
-            DivRemGuessSingleShot(in dividend, in divisor, out var quotientSmall, out remainder);
-            quotient = new BigInteger256(quotientSmall);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger256 dividend, in BigInteger192 divisor, out BigInteger256 quotient, out BigInteger192 remainder) {
-            if (divisor.UInt64[2] == 0) {
-                if (divisor.UInt64[1] == 0) {
-                    DivRem(in dividend, divisor.LowUInt64, out quotient, out remainder);
-                    return;
-                } else {
-                    DivRem(in dividend, in divisor.BiLow128, out quotient, out remainder);
-                    return;
-                }
-            }
-
-            DivRemGuess(in dividend, in divisor, out var quotientSmall, out remainder);
-            quotient = new BigInteger256(quotientSmall);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger256 dividend, in BigInteger128 divisor, out BigInteger256 quotient, out BigInteger128 remainder) {
-            if (divisor.UInt64[1] == 0) {
-                DivRem(in dividend, divisor.LowUInt64, out quotient, out remainder);
-                return;
-            }
-
-            DivRemGuess(in dividend, in divisor, out var quotientSmall, out remainder);
-            quotient = new BigInteger256(quotientSmall);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger256 dividend, in BigInteger192 divisor, out BigInteger256 quotient, out BigInteger256 remainder) {
-            remainder = new BigInteger256();
-            if (dividend.HighUInt64 == 0) {
-                quotient = new BigInteger256();
-                BigInteger192.DivRem(in dividend.BiLow192, in divisor, out quotient.BiLow192, out remainder.BiLow192);
-                return;
+                quotient = new BigInteger256(q64);
             } else {
-                DivRem(in dividend, in divisor, out quotient, out remainder.BiLow192);
+                //this can happen only if divisor starts with 64 ones, quotient will be either 0 or 1
+                if (remainder >= divisor) {
+                    remainder.AssignSub(divisor);
+                    quotient = new BigInteger256(1);
+                } else {
+                    quotient = new BigInteger256(0);
+                }
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger256 dividend, in BigInteger128 divisor, out BigInteger256 quotient, out BigInteger256 remainder) {
-            remainder = new BigInteger256();
-            DivRem(in dividend, in divisor, out quotient, out remainder.BiLow128);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger256 dividend, in BigInteger128 divisor, out BigInteger256 quotient, out BigInteger192 remainder) {
-            remainder = new BigInteger192();
-            DivRem(in dividend, divisor, out quotient, out remainder.BiLow128);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger256 dividend, ulong divisor, out BigInteger256 quotient, out BigInteger256 remainder) {
-            remainder = new BigInteger256();
-            DivRem(in dividend, divisor, out quotient, out remainder.LowUInt64);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger256 dividend, ulong divisor, out BigInteger256 quotient, out BigInteger192 remainder) {
-            remainder = new BigInteger192();
-            DivRem(in dividend, divisor, out quotient, out remainder.LowUInt64);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger256 dividend, ulong divisor, out BigInteger256 quotient, out BigInteger128 remainder) {
-            remainder = new BigInteger128();
-            DivRem(in dividend, divisor, out quotient, out remainder.LowUInt64);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger256 dividend, uint divisor, out BigInteger256 quotient, out BigInteger256 remainder) {
-            remainder = new BigInteger256();
-            DivRem(in dividend, divisor, out quotient, out remainder.LowUInt32);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger256 dividend, uint divisor, out BigInteger256 quotient, out BigInteger192 remainder) {
-            remainder = new BigInteger192();
-            DivRem(in dividend, divisor, out quotient, out remainder.LowUInt32);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger256 dividend, uint divisor, out BigInteger256 quotient, out BigInteger128 remainder) {
-            remainder = new BigInteger128();
-            DivRem(in dividend, divisor, out quotient, out remainder.LowUInt32);
         }
 
         public static void DivRem(in BigInteger256 dividend, ulong divisor, out BigInteger256 quotient, out ulong remainder) {
             if (divisor <= uint.MaxValue) {
                 DivRem(dividend, (uint)divisor, out quotient, out uint remainder32);
                 remainder = remainder32;
+                return;
+            }
+            if (dividend.BiHigh128.IsZero) {
+                quotient = new BigInteger256();
+                BigInteger128.DivRem(in dividend.BiLow128, divisor, out quotient.BiLow128, out remainder);
                 return;
             }
 
@@ -140,6 +81,10 @@ namespace Ecc.Math {
 
         public static void DivRem(in BigInteger256 dividend, uint divisor, out BigInteger256 quotient, out uint remainder) {
             quotient = new BigInteger256();
+            if (dividend.BiHigh128.IsZero) {
+                BigInteger128.DivRem(in dividend.BiLow128, divisor, out quotient.BiLow128, out remainder);
+                return;
+            }
             var rem = 0ul;
             for (var i = UINT32_SIZE - 1; i >= 0; i--) {
                 var partialDividend = (rem << 32) + dividend.UInt32[i];
@@ -159,5 +104,6 @@ namespace Ecc.Math {
             DivRem(left, right, out var _, out var remainder);
             return remainder;
         }
+
     }
 }

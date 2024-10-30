@@ -12,7 +12,7 @@ namespace Ecc.Tests {
     public class ECCurveTests {
 
         [Test]
-        public void PeformanceTest() {
+        public void PeformanceNativeBigIntegerTest() {
             var curve = ECCurve.Secp256k1;
             var count = 500;
             var watch = new Stopwatch();
@@ -28,8 +28,36 @@ namespace Ecc.Tests {
             var memEnd = GC.GetAllocatedBytesForCurrentThread();
             var kps = (double)count / watch.Elapsed.TotalSeconds;
             var bpk = (double)(memEnd - memStart) / (double)count;
+            Console.WriteLine("Curve with native BigInteger performance:");
             Console.WriteLine($"keys per second: {kps}");
             Console.WriteLine($"bytes per key  : {bpk}");
+            Console.WriteLine("------------------------");
+        }
+
+        [Test]
+        public void PeformanceNativeCurveTest() {
+            var curve = System.Security.Cryptography.ECCurve.NamedCurves.nistP256;
+            var count = 500;
+            var watch = new Stopwatch();
+
+            using var warmUp = ECDsa.Create(curve); // warm up
+            warmUp.ExportParameters(false);
+
+            var memStart = GC.GetAllocatedBytesForCurrentThread();
+            watch.Start();
+            for (var i = 0; i < count; i++) {
+                using var keyPair = ECDsa.Create(curve);
+                var pubKey = keyPair.ExportParameters(false);
+                ClassicAssert.NotNull(pubKey.Q);
+            }
+            watch.Stop();
+            var memEnd = GC.GetAllocatedBytesForCurrentThread();
+            var kps = (double)count / watch.Elapsed.TotalSeconds;
+            var bpk = (double)(memEnd - memStart) / (double)count;
+            Console.WriteLine("native curve performance:");
+            Console.WriteLine($"keys per second: {kps}");
+            Console.WriteLine($"bytes per key  : {bpk}");
+            Console.WriteLine("------------------------");
         }
 
         [Test]

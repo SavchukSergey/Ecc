@@ -48,8 +48,10 @@ namespace Ecc.Tests {
             var memEnd = GC.GetAllocatedBytesForCurrentThread();
             var kps = (double)count / watch.Elapsed.TotalSeconds;
             var bpk = (double)(memEnd - memStart) / (double)count;
-            Console.WriteLine($"ec256: keys per second: {kps}");
-            Console.WriteLine($"ec256: bytes per key  : {bpk}");
+            Console.WriteLine($"ec256 performance:");
+            Console.WriteLine($"keys per second: {kps}");
+            Console.WriteLine($"bytes per key  : {bpk}");
+            Console.WriteLine("------------------------");
         }
 
         [Test]

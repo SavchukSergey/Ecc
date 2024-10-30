@@ -6,38 +6,20 @@ namespace Ecc.Math {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger256 operator %(in BigInteger512 left, in BigInteger256 right) {
-            DivRem(left, right, out var _, out BigInteger256 remainder);
+            DivRem(in left, in right, out var _, out BigInteger256 remainder);
             return remainder;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger512 dividend, in BigInteger256 divisor, out BigInteger512 quotient, out BigInteger256 remainder) {
-            quotient = DivRemGuess(in dividend, in divisor, out remainder);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger512 DivRem(in BigInteger512 dividend, in BigInteger512 divisor, out BigInteger512 remainder) {
-            DivRem(in dividend, in divisor, out var quotient, out remainder);
-            return quotient;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger512 dividend, in BigInteger512 divisor, out BigInteger512 quotient, out BigInteger512 remainder) {
-            DivRemGuess(in dividend, in divisor, out quotient, out remainder);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger512 DivRem(in BigInteger512 dividend, ulong divisor, out BigInteger512 remainder) {
-            var res = DivRem(in dividend, divisor, out ulong remainder64);
-            remainder = new BigInteger512(remainder64);
-            return res;
-        }
-
-        public static BigInteger512 DivRem(in BigInteger512 dividend, ulong divisor, out ulong remainder) {
+        public static void DivRem(in BigInteger512 dividend, ulong divisor, out BigInteger512 quotient, out ulong remainder) {
             if (divisor <= uint.MaxValue) {
-                var res = DivRem(dividend, (uint)divisor, out uint remainder32);
+                DivRem(dividend, (uint)divisor, out quotient, out uint remainder32);
                 remainder = remainder32;
-                return res;
+                return;
+            }
+            if (dividend.BiHigh256.IsZero) {
+                quotient = new BigInteger512();
+                BigInteger256.DivRem(in dividend.BiLow256, divisor, out quotient.BiLow256, out remainder);
+                return;
             }
             if (System.Runtime.Intrinsics.X86.X86Base.X64.IsSupported) {
                 var (q7, r7) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[7], 0, divisor);
@@ -48,9 +30,9 @@ namespace Ecc.Math {
                 var (q2, r2) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[2], r3, divisor);
                 var (q1, r1) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[1], r2, divisor);
                 (var q0, remainder) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[0], r1, divisor);
-                return new BigInteger512(q0, q1, q2, q3, q4, q5, q6, q7);
+                quotient = new BigInteger512(q0, q1, q2, q3, q4, q5, q6, q7);
             } else {
-                var quotient = new BigInteger512();
+                quotient = new BigInteger512();
                 var rem = new UInt128();
                 for (var i = UINT64_SIZE - 1; i >= 0; i--) {
                     var partialDividend = (rem << 64) + dividend.UInt64[i];
@@ -60,20 +42,15 @@ namespace Ecc.Math {
                 }
 
                 remainder = (ulong)rem;
-
-                return quotient;
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BigInteger512 DivRem(in BigInteger512 dividend, uint divisor, out BigInteger512 remainder) {
-            var res = DivRem(in dividend, divisor, out uint remainder32);
-            remainder = new BigInteger512(remainder32);
-            return res;
-        }
-
-        public static BigInteger512 DivRem(in BigInteger512 dividend, uint divisor, out uint remainder) {
-            var quotient = new BigInteger512();
+        public static void DivRem(in BigInteger512 dividend, uint divisor, out BigInteger512 quotient, out uint remainder) {
+            quotient = new BigInteger512();
+            if (dividend.BiHigh256.IsZero) {
+                BigInteger256.DivRem(in dividend.BiLow256, divisor, out quotient.BiLow256, out remainder);
+                return;
+            }
             var rem = 0ul;
             for (var i = UINT32_SIZE - 1; i >= 0; i--) {
                 var partialDividend = (rem << 32) + dividend.UInt32[i];
@@ -82,8 +59,6 @@ namespace Ecc.Math {
                 rem = partialRemainder;
             }
             remainder = (uint)rem;
-
-            return quotient;
         }
     }
 }

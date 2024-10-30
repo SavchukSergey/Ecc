@@ -25,10 +25,17 @@ namespace Ecc.Math {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DivRem(in BigInteger128 dividend, ulong divisor, out BigInteger128 quotient, out BigInteger128 remainder) {
-            var (q, r) = UInt128.DivRem(dividend.UInt128, divisor);
-            remainder = new BigInteger128(r);
-            quotient = new BigInteger128(q);
+        public static void DivRem(in BigInteger128 dividend, uint divisor, out BigInteger128 quotient, out uint remainder) {
+            if (System.Runtime.Intrinsics.X86.X86Base.X64.IsSupported) {
+                var (q1, r1) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.HighUInt64, 0, (ulong)divisor);
+                var (q0, r0) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.LowUInt64, r1, divisor);
+                quotient = new BigInteger128(q0, q1);
+                remainder = (uint)r0;
+            } else {
+                var (q, r) = UInt128.DivRem(dividend.UInt128, divisor);
+                remainder = (uint)r;
+                quotient = new BigInteger128(q);
+            }
         }
 
         public static BigInteger128 operator /(in BigInteger128 left, in BigInteger128 right) {

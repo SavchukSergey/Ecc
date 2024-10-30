@@ -49,6 +49,11 @@ namespace Ecc.Math {
         [FieldOffset(56)]
         internal ulong HighUInt64;
 
+        [FieldOffset(0)]
+        public uint LowUInt32;
+
+        [FieldOffset(0)]
+        public ulong LowUInt64;
 
         [FieldOffset(0)]
         internal UInt128 UInt128_0;
@@ -67,6 +72,9 @@ namespace Ecc.Math {
 
         [FieldOffset(48)]
         internal BigInteger128 BiHigh128;
+
+        [FieldOffset(32)]
+        internal BigInteger256 BiHigh256;
 
         public readonly byte GetByte(int index) {
             return Bytes[index];

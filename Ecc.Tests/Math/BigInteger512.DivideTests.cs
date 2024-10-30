@@ -18,22 +18,24 @@ namespace Ecc.Tests.Math {
         }
 
         [TestCaseSource(nameof(DivideCases512_256))]
-        public void DivRemGuess256Test(string leftHex, string rightHex, string qHex, string remHex) {
+        public void DivRem256Test(string leftHex, string rightHex, string qHex, string remHex) {
             var left = BigInteger512.ParseHexUnsigned(leftHex);
             var right = BigInteger512.ParseHexUnsigned(rightHex);
 
-            var res = BigInteger512.DivRemGuess(left, right.Low, out BigInteger512 remainder);
+            var remainder = new BigInteger512();
+            var res = BigInteger512.DivRem(left, right.BiLow256, out remainder.BiLow256);
 
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned(), "quotient");
             ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned(), "remainder");
         }
 
         [TestCaseSource(nameof(DivideCases512_128))]
-        public void DivRemGuess128Test(string leftHex, string rightHex, string qHex, string remHex) {
+        public void DivRem128Test(string leftHex, string rightHex, string qHex, string remHex) {
             var left = BigInteger512.ParseHexUnsigned(leftHex);
             var right = BigInteger512.ParseHexUnsigned(rightHex);
 
-            var res = BigInteger512.DivRemGuess(left, right.Low.BiLow128, out BigInteger512 remainder);
+            var remainder = new BigInteger512();
+            var res = BigInteger512.DivRem(left, right.Low.BiLow128, out remainder.BiLow128);
 
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned(), "quotient");
             ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned(), "remainder");
