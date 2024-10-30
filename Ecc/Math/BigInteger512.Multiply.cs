@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Ecc.Math {
     public unsafe partial struct BigInteger512 {
@@ -38,13 +39,18 @@ namespace Ecc.Math {
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BigInteger512 MulLow512(in BigInteger512 left, in BigInteger128 right) {
-            var x0 = new BigInteger512(left.Low * right); //todo: 
-            var x1 = BigInteger256.MulLow256(left.High, right);
-            x0.AssignAddHigh(x1);
-            return x0;
+            MulLow512(in left, in right, out var result);
+            return result;
         }
 
+        public static void MulLow512(in BigInteger512 left, in BigInteger128 right, out BigInteger512 result) {
+            result = new BigInteger512();
+            BigInteger256.Mul(in left.BiLow256, right, out result.BiLow384);
+            BigInteger256.MulLow256(in left.BiHigh256, in right, out var x1);
+            result.AssignAddHigh(x1);
+        }
 
         /// <summary>
         /// Multiplies two 512-bit numbers and returns first 512 bits of result
@@ -52,11 +58,19 @@ namespace Ecc.Math {
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        public static BigInteger512 MulLow(in BigInteger512 left, in BigInteger512 right) {
-            var x0 = left.Low * right.Low;
-            x0.AssignAddHigh(BigInteger256.MulLow256(left.Low, right.High) + BigInteger256.MulLow256(left.High, right.Low));
-
+        public static BigInteger512 MulLow512(in BigInteger512 left, in BigInteger512 right) {
+            BigInteger256.Mul(in left.BiLow256, in right.BiLow256, out var x0);
+            BigInteger256.MulLow256(left.BiLow256, right.BiHigh256, out var x1);
+            x0.AssignAddHigh(in x1);
+            BigInteger256.MulLow256(left.BiHigh256, right.BiLow256, out var x2);
+            x0.AssignAddHigh(in x2);
             return x0;
+        }
+
+        public static void MulLow256(in BigInteger512 left, in BigInteger512 right, out BigInteger512 result) {
+            BigInteger256.Mul(in left.BiLow256, in right.BiLow256, out result);
+            result.AssignAddHigh(BigInteger256.MulLow256(in left.BiLow256, in right.BiHigh256));
+            result.AssignAddHigh(BigInteger256.MulLow256(in left.BiHigh256, in right.BiLow256));
         }
 
         /// <summary>

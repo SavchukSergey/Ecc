@@ -15,7 +15,18 @@ namespace Ecc.Math {
             return carry > 0;
         }
 
-       public void AssignIncrement() {
+        public bool AssignAdd(in BigInteger256 other) {
+            var carry = BiLow256.AssignAdd(other);
+            if (carry) {
+                HighUInt128++;
+                if (HighUInt128 == 0) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void AssignIncrement() {
             BiLow256.AssignIncrement();
             if (BiLow256.IsZero) {
                 HighUInt128++;

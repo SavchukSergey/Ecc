@@ -23,7 +23,7 @@ namespace Ecc.Math {
             }
             var divisorLZC = divisor.LeadingZeroCount();
 
-            quotient = new BigInteger512();
+            quotient = new BigInteger512(); //todo: Bi448
 
             var divisorN = divisor.Clone();
             divisorN.AssignLeftShift(divisorLZC);

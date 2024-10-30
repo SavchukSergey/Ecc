@@ -34,7 +34,7 @@ namespace Ecc.Math {
         [FieldOffset(0)]
         public BigInteger384 BiLow384;
 
-        [FieldOffset(24)]
+        [FieldOffset(16)]
         public BigInteger384 BiHigh384;
 
         [FieldOffset(0)]

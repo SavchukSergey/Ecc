@@ -52,7 +52,7 @@ namespace Ecc.Math {
                 // max quotient - 128 bits,
                 // 64 bit <= divisor < 128 bits
                 // guess - 128 bits
-                var delta = divisor * guess;
+                BigInteger128.Mul(in divisor, in guess, out var delta);
 
                 var guessQ = new BigInteger192(guess);
                 if (correction < 0) {

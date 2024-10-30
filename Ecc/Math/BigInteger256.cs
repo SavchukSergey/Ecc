@@ -240,9 +240,15 @@ namespace Ecc.Math {
             return ctx.Reduce(in newMont);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly BigInteger256 ModSquare(in BigInteger256 modulus) {
-            var square = Square();
-            return square % modulus;
+            ModSquare(in modulus, out var result);
+            return result;
+        }
+
+        public readonly void ModSquare(in BigInteger256 modulus, out BigInteger256 result) {
+            Square(out var square);
+            BigInteger512.DivRem(square, modulus, out var _, out result);
         }
 
         public readonly BigInteger256 ModCube(in BigInteger256 modulus) {

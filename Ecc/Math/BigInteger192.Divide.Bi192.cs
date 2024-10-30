@@ -23,7 +23,7 @@ namespace Ecc.Math {
                 }
                 var q64 = q128.LowUInt64;
 
-                var delta = MulLow192(divisor, q64);
+                MulLow192(divisor, q64, out var delta);
                 remainder.AssignSub(delta);
 
                 if (remainder >= divisor) {

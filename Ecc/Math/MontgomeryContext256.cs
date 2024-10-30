@@ -61,7 +61,8 @@ namespace Ecc.Math {
         }
 
         public readonly void ModSquare(in BigInteger256 u, out BigInteger256 result) {
-            result = Reduce(u.Square());
+            u.Square(out var sq);
+            result = Reduce(sq);
         }
 
         public readonly BigInteger256 Reduce(in BigInteger512 x) {
