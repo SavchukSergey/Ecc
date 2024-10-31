@@ -74,30 +74,51 @@ namespace Ecc {
 
             var curve = left.Curve;
 
-            var dy = right.Y.ModSub(left.Y, curve.Modulus);
-            var dx = right.X.ModSub(left.X, curve.Modulus);
+            var lxz = left.X.ModMul(left.Z, curve.Modulus);
+            var rxz = right.X.ModMul(right.Z, curve.Modulus);
 
-            if (dx.IsZero && !dy.IsZero) {
-                return new ECProjectivePoint256(new BigInteger256(), new BigInteger256(), curve);
+            if (lxz == rxz) {
+                var lyz = left.Y.ModMul(left.Z, curve.Modulus);
+                var ryz = right.Y.ModMul(right.Z, curve.Modulus);
+                if (lyz == ryz) {
+                    return left.Double();
+                }
+                return new ECProjectivePoint256(curve.Infinity);
             }
 
-            // var m = dx.IsZero ?
-            //     left.X.ModSquare(curve.Modulus).ModTriple(curve.Modulus).ModAdd(curve.A, curve.Modulus).ModDiv(left.Y.ModDouble(curve.Modulus), curve.Modulus) :
-            //     dy.ModDiv(dx, curve.Modulus);
+            var t0 = left.Y.ModMul(right.Z, curve.Modulus);
+            var t1 = right.Y.ModMul(left.Z, curve.Modulus);
+            var t = t0.ModSub(t1, curve.Modulus);
 
-            // m.ModSquare(curve.Modulus, out var m2);
-            // var rx = m2.ModSub(left.X, curve.Modulus).ModSub(right.X, curve.Modulus);
-            // var ry = m.ModMul(left.X.ModSub(rx, curve.Modulus), curve.Modulus).ModSub(left.Y, curve.Modulus);
+            var u0 = left.X.ModMul(right.Z, curve.Modulus);
+            var u1 = right.X.ModMul(left.Z, curve.Modulus);
+            var u = u0.ModSub(u1, curve.Modulus);
 
-            // return new ECPoint256(
-            //     rx,
-            //     ry,
-            //     curve
-            // );
+            var u2 = u.ModSquare(curve.Modulus);
+            var u3 = u2.ModMul(u, curve.Modulus);
 
+            var v = left.Z.ModMul(right.Z, curve.Modulus);
+            var t2 = t.ModSquare(curve.Modulus);
+            var w = t2.ModMul(v, curve.Modulus).ModSub(
+                u2.ModMul(u0.ModAdd(u1, curve.Modulus), curve.Modulus),
+                curve.Modulus
+            );
+            var resX = u.ModMul(w, curve.Modulus);
+            var resY = t.ModMul(
+                u0.ModMul(u2, curve.Modulus).ModSub(w, curve.Modulus),
+                curve.Modulus
+            ).ModSub(
+                t0.ModMul(u3, curve.Modulus),
+                curve.Modulus
+            );
+            var resZ = u3.ModMul(v, curve.Modulus);
 
-
-            return new ECProjectivePoint256(left.ToAffinePoint() + right.ToAffinePoint());
+            return new ECProjectivePoint256(
+                resX,
+                resY,
+                resZ,
+                curve
+            );
         }
 
         public ECPoint256 ToAffinePoint() {
