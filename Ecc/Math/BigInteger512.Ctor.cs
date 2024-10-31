@@ -60,19 +60,6 @@ namespace Ecc.Math {
             BiHigh256 = other.BiHigh256;
         }
 
-        public BigInteger512(in BigInteger192 low) {
-            BiLow192 = low;
-            BiHigh384 = BigInteger384.Zero;
-        }
-
-        public BigInteger512(ulong low, BigInteger192 m0) {
-            UInt64[0] = low;
-            UInt64[1] = m0.UInt64[0];
-            UInt64[2] = m0.UInt64[1];
-            UInt64[3] = m0.UInt64[2];
-            BiHigh128.Clear();
-        }
-
         public BigInteger512(in BigInteger value) {
             Span<byte> bytes = stackalloc byte[value.GetByteCount()];
             value.TryWriteBytes(bytes, out var bytesWritten, isUnsigned: true, isBigEndian: false);

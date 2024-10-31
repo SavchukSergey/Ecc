@@ -6,6 +6,13 @@ namespace Ecc.Tests.Math {
     [TestFixture]
     public partial class MontgomeryContext256Tests {
 
+        [Test]
+        public void NistP256Test() {
+            var modulus = BigInteger256.ParseHexUnsigned("ffffffff00000001000000000000000000000000ffffffffffffffffffffffff");
+            var ctx = new MontgomeryContext256(modulus);
+            Assert.That(ctx, Is.Not.Null);
+        }
+
         [TestCaseSource(nameof(ConvertCases))]
         public void ToMontgomeryTest(string realValue, string montValue) {
             var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");

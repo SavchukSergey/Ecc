@@ -1,4 +1,5 @@
-﻿using Ecc.Math;
+﻿using System.Numerics;
+using Ecc.Math;
 using NUnit.Framework;
 
 namespace Ecc.Tests {
@@ -14,6 +15,10 @@ namespace Ecc.Tests {
 
         public static void AssertEquals(in BigInteger256 expected, in BigInteger256 actual, string? message = null) {
             Assert.That(actual.ToHexUnsigned(), Is.EqualTo(expected.ToHexUnsigned()), message);
+        }
+
+        public static void AssertEquals(in BigInteger expected, in BigInteger256 actual, string? message = null) {
+            AssertEquals(new BigInteger256(expected), actual, message);
         }
 
         public static void AssertEquals(in ECPoint256 expected, in ECPoint256 actual, string? path = null) {

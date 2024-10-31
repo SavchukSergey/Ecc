@@ -22,6 +22,8 @@ namespace Ecc {
 
         public readonly long OrderSize;
 
+        public readonly MontgomeryContext256 MontgomeryContext;
+
         public ECCurve256(string name,
                    in BigInteger256 a, in BigInteger256 b,
                    in BigInteger256 modulus, in BigInteger256 order,
@@ -36,6 +38,7 @@ namespace Ecc {
             OrderSize = Order.Log2();
             KeySize = (int)Modulus.Log2();
             KeySize8 = (KeySize + 7) >> 3;
+            MontgomeryContext = new MontgomeryContext256(Modulus);
         }
 
         public bool Singular {

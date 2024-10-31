@@ -13,40 +13,40 @@ namespace Ecc.Math {
             // actual quotient is 64 bit wide
             var divisorLZC = divisor.LeadingZeroCount();
             remainder = dividend;
+            var remainderLZC = remainder.LeadingZeroCount();
+            var correction = remainderLZC - divisorLZC + 64;
             var partialDivisor = divisor.ExtractHigh64(divisorLZC) + 1;
+            ulong q64;
             if (partialDivisor != 0) {
-                var remainderLZC = remainder.LeadingZeroCount();
                 var rem128 = remainder.ExtractHigh128(remainderLZC);
                 BigInteger128.DivRem(in rem128, partialDivisor, out var q128, out var _);
-                var correction = remainderLZC - divisorLZC + 64;
                 if (correction > 0) {
                     //trim fractional part
                     q128 >>= correction;
                 }
-                var q64 = q128.LowUInt64;
+                q64 = q128.LowUInt64;
+            } else {
+                //this can happen only if divisor starts with 64 ones
 
-                MulLow256(divisor, q64, out var delta);
-                remainder.AssignSub(delta);
+                q64 = remainder.ExtractHigh64(remainderLZC);
+                if (correction > 0) {
+                    //trim fractional part
+                    q64 >>= correction;
+                }
+            }
+            MulLow256(divisor, q64, out var delta);
+            remainder.AssignSub(delta);
+
+            if (remainder >= divisor) {
+                remainder.AssignSub(divisor);
+                q64++;
 
                 if (remainder >= divisor) {
                     remainder.AssignSub(divisor);
                     q64++;
-
-                    if (remainder >= divisor) {
-                        remainder.AssignSub(divisor);
-                        q64++;
-                    }
-                }
-                quotient = new BigInteger256(q64);
-            } else {
-                //this can happen only if divisor starts with 64 ones, quotient will be either 0 or 1
-                if (remainder >= divisor) {
-                    remainder.AssignSub(divisor);
-                    quotient = new BigInteger256(1);
-                } else {
-                    quotient = new BigInteger256(0);
                 }
             }
+            quotient = new BigInteger256(q64);
         }
 
         public static void DivRem(in BigInteger256 dividend, ulong divisor, out BigInteger256 quotient, out ulong remainder) {

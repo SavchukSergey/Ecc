@@ -554,10 +554,16 @@ namespace Ecc.Tests.Math {
         public void ModInverseTest() {
             var value = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
             var modulus = BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f");
+            var inv = value.ModInverse(modulus);
 
-            ClassicAssert.AreEqual(
+            var valueN = value.ToNative();
+            var modulusN = modulus.ToNative();
+            var invN = valueN.ModInverse(modulusN);
+            AssertExt.AssertEquals(invN, inv);
+
+            AssertExt.AssertEquals(
               "6a6c59bdd7a25d5fcd3b69d7f8b183194451df6a625bbecf68e7d86e194c21ac",
-               value.ModInverse(modulus).ToHexUnsigned()
+               inv
            );
         }
 

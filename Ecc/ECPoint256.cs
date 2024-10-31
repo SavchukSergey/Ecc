@@ -46,6 +46,7 @@ namespace Ecc {
                 left.X.ModSquare(curve.Modulus).ModTriple(curve.Modulus).ModAdd(curve.A, curve.Modulus).ModDiv(left.Y.ModDouble(curve.Modulus), curve.Modulus) :
                 dy.ModDiv(dx, curve.Modulus);
 
+            // var mmont = curve.MontgomeryContext.ToMontgomery(m);
             m.ModSquare(curve.Modulus, out var m2);
             var rx = m2.ModSub(left.X, curve.Modulus).ModSub(right.X, curve.Modulus);
             var ry = m.ModMul(left.X.ModSub(rx, curve.Modulus), curve.Modulus).ModSub(left.Y, curve.Modulus);
