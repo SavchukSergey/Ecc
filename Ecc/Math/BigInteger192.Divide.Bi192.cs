@@ -29,7 +29,7 @@ namespace Ecc.Math {
                 q64 = remainder.ExtractHigh64(remainderLZC);
                 if (correction > 0) {
                     //trim fractional part
-                    q64 >>= correction;
+                    q64 = correction < 64 ? q64 >> correction : 0;
                 }
             }
             MulLow192(divisor, q64, out var delta);
