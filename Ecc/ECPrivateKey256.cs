@@ -42,7 +42,7 @@ namespace Ecc {
         }
 
         private readonly ECSignature256? SignTruncated(in BigInteger256 message, in BigInteger256 random) {
-            var p = Curve.G * random;
+            var p = Curve.MulG(random);
             if (p.X.IsZero) return null;
             var a = p.X.ModMul(D, Curve.Order);
             a.AssignModAdd(message, Curve.Order);

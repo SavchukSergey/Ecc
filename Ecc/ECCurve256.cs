@@ -55,8 +55,12 @@ namespace Ecc {
             return left == right;
         }
 
-        public virtual ECPublicKey256 GetPublicKey(in BigInteger256 k) {
-            return new ECPublicKey256(G * k);
+        public virtual ECPoint256 MulG(in BigInteger256 k) {
+            return G * k;
+        }
+
+        public ECPublicKey256 GetPublicKey(in BigInteger256 k) {
+            return new ECPublicKey256(MulG(k));
         }
 
         public ECPoint256 CreatePoint(in BigInteger256 x, in BigInteger256 y) {
