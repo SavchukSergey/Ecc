@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Reflection;
 using Ecc.EC256;
 using Ecc.Math;
 
@@ -57,15 +56,7 @@ namespace Ecc {
         }
 
         public virtual ECPublicKey256 GetPublicKey(in BigInteger256 k) {
-            var acc = ECPoint256.Infinity;
-            var walker = G;
-            for (var i = 0; i < BigInteger256.BITS_SIZE; i++) {
-                if (k.GetBit(i)) {
-                    acc += walker;
-                }
-                walker += walker;
-            }
-            return new ECPublicKey256(acc);
+            return new ECPublicKey256(G * k);
         }
 
         public ECPoint256 CreatePoint(in BigInteger256 x, in BigInteger256 y) {

@@ -1,4 +1,4 @@
-﻿using Ecc.EC256;
+using Ecc.EC256;
 using Ecc.Math;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
@@ -10,7 +10,7 @@ namespace Ecc.Tests {
 
         [Test]
         public void AddTest() {
-            var curve = new ECCurve256(name: null, a: new BigInteger256(126), b: new BigInteger256(3), modulus: new BigInteger256(127), order: default, cofactor: default, gx: default, gy: default);
+            var curve = new ECCurve256(name: "", a: new BigInteger256(126), b: new BigInteger256(3), modulus: new BigInteger256(127), order: default, cofactor: default, gx: default, gy: default);
             var p = curve.CreatePoint(new BigInteger256(16), new BigInteger256(20));
             var q = curve.CreatePoint(new BigInteger256(41), new BigInteger256(120));
             var r = p + q;
@@ -21,7 +21,7 @@ namespace Ecc.Tests {
         [TestCase(16, 20, 97, 81)]
         [TestCase(41, 120, 42, 95)]
         public void AddSameTest(int sx, int sy, int tx, int ty) {
-            var curve = new ECCurve256(name: null, a: new BigInteger256(126), b: new BigInteger256(3), modulus: new BigInteger256(127), order: default, cofactor: default, gx: default, gy: default);
+            var curve = new ECCurve256(name: "", a: new BigInteger256(126), b: new BigInteger256(3), modulus: new BigInteger256(127), order: default, cofactor: default, gx: default, gy: default);
             var p = curve.CreatePoint(new BigInteger256((uint)sx), new BigInteger256((uint)sy));
             var r = p + p;
             ClassicAssert.AreEqual(new BigInteger256((uint)tx), r.X);
@@ -34,8 +34,8 @@ namespace Ecc.Tests {
         [TestCase(4, 3, 91)]
         [TestCase(5, int.MaxValue, int.MaxValue)]
         [TestCase(6, 3, 6)]
-        public void MulTest(int mul, int x, int y) {
-            var curve = new ECCurve256(name: null, a: new BigInteger256(2), b: new BigInteger256(3), modulus: new BigInteger256(97), order: default, cofactor: default, gx: default, gy: default);
+        public void MulShortTest(int mul, int x, int y) {
+            var curve = new ECCurve256(name: "", a: new BigInteger256(2), b: new BigInteger256(3), modulus: new BigInteger256(97), order: default, cofactor: default, gx: default, gy: default);
             var p1 = curve.CreatePoint(new BigInteger256(3), new BigInteger256(6));
             var p2 = p1 * new BigInteger256((uint)mul);
             if (p2.IsInfinity) {
@@ -77,6 +77,13 @@ namespace Ecc.Tests {
             var pubSum2 = k3.PublicKey.Point;
             ClassicAssert.AreEqual(pubHex, pubSum.GetHex());
             ClassicAssert.AreEqual(pubHex, pubSum2.GetHex());
+        }
+
+        [Test]
+        public void NegateTest() {
+            var neg = ECCurve256.Secp256k1.G.Negate();
+            var res = ECCurve256.Secp256k1.G + neg;
+            Assert.That(res.IsInfinity, Is.True);
         }
 
         [Test]

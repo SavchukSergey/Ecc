@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using Ecc.Math;
 
@@ -51,6 +51,17 @@ namespace Ecc {
                 ry,
                 curve
             );
+        }
+
+        public static ECPoint256 operator -(in ECPoint256 left, in ECPoint256 right) {
+            return left + right.Negate();
+        }
+
+        public readonly ECPoint256 Negate() {
+            if (IsInfinity) {
+                return this;
+            }
+            return new ECPoint256(X, Curve.Modulus - Y, Curve);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

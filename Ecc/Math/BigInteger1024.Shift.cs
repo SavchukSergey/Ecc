@@ -25,8 +25,8 @@ namespace Ecc.Math {
         }
 
         public void AssignRightShift512() {
-            Low = High;
-            High = new BigInteger512(0);
+            BiLow512 = BiHigh512;
+            BiHigh512 = new BigInteger512(0);
         }
 
         public void AssignRightShift256() {

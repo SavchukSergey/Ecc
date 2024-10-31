@@ -23,6 +23,9 @@ namespace Ecc.Math {
         [FieldOffset(0)]
         public BigInteger512 BiLow512;
 
+        [FieldOffset(64)]
+        public BigInteger512 BiHigh512;
+
         [FieldOffset(0)]
         [Obsolete]
         public BigInteger512 Low;
