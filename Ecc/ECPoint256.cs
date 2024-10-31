@@ -24,6 +24,10 @@ namespace Ecc {
             }
         }
 
+        public readonly ECPoint256 Double() {
+            return this + this;
+        }
+
         public static ECPoint256 operator +(in ECPoint256 left, in ECPoint256 right) {
             if (left.IsInfinity) return right;
             if (right.IsInfinity) return left;
@@ -34,7 +38,7 @@ namespace Ecc {
             var dx = right.X.ModSub(left.X, curve.Modulus);
 
             if (dx.IsZero && !dy.IsZero) {
-                return Infinity;
+                return new ECPoint256(new BigInteger256(), new BigInteger256(), curve);
             }
 
             //todo: left.X.ModSquare(curve.Modulus) can be cached in point
@@ -86,7 +90,7 @@ namespace Ecc {
         }
 
         public static ECPoint256 operator *(in ECPoint256 p, in BigInteger256 k) {
-            var acc = Infinity;
+            var acc = p.Curve.Infinity;
             var add = p;
             for (var i = 0; i < BigInteger256.BYTES_SIZE; i++) {
                 var bt = k.GetByte(i);
@@ -153,10 +157,6 @@ namespace Ecc {
         }
 
         public override string ToString() => $"{{X: {X.ToHexUnsigned()}, Y: {Y.ToHexUnsigned()}}}";
-
-        private static readonly ECPoint256 _infinity = new(new BigInteger256(0), new BigInteger256(0), null!);
-
-        public static ref readonly ECPoint256 Infinity => ref _infinity;
 
     }
 }

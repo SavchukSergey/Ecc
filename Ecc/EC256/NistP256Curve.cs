@@ -18,7 +18,7 @@ namespace Ecc.EC256 {
         }
 
         public override ECPoint256 MulG(in BigInteger256 k) {
-            var acc = ECPoint256.Infinity;
+            var acc = Infinity;
             for (var i = 0; i < BigInteger256.BYTES_SIZE; i++) {
                 var bt = k.GetByte(i);
                 acc += ECPointByteCache256.NistP256.Get(i, bt);

@@ -135,6 +135,12 @@ namespace Ecc.Math {
             }
         }
 
+        public readonly BigInteger256 Double() {
+            var res = Clone();
+            res.AssignDouble();
+            return res;
+        }
+
         public bool AssignDouble() {
             ulong carry = 0;
             for (var i = 0; i < UINT64_SIZE; i++) {

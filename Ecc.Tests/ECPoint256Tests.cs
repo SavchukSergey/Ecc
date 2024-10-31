@@ -88,7 +88,7 @@ namespace Ecc.Tests {
 
         [Test]
         public void InfinityGetHexTest() {
-            ClassicAssert.AreEqual("00", ECPoint256.Infinity.GetHex());
+            ClassicAssert.AreEqual("00", ECCurve256.Secp256k1.Infinity.GetHex());
         }
 
     }

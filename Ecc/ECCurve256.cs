@@ -77,7 +77,9 @@ namespace Ecc {
         }
 
         public ECPoint256 CreatePoint(string hex) {
-            if (hex == "00") return ECPoint256.Infinity;
+            if (hex == "00") {
+                return Infinity;
+            }
             if (hex.StartsWith("02")) {
                 var x = BigInteger256.ParseHexUnsigned(hex.AsSpan(2));
                 return CreatePoint(x, false);
@@ -158,6 +160,8 @@ namespace Ecc {
             }
             return Modulus.GetHashCode() ^ A.GetHashCode() ^ B.GetHashCode() ^ G.X.GetHashCode() ^ G.Y.GetHashCode() ^ Order.GetHashCode() ^ Cofactor.GetHashCode();
         }
+
+        public ECPoint256 Infinity => new(new BigInteger256(0), new BigInteger256(0), this);
 
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Ecc {
+namespace Ecc.Math {
     public readonly struct BezoutIdentity {
 
         public readonly BigInteger X { get; init; }

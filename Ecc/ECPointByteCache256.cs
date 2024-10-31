@@ -9,18 +9,21 @@ namespace Ecc {
 
         private readonly int _keyBytesCount;
 
+        private readonly ECCurve256 _curve;
+
         public const int TOTAL_POINTS_COUNT = 256 * 256 / 8; // 8192 points
         public const int POINT_DATA_SIZE = 2 * 256 / 8;      // 64 bytes: two coords (32 bytes each) for each point
         public const int TOTAL_POINTS_BYTES = TOTAL_POINTS_COUNT * POINT_DATA_SIZE; //0.5Mb
 
         public ECPointByteCache256(in ECPoint256 generator, int keySize) {
+            _curve = generator.Curve;
             var keyBytesCount = (keySize + 7) / 8;
             _keyBytesCount = keyBytesCount;
             _points = new ECPoint256[keyBytesCount * 256];
             var shiftedGenerator = generator;
 
             for (var i = 0; i < keyBytesCount; i++) {
-                var point = ECPoint256.Infinity;
+                var point = generator.Curve.Infinity;
                 for (var j = 0; j < 256; j++) {
                     _points[i * 256 + j] = point;
                     point = point + shiftedGenerator;
@@ -38,11 +41,11 @@ namespace Ecc {
 
         }
 
-        public ref readonly ECPoint256 Get(int byteIndex, byte byteValue) {
+        public ECPoint256 Get(int byteIndex, byte byteValue) {
             if (byteIndex >= _keyBytesCount) {
-                return ref ECPoint256.Infinity;
+                return _curve.Infinity;
             }
-            return ref _points[byteIndex * 256 + byteValue];
+            return _points[byteIndex * 256 + byteValue];
         }
 
         public void SaveTo(Stream stream) {
