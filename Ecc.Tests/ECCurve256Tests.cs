@@ -15,7 +15,7 @@ namespace Ecc.Tests {
     public class ECCurve256Tests {
 
         // [Test]
-        public void GenerateCacheTest() {
+        public static void GenerateCacheTest() {
             new ECHexInfo[] {
                 Secp256k1Curve.HexInfo,
                 NistP256Curve.HexInfo
@@ -25,6 +25,27 @@ namespace Ecc.Tests {
             .ForEach(curve => {
                 var cache = new ECPointByteCache256(curve.G, curve.KeySize);
                 using var stream = File.OpenWrite($"{curve.Name}.cache.dat");
+                cache.SaveTo(stream);
+                stream.Flush();
+                stream.Close();
+            });
+        }
+
+        // [Test]
+        public static void GenerateMPCacheTest() {
+            new ECCurve256[] {
+                ECCurve256.Secp256k1,
+                ECCurve256.NistP256
+            }
+            .Select(curve => curve.Name switch {
+                Secp256k1Curve.CURVE_NAME => ECPointByteCache256.Secp256k1,
+                NistP256Curve.CURVE_NAME => ECPointByteCache256.NistP256,
+                _ => throw new NotSupportedException()
+            })
+            .ToList()
+            .ForEach(inner => {
+                var cache = new ECProjectiveMontgomeryPointByteCache256(inner);
+                using var stream = File.OpenWrite($"{inner.Curve.Name}.mp.cache.dat");
                 cache.SaveTo(stream);
                 stream.Flush();
                 stream.Close();

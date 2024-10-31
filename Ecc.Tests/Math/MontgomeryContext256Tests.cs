@@ -102,6 +102,24 @@ namespace Ecc.Tests.Math {
             AssertExt.AssertEquals(resultReal, ctx.Reduce(resultMont), "Recheck");
         }
 
+        [TestCase("145c63d5cd4a7d9081682b4779c63489e7459d6c3599113eb0d3634c9b7e5d1b", "0000000000000000000000000000000000000000000000000000000000000000", "145c63d5cd4a7d9081682b4779c63489e7459d6c3599113eb0d3634c9b7e5d1b")]
+        [TestCase("0000000000000000000000000000000000000000000000000000000000000000", "145c63d5cd4a7d9081682b4779c63489e7459d6c3599113eb0d3634c9b7e5d1b", "eba39c2a32b5826f7e97d4b88639cb7618ba6293ca66eec14f2c9cb264819f14")]
+        [TestCase("145c63d5cd4a7d9081682b4779c63489e7459d6c3599113eb0d3634c9b7e5d1b", "0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715", "14558017428d4f87e29019001ddc7f6daa48dbcbe5e96e60fa08fae2dc573606")]
+        [TestCase("0006e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715", "145c63d5cd4a7d9081682b4779c63489e7459d6c3599113eb0d3634c9b7e5d1b", "ebaa7fe8bd72b0781d6fe6ffe223809255b724341a16919f05f7051c23a8c629")]
+        public void ModSubTest(string leftMontHex, string rightMontHex, string expectedMontHex) {
+            var leftMont = BigInteger256.ParseHexUnsigned(leftMontHex);
+            var rightMont = BigInteger256.ParseHexUnsigned(rightMontHex);
+            var resultMont = ctx.ModSub(leftMont, rightMont);
+            AssertExt.AssertEquals(expectedMontHex, resultMont);
+
+            //recheck
+            var leftReal = ctx.Reduce(leftMont);
+            var rightReal = ctx.Reduce(rightMont);
+            var resultReal = leftReal.ModSub(rightReal, ctx.Modulus);
+
+            AssertExt.AssertEquals(resultReal, ctx.Reduce(resultMont), "Recheck");
+        }
+
         public static IEnumerable<string[]> ConvertCases() {
             yield return [
                 "0000000000000000000000000000000000000000000000000000000000000000",
@@ -128,5 +146,7 @@ namespace Ecc.Tests.Math {
                 "F4D2F4094AA042FEB5580B848904CC355D3E150CAFEDED81F9C164242050FE4A",
             ];
         }
+
+        private static readonly MontgomeryContext256 ctx = new(BigInteger256.ParseHexUnsigned("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"));
     }
 }

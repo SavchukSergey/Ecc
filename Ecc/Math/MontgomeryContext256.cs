@@ -64,6 +64,11 @@ namespace Ecc.Math {
             Reduce(sq, out result);
         }
 
+        public readonly BigInteger256 ModCube(in BigInteger256 u) {
+            ModSquare(in u, out var u2);
+            return ModMul(u, u2);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly BigInteger256 Reduce(in BigInteger512 x) {
             Reduce(x, out var result);
@@ -81,7 +86,13 @@ namespace Ecc.Math {
             result = s3.BiHigh256;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly BigInteger256 Reduce(in BigInteger256 x) {
+            Reduce(in x, out var result);
+            return result;
+        }
+
+        public readonly void Reduce(in BigInteger256 x, out BigInteger256 result) {
             BigInteger256.MulLow256(x, _beta, out var s2);
             BigInteger256.Mul(in Modulus, in s2, out var s3);
 
@@ -90,7 +101,23 @@ namespace Ecc.Math {
             if (carry || s3.BiHigh256 >= Modulus) {
                 s3.BiHigh256.AssignSub(in Modulus);
             }
-            return s3.BiHigh256;
+            result = s3.BiHigh256;
+        }
+
+        public readonly BigInteger256 ModSub(in BigInteger256 left, in BigInteger256 right) {
+            return left.ModSub(in right, in Modulus);
+        }
+
+        public readonly BigInteger256 ModAdd(in BigInteger256 left, in BigInteger256 right) {
+            return left.ModAdd(in right, in Modulus);
+        }
+
+        public readonly BigInteger256 ModTripple(in BigInteger256 value) {
+            return value.ModTriple(in Modulus);
+        }
+
+        public readonly BigInteger256 ModDouble(in BigInteger256 value) {
+            return value.ModDouble(in Modulus);
         }
 
         public bool IsValid {

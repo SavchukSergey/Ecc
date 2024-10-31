@@ -121,6 +121,14 @@ namespace Ecc {
             );
         }
 
+        public readonly ECProjectiveMontgomeryPoint256 ToMontgomery() {
+            return new ECProjectiveMontgomeryPoint256(
+                x: Curve.MontgomeryContext.ToMontgomery(X),
+                y: Curve.MontgomeryContext.ToMontgomery(Y),
+                Curve
+            );
+        }
+
         public ECPoint256 ToAffinePoint() {
             var inv = Z.ModInverse(Curve.Modulus);
 
@@ -129,6 +137,10 @@ namespace Ecc {
                 Y.ModMul(inv, Curve.Modulus),
                 Curve
             );
+        }
+
+        public ECProjectivePoint256 Normalize() {
+            return new ECProjectivePoint256(ToAffinePoint());
         }
 
         public readonly bool IsInfinity {

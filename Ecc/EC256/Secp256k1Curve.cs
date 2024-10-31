@@ -18,12 +18,16 @@ namespace Ecc.EC256 {
         }
 
         public override ECPoint256 MulG(in BigInteger256 k) {
-            var acc = Infinity;
+            var acc = new ECProjectiveMontgomeryPoint256(
+                new BigInteger256(0),
+                new BigInteger256(0),
+                this
+            );
             for (var i = 0; i < BigInteger256.BYTES_SIZE; i++) {
                 var bt = k.GetByte(i);
-                acc += ECPointByteCache256.Secp256k1.Get(i, bt);
+                acc += ECProjectiveMontgomeryPointByteCache256.Secp256k1.Get(i, bt);
             }
-            return acc;
+            return acc.Reduce().ToAffinePoint();
         }
 
         public static readonly ECHexInfo HexInfo = new() {

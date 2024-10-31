@@ -38,7 +38,7 @@ namespace Ecc {
             OrderSize = Order.Log2();
             KeySize = (int)Modulus.Log2();
             KeySize8 = (KeySize + 7) >> 3;
-            MontgomeryContext = new MontgomeryContext256(Modulus);
+            MontgomeryContext = new MontgomeryContext256(Modulus); // todo: precalc it
         }
 
         public bool Singular {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.CompilerServices;
 using Ecc.Math;
 
@@ -56,6 +56,10 @@ namespace Ecc {
                 ry,
                 curve
             );
+        }
+
+        public ECProjectivePoint256 ToProjective() {
+            return new ECProjectivePoint256(this);
         }
 
         public static ECPoint256 operator -(in ECPoint256 left, in ECPoint256 right) {
