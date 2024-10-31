@@ -15,12 +15,12 @@ namespace Ecc.Math {
                 DivRem(in dividend, divisor.BiLow256, out quotient, out remainder.BiLow256);
                 return;
             }
-            var divizorLZC = divisor.LeadingZeroCount();
+            var divisorLZC = divisor.LeadingZeroCount();
 
             var q256 = new BigInteger256();
 
             var divisorN = divisor.Clone();
-            divisorN.AssignLeftShift(divizorLZC);
+            divisorN.AssignLeftShift(divisorLZC);
 
             var partialDivisor = divisorN.HighUInt64 + 1;
 
@@ -29,14 +29,14 @@ namespace Ecc.Math {
             while (true) {
                 var remainderLZC = remainder.LeadingZeroCount();
                 //todo: when approaching to divShiftBits switch to compare-and-subtract strategy
-                if (remainderLZC == divizorLZC) {
+                if (remainderLZC == divisorLZC) {
                     if (remainder >= divisor) {
                         remainder.AssignSub(divisor);
                         q256.AssignIncrement();
                     }
                     break;
                 }
-                if (remainderLZC > divizorLZC) {
+                if (remainderLZC > divisorLZC) {
                     break;
                 }
 
@@ -44,7 +44,7 @@ namespace Ecc.Math {
                 var guess = partialDivisor != 0 ?
                     remainder.ExtractHigh128(remainderLZC) / partialDivisor :
                     new BigInteger128(remainder.ExtractHigh64(remainderLZC));
-                var correction = remainderLZC - divizorLZC + 64;
+                var correction = remainderLZC - divisorLZC + 64;
                 if (correction > 0) {
                     //trim fractional part
                     guess >>= correction;
@@ -62,7 +62,7 @@ namespace Ecc.Math {
                 q256.AssignAdd(guessQ);
             }
 
-            quotient = new BigInteger512(q256); //todo: limit quotient to 256-bit
+            quotient = new BigInteger512(q256);
         }
 
     }

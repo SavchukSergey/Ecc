@@ -21,9 +21,14 @@ namespace Ecc.Math {
         internal fixed uint Data[ITEMS_SIZE]; //todo: review usages
 
         [FieldOffset(0)]
+        public BigInteger512 BiLow512;
+
+        [FieldOffset(0)]
+        [Obsolete]
         public BigInteger512 Low;
 
         [FieldOffset(64)]
+        [Obsolete]
         public BigInteger512 High;
 
         [FieldOffset(32)]

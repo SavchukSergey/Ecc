@@ -70,13 +70,6 @@ namespace Ecc.Math {
             UInt128_0 = UInt128.Zero;
         }
 
-        public void AssignLeftShiftQuarter() {
-            UInt128_3 = UInt128_2;
-            UInt128_2 = UInt128_1;
-            UInt128_1 = UInt128_0;
-            UInt128_0 = UInt128.Zero;
-        }
-
         public void AssignRightShift128() {
             UInt128_0 = UInt128_1;
             UInt128_1 = UInt128_2;
@@ -91,22 +84,22 @@ namespace Ecc.Math {
             UInt128_3 = UInt128.Zero;
         }
 
-        public void AssignLeftShiftHalf() {
-            High = Low;
-            Low.Clear();
+        public void AssignLeftShift256() {
+            BiHigh256 = BiLow256;
+            BiLow256.Clear();
         }
 
-        public void AssignRightShiftHalf() {
-            Low = High;
-            High.Clear();
+        public void AssignRightShift256() {
+            BiLow256 = BiHigh256;
+            BiHigh256.Clear();
         }
 
-        public readonly BigInteger512 LeftShiftHalf() {
-            return new BigInteger512(new BigInteger256(0), Low);
+        public readonly BigInteger512 LeftShift256() {
+            return new BigInteger512(new BigInteger256(0), BiLow256);
         }
 
-        public readonly BigInteger512 RightShiftHalf() {
-            return new BigInteger512(High, new BigInteger256(0));
+        public readonly BigInteger512 RightShift256() {
+            return new BigInteger512(BiHigh256, new BigInteger256(0));
         }
 
         public BigInteger512 LeftShift(int count) {
@@ -116,8 +109,8 @@ namespace Ecc.Math {
         }
 
         public void AssignLeftShift(int count) {
-            if (count >= BITS_SIZE / 2) {
-                AssignLeftShiftHalf();
+            if (count >= 256) {
+                AssignLeftShift256();
                 count -= BITS_SIZE / 2;
             }
             if (count >= 128) {
@@ -141,7 +134,7 @@ namespace Ecc.Math {
 
         public void AssignRightShift(int count) {
             if (count >= BITS_SIZE / 2) {
-                AssignRightShiftHalf();
+                AssignRightShift256();
                 count -= BITS_SIZE / 2;
             }
             if (count >= BITS_SIZE / 4) {
@@ -180,10 +173,10 @@ namespace Ecc.Math {
                 return new BigInteger128();
             }
             if (skipCount >= 256) {
-                return Low.ExtractHigh128(skipCount - 256);
+                return BiLow256.ExtractHigh128(skipCount - 256);
             }
             //todo:
-            return new BigInteger128((this << skipCount).HighUInt128);
+            return (this << skipCount).BiHigh128;
         }
 
         public readonly ulong ExtractHigh64(int skipCount) {
@@ -191,7 +184,7 @@ namespace Ecc.Math {
                 return 0;
             }
             if (skipCount >= 256) {
-                return Low.ExtractHigh64(skipCount - 256);
+                return BiLow256.ExtractHigh64(skipCount - 256);
             }
 
             //todo:

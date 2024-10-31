@@ -13,14 +13,9 @@ namespace Ecc.Math {
 
         public const int HEX_SIZE = BYTES_SIZE * 2;
 
-        [FieldOffset(0)]
-        public BigInteger256 Low;
-
         [FieldOffset(32)]
+        [Obsolete]
         public BigInteger256 High;
-
-        [FieldOffset(16)]
-        public BigInteger256 Middle; // for 256.256 fixed point arithmetics
 
         [FieldOffset(0)]
         public BigInteger128 BiLow128;
@@ -64,9 +59,6 @@ namespace Ecc.Math {
         [FieldOffset(48)]
         internal UInt128 UInt128_3;
 
-        [FieldOffset(0)]
-        internal BigInteger128 Low128;
-
         [FieldOffset(48)]
         internal UInt128 HighUInt128;
 
@@ -91,18 +83,18 @@ namespace Ecc.Math {
 
         public readonly bool IsZero {
             get {
-                return Low.IsZero && High.IsZero;
+                return BiLow256.IsZero && BiHigh256.IsZero;
             }
         }
 
         public readonly bool IsOne {
             get {
-                return Low.IsOne && High.IsZero;
+                return BiLow256.IsOne && BiHigh256.IsZero;
             }
         }
 
         public readonly BigInteger512 Clone() {
-            return new BigInteger512(Low, High);
+            return new BigInteger512(BiLow256, BiHigh256);
         }
 
         public void Clear() {
@@ -119,10 +111,6 @@ namespace Ecc.Math {
                 carry = acc >> 63;
             }
             return carry > 0;
-        }
-
-        public void AssignAddHigh(in BigInteger256 other) {
-            High += other;
         }
 
         public bool AssignSub(in BigInteger512 other) {
@@ -147,7 +135,7 @@ namespace Ecc.Math {
                 carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
             }
             if (carry) {
-                High.AssignDecrement();
+                BiHigh256.AssignDecrement();
             }
         }
 
@@ -187,16 +175,16 @@ namespace Ecc.Math {
         }
 
         public void AssignDecrement() {
-            if (Low.IsZero) {
-                High.AssignDecrement();
+            if (BiLow256.IsZero) {
+                BiHigh256.AssignDecrement();
             }
-            Low.AssignDecrement();
+            BiLow256.AssignDecrement();
         }
 
         public void AssignIncrement() {
-            Low.AssignIncrement();
-            if (Low.IsZero) {
-                High.AssignIncrement();
+            BiLow256.AssignIncrement();
+            if (BiLow256.IsZero) {
+                BiHigh256.AssignIncrement();
             }
         }
 
@@ -239,11 +227,11 @@ namespace Ecc.Math {
         }
 
         public readonly int LeadingZeroCount() {
-            var h = High.LeadingZeroCount();
+            var h = BiHigh256.LeadingZeroCount();
             if (h != BigInteger256.BITS_SIZE) {
                 return h;
             }
-            var l = Low.LeadingZeroCount();
+            var l = BiLow256.LeadingZeroCount();
             return l + BigInteger256.BITS_SIZE;
         }
 

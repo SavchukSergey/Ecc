@@ -15,7 +15,7 @@ namespace Ecc.Math {
 
             var x0 = EstimateReciprocal(divisor256);
 
-            var y = x0.Low; // 0 < y <= 1, fractional part only
+            var y = x0.BiLow256; // 0 < y <= 1, fractional part only
 
             //todo: limit loop
             for (var i = 0; i < 5; i++) {
@@ -38,7 +38,8 @@ namespace Ecc.Math {
             t.AssignRightShift(BITS_SIZE - log2);
             var q = t.Low.High;
 
-            remainder = dividend - MulLow256(q, divisor);
+            MulLow256(q, divisor, out var x1);
+            remainder = dividend - x1;
             if (remainder >= divisor) {
                 remainder.AssignSub(divisor);
                 q.AssignDecrement();

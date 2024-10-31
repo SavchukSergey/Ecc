@@ -41,7 +41,7 @@ namespace Ecc.Math {
         internal ulong LowUInt64;
 
         [FieldOffset(8)]
-        internal ulong HighUInt64;
+        public ulong HighUInt64;
 
         [FieldOffset(12)]
         internal byte HighUInt32;

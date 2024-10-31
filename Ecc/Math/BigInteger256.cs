@@ -10,49 +10,51 @@ namespace Ecc.Math {
 
         public const int BITS_SIZE = 256;
         public const int BYTES_SIZE = BITS_SIZE / 8;
-        internal const int UINT64_SIZE = BITS_SIZE / 64;
-        internal const int UINT32_SIZE = BITS_SIZE / 32;
-        internal const int UINT16_SIZE = BITS_SIZE / 16;
+        public const int UINT64_SIZE = BITS_SIZE / 64;
+        public const int UINT32_SIZE = BITS_SIZE / 32;
+        public const int UINT16_SIZE = BITS_SIZE / 16;
 
         public const int HEX_SIZE = BYTES_SIZE * 2;
 
         [FieldOffset(0)]
-        internal fixed byte Bytes[BYTES_SIZE];
+        public fixed byte Bytes[BYTES_SIZE];
 
         [FieldOffset(0)]
-        internal fixed ulong UInt64[UINT64_SIZE];
+        public fixed ulong UInt64[UINT64_SIZE];
 
         [FieldOffset(0)]
-        internal fixed uint UInt32[UINT32_SIZE];
+        public fixed uint UInt32[UINT32_SIZE];
 
         [FieldOffset(0)]
-        internal fixed ulong UInt16[UINT16_SIZE];
+        public fixed ulong UInt16[UINT16_SIZE];
 
         [FieldOffset(0)]
-        internal uint LowUInt32;
+        public uint LowUInt32;
         [FieldOffset(0)]
-        internal ulong LowUInt64;
+        public ulong LowUInt64;
         [FieldOffset(0)]
         public UInt128 LowUInt128;
 
         [FieldOffset(28)]
-        internal uint HighUInt32;
+        public uint HighUInt32;
         [FieldOffset(24)]
-        internal ulong HighUInt64;
+        public ulong HighUInt64;
         [FieldOffset(16)]
         public UInt128 HighUInt128;
 
         [FieldOffset(0)]
         public BigInteger128 BiLow128;
-        [FieldOffset(8)]
-        public BigInteger128 BiMiddle128;
+        [FieldOffset(0)]
+        public BigInteger192 BiLow192;
+
         [FieldOffset(16)]
         public BigInteger128 BiHigh128;
 
-        [FieldOffset(0)]
-        public BigInteger192 BiLow192;
         [FieldOffset(8)]
         public BigInteger192 BiHigh192;
+
+        [FieldOffset(8)]
+        public BigInteger128 BiMiddle128;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly byte GetByte(int index) {

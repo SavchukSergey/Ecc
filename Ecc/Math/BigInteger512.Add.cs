@@ -16,9 +16,9 @@ namespace Ecc.Math {
         }
 
         public bool AssignAdd(in BigInteger256 other) {
-            var carry = Low.AssignAdd(other);
+            var carry = BiLow256.AssignAdd(other);
             if (carry) {
-                return High.AssignIncrement();
+                return BiHigh256.AssignIncrement();
             }
             return carry;
         }

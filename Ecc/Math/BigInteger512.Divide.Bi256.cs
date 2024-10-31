@@ -70,7 +70,7 @@ namespace Ecc.Math {
                 quotient.AssignAdd(guessQ);
             }
 
-            remainder = fullRemainder.Low;
+            remainder = fullRemainder.BiLow256;
         }
 
    }

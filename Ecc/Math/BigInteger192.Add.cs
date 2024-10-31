@@ -15,12 +15,17 @@ namespace Ecc.Math {
             return carry > 0;
         }
 
-        public void AssignAddHigh(in BigInteger128 other) {
-            HighUInt128 += other.UInt128;
-        }
-
-        public void AssignAddHigh(ulong val) {
-            HighUInt64 += val;
+        public bool AssignAdd(in BigInteger128 other) {
+            UInt128 acc = LowUInt64;
+            acc += other.LowUInt64;
+            LowUInt64 = (ulong)acc;
+            acc >>= 64;
+            acc += MiddleUInt64;
+            acc += other.HighUInt64;
+            MiddleUInt64 = (ulong)acc;
+            acc >>= 64;
+            HighUInt64 += (ulong)acc;
+            return (acc >> 64) != 0;
         }
 
         public static BigInteger192 operator +(in BigInteger192 left, in BigInteger192 right) {

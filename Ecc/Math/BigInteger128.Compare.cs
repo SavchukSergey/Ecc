@@ -37,13 +37,13 @@ namespace Ecc.Math {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
          public static int Compare(in BigInteger128 left, ulong right) {
-            if (left.High != 0) {
+            if (left.HighUInt64 != 0) {
                 return 1;
             }
-            if (left.Low > right) {
+            if (left.LowUInt64 > right) {
                 return 1;
             }
-            if (left.Low < right) {
+            if (left.LowUInt64 < right) {
                 return -1;
             }
             return 0;

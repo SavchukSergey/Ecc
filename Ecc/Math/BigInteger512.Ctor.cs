@@ -36,14 +36,13 @@ namespace Ecc.Math {
         }
 
         public BigInteger512(in BigInteger128 value) {
-            Low.BiLow128 = value;
-            Low.BiHigh128 = new BigInteger128();
-            High = new BigInteger256();
+            BiLow128 = value;
+            BiHigh384.Clear();
         }
 
         public BigInteger512(in BigInteger256 value) {
-            Low = value;
-            High = new BigInteger256(0);
+            BiLow256 = value;
+            BiHigh256.Clear();
         }
 
         public BigInteger512(in BigInteger384 value) {
@@ -52,19 +51,13 @@ namespace Ecc.Math {
         }
 
         public BigInteger512(in BigInteger256 low, in BigInteger256 high) {
-            Low = low;
-            High = high;
+            BiLow256 = low;
+            BiHigh256 = high;
         }
 
         public BigInteger512(in BigInteger512 other) {
-            Low = other.Low;
-            High = other.High;
-        }
-
-        public BigInteger512(UInt128 l0) {
-            Low.LowUInt128 = l0;
-            Low.HighUInt128 = 0;
-            High = new BigInteger256(0);
+            BiLow256 = other.BiLow256;
+            BiHigh256 = other.BiHigh256;
         }
 
         public BigInteger512(in BigInteger192 low) {
@@ -77,7 +70,7 @@ namespace Ecc.Math {
             UInt64[1] = m0.UInt64[0];
             UInt64[2] = m0.UInt64[1];
             UInt64[3] = m0.UInt64[2];
-            High.Clear();
+            BiHigh128.Clear();
         }
 
         public BigInteger512(in BigInteger value) {

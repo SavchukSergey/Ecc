@@ -14,7 +14,7 @@ namespace Ecc.Math {
             // modulus >= 2 ^ 255, odd
             _r = new BigInteger512(new BigInteger256(0), new BigInteger256(1));
             Modulus = modulus;
-            _beta = (_r - new BigInteger512(modulus).ModInverse(_r)).Low;
+            _beta = (_r - new BigInteger512(modulus).ModInverse(_r)).BiLow256;
 
             _rm = _r % Modulus;
 
@@ -50,8 +50,7 @@ namespace Ecc.Math {
 
         public readonly void ModMul(in BigInteger256 u, in BigInteger256 v, out BigInteger256 result) {
             BigInteger256.Mul(in u, in v, out var temp);
-            result = Reduce(in temp);
-            return;
+            Reduce(in temp, out result);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,18 +61,24 @@ namespace Ecc.Math {
 
         public readonly void ModSquare(in BigInteger256 u, out BigInteger256 result) {
             u.Square(out var sq);
-            result = Reduce(sq);
+            Reduce(sq, out result);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly BigInteger256 Reduce(in BigInteger512 x) {
-            BigInteger256.MulLow256(in x.Low, _beta, out var s2);
+            Reduce(x, out var result);
+            return result;
+        }
+
+        public readonly void Reduce(in BigInteger512 x, out BigInteger256 result) {
+            BigInteger256.MulLow256(in x.BiLow256, _beta, out var s2);
             BigInteger256.Mul(in Modulus, in s2, out var s3);
             // x + s3 requires extra one bit precission
             var carry = s3.AssignAdd(x);
-            if (carry || s3.High >= Modulus) {
-                s3.High.AssignSub(in Modulus);
+            if (carry || s3.BiHigh256 >= Modulus) {
+                s3.BiHigh256.AssignSub(in Modulus);
             }
-            return s3.High;
+            result = s3.BiHigh256;
         }
 
         public readonly BigInteger256 Reduce(in BigInteger256 x) {
@@ -82,10 +87,10 @@ namespace Ecc.Math {
 
             // x + s3 requires extra one bit precission
             var carry = s3.AssignAdd(x);
-            if (carry || s3.High >= Modulus) {
-                s3.High.AssignSub(in Modulus);
+            if (carry || s3.BiHigh256 >= Modulus) {
+                s3.BiHigh256.AssignSub(in Modulus);
             }
-            return s3.High;
+            return s3.BiHigh256;
         }
 
         public bool IsValid {

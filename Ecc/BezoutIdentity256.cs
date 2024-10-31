@@ -11,7 +11,7 @@ namespace Ecc {
 
         public readonly BigInteger256 B { get; init; }
 
-        public readonly BigInteger256 Gcd => (A * X + B * Y).Low;
+        public readonly BigInteger256 Gcd => (A * X + B * Y).BiLow256;
 
     }
 }

@@ -80,6 +80,21 @@ namespace Ecc.Math {
             BiLow192 = other.BiLow192;
             BiHigh192 = other.BiHigh192;
         }
+
+        public readonly bool IsZero {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get {
+                return BiLow192.IsZero && BiHigh192.IsZero;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Clear() {
+            LowUInt128 = 0;
+            MiddleUInt128 = 0;
+            HighUInt128 = 0;
+        }
+
         public static readonly BigInteger384 Zero = new();
 
     }

@@ -1,6 +1,9 @@
+using System;
+
 namespace Ecc.Math {
     public unsafe partial struct BigInteger1024 {
 
+        [Obsolete]
         public void AssignLeftShiftQuarter() {
             UInt64[15] = UInt64[11];
             UInt64[14] = UInt64[10];

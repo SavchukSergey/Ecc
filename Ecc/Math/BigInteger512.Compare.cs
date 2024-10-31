@@ -168,11 +168,11 @@ namespace Ecc.Math {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Compare(in BigInteger512 left, in BigInteger128 right) {
-            if (!left.High.IsZero) {
+            if (!left.BiHigh384.IsZero) {
                 return 1;
             }
 
-            return BigInteger256.Compare(left.Low, right);
+            return BigInteger128.Compare(left.BiLow128, right);
         }
 
         public static bool operator <(in BigInteger512 left, in BigInteger128 right) {

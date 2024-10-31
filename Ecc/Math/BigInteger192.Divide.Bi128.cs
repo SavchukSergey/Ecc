@@ -46,7 +46,7 @@ namespace Ecc.Math {
                     correction = 0;
                 }
 
-                var delta = BigInteger128.MulLow192(divisor, guess);
+                BigInteger128.MulLow192(divisor, guess, out var delta);
 
                 if (correction < 0) {
                     delta.AssignLeftShift(-correction);

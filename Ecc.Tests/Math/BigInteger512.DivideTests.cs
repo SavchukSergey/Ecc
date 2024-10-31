@@ -35,7 +35,7 @@ namespace Ecc.Tests.Math {
             var right = BigInteger512.ParseHexUnsigned(rightHex);
 
             var remainder = new BigInteger512();
-            var res = BigInteger512.DivRem(left, right.Low.BiLow128, out remainder.BiLow128);
+            var res = BigInteger512.DivRem(left, right.BiLow128, out remainder.BiLow128);
 
             ClassicAssert.AreEqual(qHex, res.ToHexUnsigned(), "quotient");
             ClassicAssert.AreEqual(remHex, remainder.ToHexUnsigned(), "remainder");

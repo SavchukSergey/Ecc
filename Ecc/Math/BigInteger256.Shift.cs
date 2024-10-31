@@ -34,13 +34,6 @@ namespace Ecc.Math {
             LowUInt128 = 0;
         }
 
-        public void AssignLeftShiftQuarter() {
-            UInt64[3] = UInt64[2];
-            UInt64[2] = UInt64[1];
-            UInt64[1] = UInt64[0];
-            UInt64[0] = 0;
-        }
-
         public void AssignLeftShift(int count) {
             if (count >= 256) {
                 HighUInt128 = 0;
@@ -58,12 +51,12 @@ namespace Ecc.Math {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AssignRightShiftHalf() {
+        public void AssignRightShift128() {
             LowUInt128 = HighUInt128;
             HighUInt128 = 0;
         }
 
-        public void AssignRightShiftQuarter() {
+        public void AssignRightShift64() {
             UInt64[0] = UInt64[1];
             UInt64[1] = UInt64[2];
             UInt64[2] = UInt64[3];
@@ -77,7 +70,7 @@ namespace Ecc.Math {
                 return;
             }
             if (count >= 128) {
-                AssignRightShiftHalf();
+                AssignRightShift128();
                 count -= 128;
             }
             if (count > 0) {

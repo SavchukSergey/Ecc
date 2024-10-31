@@ -47,7 +47,9 @@ namespace Ecc.Math {
                 }
 
                 // pessimistic guess
-                UInt128 guess = partialDivisor != 0 ? fullRemainder.ExtractHigh128(remainderLZC).UInt128 / partialDivisor : fullRemainder.ExtractHigh64(remainderLZC);
+                var guess = partialDivisor != 0 ?
+                    fullRemainder.ExtractHigh128(remainderLZC) / partialDivisor :
+                    new BigInteger128(fullRemainder.ExtractHigh64(remainderLZC));
                 var correction = remainderLZC - divisorLZC + 64;
                 if (correction > 0) {
                     //trim fractional part
@@ -57,7 +59,8 @@ namespace Ecc.Math {
 
                 // max quotient - 384 bits,
                 // 64 bit <= divisor < 128 bits
-                var delta = new BigInteger512(divisor * guess);
+                var delta = new BigInteger512();
+                BigInteger128.Mul(in divisor, in guess, out delta.BiLow256);
 
                 var guessQ = new BigInteger512(guess);
                 if (correction < 0) {

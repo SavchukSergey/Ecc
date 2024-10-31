@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Reflection;
 using Ecc.EC256;
 using Ecc.Math;
 
@@ -15,8 +16,6 @@ namespace Ecc {
         public readonly BigInteger256 Order;
         public readonly BigInteger256 Cofactor;
         public readonly ECPoint256 G;
-
-        public readonly bool Singluar;
 
         public readonly int KeySize;
 
@@ -38,10 +37,15 @@ namespace Ecc {
             OrderSize = Order.Log2();
             KeySize = (int)Modulus.Log2();
             KeySize8 = (KeySize + 7) >> 3;
-            Singluar = a.ModCube(modulus).ModMul(new BigInteger256(4), Modulus).ModAdd(
-                B.ModSquare(Modulus).ModMul(new BigInteger256(27), Modulus),
-                Modulus
-            ).IsZero;
+        }
+
+        public bool Singular {
+            get {
+                return A.ModCube(Modulus).ModMul(new BigInteger256(4), Modulus).ModAdd(
+                    B.ModSquare(Modulus).ModMul(new BigInteger256(27), Modulus),
+                    Modulus
+                ).IsZero;
+            }
         }
 
         public bool Has(in ECPoint256 p) {
@@ -80,15 +84,15 @@ namespace Ecc {
         public ECPoint256 CreatePoint(string hex) {
             if (hex == "00") return ECPoint256.Infinity;
             if (hex.StartsWith("02")) {
-                var x = BigInteger256.ParseHexUnsigned(hex.Substring(2));
+                var x = BigInteger256.ParseHexUnsigned(hex.AsSpan(2));
                 return CreatePoint(x, false);
             } else if (hex.StartsWith("03")) {
-                var x = BigInteger256.ParseHexUnsigned(hex.Substring(2));
+                var x = BigInteger256.ParseHexUnsigned(hex.AsSpan(2));
                 return CreatePoint(x, true);
             } else if (hex.StartsWith("04")) {
                 var keySize = KeySize8 * 2;
-                var x = BigInteger256.ParseHexUnsigned(hex.Substring(2, keySize));
-                var y = BigInteger256.ParseHexUnsigned(hex.Substring(keySize + 2));
+                var x = BigInteger256.ParseHexUnsigned(hex.AsSpan(2, keySize));
+                var y = BigInteger256.ParseHexUnsigned(hex.AsSpan(keySize + 2));
                 return CreatePoint(x, y);
             }
             throw new System.FormatException();

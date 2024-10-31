@@ -18,7 +18,7 @@ namespace Ecc.Tests.Math {
             var res128 = left.ExtractHigh128(count);
             Assert.That(res128.ToHexUnsigned(), Is.EqualTo(expected));
             var res64 = left.ExtractHigh64(count);
-            Assert.That(res64, Is.EqualTo(BigInteger128.ParseHexUnsigned(expected).High), $"{count}");
+            Assert.That(res64, Is.EqualTo(BigInteger128.ParseHexUnsigned(expected).HighUInt64), $"{count}");
         }
 
         [TestCase("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5", 000, "cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5")]

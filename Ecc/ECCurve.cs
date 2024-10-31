@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -18,8 +18,6 @@ namespace Ecc {
         public readonly BigInteger Cofactor;
 
         public readonly ECPoint G;
-
-        public readonly bool Singluar;
 
         public readonly int KeySize;
 
@@ -43,8 +41,13 @@ namespace Ecc {
             OrderSize = Order.Log2();
             KeySize = (int)Modulus.Log2();
             KeySize8 = (KeySize + 7) >> 3;
-            Singluar = ((4 * A * A * A + 27 * B * B) % Modulus) == 0;
             _cache = new ECPointBitCache(G, KeySize);
+        }
+
+        public bool Singular {
+            get {
+                return ((4 * A * A * A + 27 * B * B) % Modulus) == 0;
+            }
         }
 
         public bool Has(in ECPoint p) {

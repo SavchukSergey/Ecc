@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.CompilerServices;
 
 namespace Ecc.Math {
@@ -7,16 +6,6 @@ namespace Ecc.Math {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AssignAdd(in BigInteger128 other) {
             UInt128 += other.UInt128;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AssignAdd(in UInt128 other) {
-            UInt128 += other;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AssignAddHigh(ulong other) {
-            High += other;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
