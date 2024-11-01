@@ -37,7 +37,7 @@ namespace Ecc.Tests {
             var msgHex = "7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715";
             var msg = GetBytes(msgHex);
             var random = BigIntegerExt.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
-            var signature = privateKey.Sign(msg, random);
+            var signature = privateKey.Sign(msg, random)!;
             ClassicAssert.IsNotNull(signature, "signature must not be null");
             var rhex = signature.Value.R.ToHexUnsigned(32);
             var shex = signature.Value.S.ToHexUnsigned(32);

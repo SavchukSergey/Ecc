@@ -1,7 +1,7 @@
 ﻿using Ecc.Math;
 
 namespace Ecc.EC256 {
-    public class NistP256Curve : ECCurve256 {
+    public class NistP256Curve : BaseCachedCurve256 {
 
         public const string CURVE_NAME = "nistP256";
 
@@ -17,14 +17,7 @@ namespace Ecc.EC256 {
         ) {
         }
 
-        public override ECPoint256 MulG(in BigInteger256 k) {
-            var acc = Infinity;
-            for (var i = 0; i < BigInteger256.BYTES_SIZE; i++) {
-                var bt = k.GetByte(i);
-                acc += ECPointByteCache256.NistP256.Get(i, bt);
-            }
-            return acc;
-        }
+        protected override ECProjectiveMontgomeryPointByteCache256 Cache => ECProjectiveMontgomeryPointByteCache256.NistP256;
 
         public static readonly ECHexInfo HexInfo = new() {
             Name = CURVE_NAME,

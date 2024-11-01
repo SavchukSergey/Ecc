@@ -30,6 +30,13 @@ namespace Ecc.Math {
             result.BiHigh192.AssignAdd(in x1);
         }
 
+        public static void MulLow192(in BigInteger192 left, in BigInteger192 right, out BigInteger192 result) {
+            MulLow192(in left, right.LowUInt64, out result);
+            BigInteger128.MulLow128(in left.BiHigh128, right.MiddleUInt64, out var x0);
+            result.BiHigh128.AssignAdd(in x0);
+            result.HighUInt64 += left.HighUInt64 * right.HighUInt64;
+        }
+
         public static void MulLow192(in BigInteger192 left, ulong right, out BigInteger192 result) {
             result = new BigInteger192();
             BigInteger128.Mul(left.LowUInt64, right, out result.BiLow128);

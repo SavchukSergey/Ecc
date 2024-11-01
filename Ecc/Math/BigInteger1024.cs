@@ -41,18 +41,18 @@ namespace Ecc.Math {
         internal fixed ulong UInt64[UINT64_SIZE];
 
         public BigInteger1024(in BigInteger512 low) {
-            Low = low;
-            High = new BigInteger512(0);
+            BiLow512 = low;
+            BiHigh512 = new BigInteger512(0);
         }
 
         public BigInteger1024(in BigInteger512 low, in BigInteger512 high) {
-            Low = low;
-            High = high;
+            BiLow512 = low;
+            BiHigh512 = high;
         }
 
         public BigInteger1024(in BigInteger1024 other) {
-            Low = other.Low;
-            High = other.High;
+            BiLow512 = other.BiLow512;
+            BiHigh512 = other.BiHigh512;
         }
 
         public readonly byte GetByte(int index) {
@@ -62,7 +62,7 @@ namespace Ecc.Math {
 
         public readonly bool IsOne {
             get {
-                return Low.IsOne && High.IsZero;
+                return BiLow512.IsOne && BiHigh512.IsZero;
             }
         }
 
@@ -115,7 +115,7 @@ namespace Ecc.Math {
                 carry = acc > ulong.MaxValue; //todo: use shift to avoid branching
             }
             if (carry) {
-                High.AssignDecrement();
+                BiHigh512.AssignDecrement();
             }
         }
 

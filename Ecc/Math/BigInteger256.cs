@@ -44,6 +44,7 @@ namespace Ecc.Math {
 
         [FieldOffset(0)]
         public BigInteger128 BiLow128;
+
         [FieldOffset(0)]
         public BigInteger192 BiLow192;
 
@@ -189,20 +190,25 @@ namespace Ecc.Math {
             return res;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly BigInteger256 ModSub(in BigInteger256 other, in BigInteger256 modulus) {
-            var res = this;
-            var borrow = res.LowUInt128 < other.LowUInt128;
-            res.LowUInt128 -= other.LowUInt128;
+            ModSub(in this, in other, modulus, out var result);
+            return result;
+        }
+
+        public static void ModSub(in BigInteger256 left, in BigInteger256 right, in BigInteger256 modulus, out BigInteger256 result) {
+            result = left;
+            var borrow = result.LowUInt128 < right.LowUInt128;
+            result.LowUInt128 -= right.LowUInt128;
             if (borrow) {
-                borrow = res.HighUInt128 == 0;
-                res.HighUInt128--;
+                borrow = result.HighUInt128 == 0;
+                result.HighUInt128--;
             }
-            borrow |= res.HighUInt128 < other.HighUInt128;
-            res.HighUInt128 -= other.HighUInt128;
+            borrow |= result.HighUInt128 < right.HighUInt128;
+            result.HighUInt128 -= right.HighUInt128;
             if (borrow) {
-                res.AssignAdd(modulus);
+                result.AssignAdd(modulus);
             }
-            return res;
         }
 
         public readonly BigInteger256 ModTriple(in BigInteger256 modulus) {
@@ -215,6 +221,11 @@ namespace Ecc.Math {
         public readonly BigInteger256 ModMul(in BigInteger256 other, in BigInteger256 modulus) {
             Mul(in this, in other, out var temp);
             return temp % modulus;
+        }
+
+        public readonly void ModMul(in BigInteger256 other, in BigInteger256 modulus, out BigInteger256 result) {
+            Mul(in this, in other, out var temp);
+            BigInteger512.DivRem(temp, modulus, out var _, out result);
         }
 
         public readonly BigInteger256 ModMulBit(in BigInteger256 other, in BigInteger256 modulus) {

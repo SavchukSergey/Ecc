@@ -74,12 +74,12 @@ namespace Ecc {
 
             ref readonly MontgomeryContext256 ctx = ref left.Curve.MontgomeryContext;
 
-            var lxz = ctx.ModMul(left.X, left.Z);
-            var rxz = ctx.ModMul(right.X, right.Z);
+            ctx.ModMul(left.X, left.Z, out var lxz);
+            ctx.ModMul(right.X, right.Z, out var rxz);
 
             if (lxz == rxz) {
-                var lyz = ctx.ModMul(left.Y, left.Z);
-                var ryz = ctx.ModMul(right.Y, right.Z);
+                ctx.ModMul(left.Y, left.Z, out var lyz);
+                ctx.ModMul(right.Y, right.Z, out var ryz);
 
                 if (lyz == ryz) {
                     return left.Double();
@@ -92,20 +92,20 @@ namespace Ecc {
                 );
             }
 
-            var t0 = ctx.ModMul(left.Y, right.Z);
-            var t1 = ctx.ModMul(right.Y, left.Z);
-            var t = ctx.ModSub(t0, t1);
+            ctx.ModMul(left.Y, right.Z, out var t0);
+            ctx.ModMul(right.Y, left.Z, out var t1);
+            ctx.ModSub(t0, t1, out var t);
 
-            var u0 = ctx.ModMul(left.X, right.Z);
-            var u1 = ctx.ModMul(right.X, left.Z);
-            var u = ctx.ModSub(u0, u1);
+            ctx.ModMul(left.X, right.Z, out var u0);
+            ctx.ModMul(right.X, left.Z, out var u1);
+            ctx.ModSub(u0, u1, out var u);
 
-            var u2 = ctx.ModSquare(u);
-            var u3 = ctx.ModMul(u2, u);
+            ctx.ModSquare(u, out var u2);
+            ctx.ModMul(u2, u, out var u3);
 
-            var v = ctx.ModMul(left.Z, right.Z);
+            ctx.ModMul(left.Z, right.Z, out var v);
 
-            var t2 = ctx.ModSquare(t);
+            ctx.ModSquare(t, out var t2);
 
             var w = ctx.ModSub(
                 ctx.ModMul(t2, v),
@@ -118,7 +118,7 @@ namespace Ecc {
                 )
             );
 
-            var resX = ctx.ModMul(u, w);
+            ctx.ModMul(u, w, out var resX);
             var resY = ctx.ModSub(
                 ctx.ModMul(
                     t,
@@ -129,7 +129,7 @@ namespace Ecc {
                 ),
                 ctx.ModMul(t0, u3)
             );
-            var resZ = ctx.ModMul(u3, v);
+            ctx.ModMul(u3, v, out var resZ);
 
             return new ECProjectiveMontgomeryPoint256(
                 resX,

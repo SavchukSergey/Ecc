@@ -1,7 +1,7 @@
 ﻿using Ecc.Math;
 
 namespace Ecc.EC256 {
-    public class Secp256k1Curve : ECCurve256 {
+    public class Secp256k1Curve : BaseCachedCurve256 {
 
         public const string CURVE_NAME = "secp256k1";
 
@@ -17,18 +17,7 @@ namespace Ecc.EC256 {
         ) {
         }
 
-        public override ECPoint256 MulG(in BigInteger256 k) {
-            var acc = new ECProjectiveMontgomeryPoint256(
-                new BigInteger256(0),
-                new BigInteger256(0),
-                this
-            );
-            for (var i = 0; i < BigInteger256.BYTES_SIZE; i++) {
-                var bt = k.GetByte(i);
-                acc += ECProjectiveMontgomeryPointByteCache256.Secp256k1.Get(i, bt);
-            }
-            return acc.Reduce().ToAffinePoint();
-        }
+        protected override ECProjectiveMontgomeryPointByteCache256 Cache => ECProjectiveMontgomeryPointByteCache256.Secp256k1;
 
         public static readonly ECHexInfo HexInfo = new() {
             Name = CURVE_NAME,

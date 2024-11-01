@@ -74,20 +74,10 @@ namespace Ecc.Math {
         #region Compare to BigInteger256
 
         public static int Compare(in BigInteger512 left, in BigInteger256 right) {
-            if (!left.High.IsZero) {
+            if (!left.BiHigh256.IsZero) {
                 return 1;
             }
-            for (var i = UINT64_SIZE - 5; i >= 0; i--) {
-                var leftBt = left.UInt64[i];
-                var rightBt = right.UInt64[i];
-                if (leftBt > rightBt) {
-                    return 1;
-                }
-                if (leftBt < rightBt) {
-                    return -1;
-                }
-            }
-            return 0;
+            return left.BiLow256.Compare(in right);
         }
 
         public static bool operator <(in BigInteger512 left, in BigInteger256 right) {

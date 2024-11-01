@@ -104,18 +104,27 @@ namespace Ecc.Math {
             result = s3.BiHigh256;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly BigInteger256 ModSub(in BigInteger256 left, in BigInteger256 right) {
             return left.ModSub(in right, in Modulus);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly void ModSub(in BigInteger256 left, in BigInteger256 right, out BigInteger256 result) {
+            BigInteger256.ModSub(in left, in right, in Modulus, out result);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly BigInteger256 ModAdd(in BigInteger256 left, in BigInteger256 right) {
             return left.ModAdd(in right, in Modulus);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly BigInteger256 ModTripple(in BigInteger256 value) {
             return value.ModTriple(in Modulus);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly BigInteger256 ModDouble(in BigInteger256 value) {
             return value.ModDouble(in Modulus);
         }

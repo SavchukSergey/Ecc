@@ -58,12 +58,13 @@ namespace Ecc {
             return left == right;
         }
 
-        public virtual ECPoint256 MulG(in BigInteger256 k) {
-            return G * k;
+        public virtual void MulG(in BigInteger256 k, out ECPoint256 result) {
+            result = G * k;
         }
 
         public ECPublicKey256 GetPublicKey(in BigInteger256 k) {
-            return new ECPublicKey256(MulG(k));
+            MulG(in k, out var point);
+            return new ECPublicKey256(point);
         }
 
         public ECPoint256 CreatePoint(in BigInteger256 x, in BigInteger256 y) {
