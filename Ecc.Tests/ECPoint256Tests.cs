@@ -101,6 +101,23 @@ namespace Ecc.Tests {
             ), res);
         }
 
+
+        [Test]
+        public void MulKTest() {
+            var point = new ECPoint256(
+                  BigInteger256.ParseHexUnsigned("262331267d5dc527a9b4225337671f75228e97ea7137ea78a3fa7314bd1cedae"),
+                  BigInteger256.ParseHexUnsigned("cd35a5325fb802543006d5891056c9bde2b3683a58c945ec80d74b180baf78ee"),
+                  ECCurve256.Secp256k1
+            );
+            var k = BigInteger256.ParseHexUnsigned("b359fbe006c3016490e0bd17dea2fc13a4ac7a5919cd93e4f90f4b1481cb2d6c");
+            var res = point * k;
+            AssertExt.AssertEquals(new ECPoint256(
+                  BigInteger256.ParseHexUnsigned("1eb65a6bf5fc5f8e5adbe85b111d5c232abdace60a0b3f57f408c287a867c347"),
+                  BigInteger256.ParseHexUnsigned("fd0dc20576138c748934c1185faa24740c72dd688a0d7d7ed2bead2f10f72411"),
+                  ECCurve256.Secp256k1
+            ), res);
+        }
+
         [Test]
         public void InfinityGetHexTest() {
             ClassicAssert.AreEqual("00", ECCurve256.Secp256k1.Infinity.GetHex());

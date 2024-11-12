@@ -11,7 +11,7 @@ namespace Ecc.Math {
                 }
             }
             if (str.Length > HEX_SIZE) {
-                throw new ArgumentException($"Expected hex string with {HEX_SIZE} characters, was {HEX_SIZE}");
+                throw new ArgumentException($"Expected hex string with {HEX_SIZE} characters, was {str.Length}");
             }
             var ptr = 0;
             var charPtr = str.Length - 1;
