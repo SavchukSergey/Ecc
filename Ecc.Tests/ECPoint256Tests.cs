@@ -87,6 +87,21 @@ namespace Ecc.Tests {
         }
 
         [Test]
+        public void DoubleTest() {
+            var point = new ECPoint256(
+                  BigInteger256.ParseHexUnsigned("262331267d5dc527a9b4225337671f75228e97ea7137ea78a3fa7314bd1cedae"),
+                  BigInteger256.ParseHexUnsigned("cd35a5325fb802543006d5891056c9bde2b3683a58c945ec80d74b180baf78ee"),
+                  ECCurve256.Secp256k1
+            );
+            var res = point.Double();
+            AssertExt.AssertEquals(new ECPoint256(
+                  BigInteger256.ParseHexUnsigned("e456fcc29e11d05faf31c251089b9a6c09ab1d82aec8672bba416e1cd45d055e"),
+                  BigInteger256.ParseHexUnsigned("f5c02e7c505d6051c94f3ab38bf8a2b8039ec5931e7f7cb3924d7dac1be353e6"),
+                  ECCurve256.Secp256k1
+            ), res);
+        }
+
+        [Test]
         public void InfinityGetHexTest() {
             ClassicAssert.AreEqual("00", ECCurve256.Secp256k1.Infinity.GetHex());
         }
