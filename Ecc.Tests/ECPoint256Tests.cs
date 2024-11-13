@@ -86,17 +86,28 @@ namespace Ecc.Tests {
             Assert.That(res.IsInfinity, Is.True);
         }
 
-        [Test]
-        public void DoubleTest() {
+        [TestCase(
+            "262331267d5dc527a9b4225337671f75228e97ea7137ea78a3fa7314bd1cedae",
+            "cd35a5325fb802543006d5891056c9bde2b3683a58c945ec80d74b180baf78ee",
+            "e456fcc29e11d05faf31c251089b9a6c09ab1d82aec8672bba416e1cd45d055e",
+            "f5c02e7c505d6051c94f3ab38bf8a2b8039ec5931e7f7cb3924d7dac1be353e6"
+        )]
+        [TestCase(
+            "e456fcc29e11d05faf31c251089b9a6c09ab1d82aec8672bba416e1cd45d055e",
+            "f5c02e7c505d6051c94f3ab38bf8a2b8039ec5931e7f7cb3924d7dac1be353e6",
+            "33513202c960d2cbb194e4ab5c42dce572153cda471a1de67c48e14b82817e21",
+            "40eadf05d67d14771058661230346b5c3ec2f11d3e8eb67a55a9b4317e5b72fd"
+        )]
+        public void DoubleTest(string sourceX, string sourceY, string expectedX, string expectedY) {
             var point = new ECPoint256(
-                  BigInteger256.ParseHexUnsigned("262331267d5dc527a9b4225337671f75228e97ea7137ea78a3fa7314bd1cedae"),
-                  BigInteger256.ParseHexUnsigned("cd35a5325fb802543006d5891056c9bde2b3683a58c945ec80d74b180baf78ee"),
+                  BigInteger256.ParseHexUnsigned(sourceX),
+                  BigInteger256.ParseHexUnsigned(sourceY),
                   ECCurve256.Secp256k1
             );
             var res = point.Double();
             AssertExt.AssertEquals(new ECPoint256(
-                  BigInteger256.ParseHexUnsigned("e456fcc29e11d05faf31c251089b9a6c09ab1d82aec8672bba416e1cd45d055e"),
-                  BigInteger256.ParseHexUnsigned("f5c02e7c505d6051c94f3ab38bf8a2b8039ec5931e7f7cb3924d7dac1be353e6"),
+                  BigInteger256.ParseHexUnsigned(expectedX),
+                  BigInteger256.ParseHexUnsigned(expectedY),
                   ECCurve256.Secp256k1
             ), res);
         }

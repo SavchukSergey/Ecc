@@ -22,6 +22,7 @@ namespace Ecc.Math {
                 return;
             }
             if (System.Runtime.Intrinsics.X86.X86Base.X64.IsSupported) {
+#pragma warning disable SYSLIB5004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
                 var (q7, r7) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[7], 0, divisor);
                 var (q6, r6) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[6], r7, divisor);
                 var (q5, r5) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[5], r6, divisor);
@@ -30,6 +31,7 @@ namespace Ecc.Math {
                 var (q2, r2) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[2], r3, divisor);
                 var (q1, r1) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[1], r2, divisor);
                 (var q0, remainder) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.UInt64[0], r1, divisor);
+#pragma warning restore SYSLIB5004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
                 quotient = new BigInteger512(q0, q1, q2, q3, q4, q5, q6, q7);
             } else {
                 quotient = new BigInteger512();

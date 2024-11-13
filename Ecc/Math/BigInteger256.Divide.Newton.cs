@@ -36,7 +36,7 @@ namespace Ecc.Math {
             var t = new BigInteger1024(y * dividend);
             t.Middle.AssignAdd(dividend);
             t.AssignRightShift(BITS_SIZE - log2);
-            var q = t.Low.High;
+            var q = t.BiLow512.BiHigh256;
 
             MulLow256(q, divisor, out var x1);
             remainder = dividend - x1;

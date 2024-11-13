@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Data;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using Ecc.Math;
 
@@ -26,6 +28,15 @@ namespace Ecc {
 
         public readonly ECPoint256 Double() {
             return this + this;
+        }
+
+        public readonly ECPoint256 ShiftLeft(int count) {
+            var walker = this;
+            while (count > 0) {
+                walker = walker.Double();
+                count--;
+            }
+            return walker;
         }
 
         public static ECPoint256 operator +(in ECPoint256 left, in ECPoint256 right) {
@@ -95,18 +106,47 @@ namespace Ecc {
         }
 
         public static ECPoint256 operator *(in ECPoint256 p, in BigInteger256 k) {
-            var acc = p.Curve.Infinity;
-            var add = p;
-            for (var i = 0; i < BigInteger256.BYTES_SIZE; i++) {
-                var bt = k.GetByte(i);
-                for (var mask = 1; mask < 256; mask <<= 1) {
-                    if ((bt & mask) != 0) {
-                        acc += add;
+            var result = p.Curve.Infinity;
+            var acc = p;
+            var zeroes = 0;
+            var ones = 0;
+            for (var i = 0; i < BigInteger256.BITS_SIZE + 1; i++) {
+                if (i < BigInteger256.BITS_SIZE && k.GetBit(i)) {
+                    ones++;
+                } else {
+                    zeroes++;
+                    if (ones > 0) {
+                        acc = acc.ShiftLeft(zeroes - 1);
+
+                        // we start getting profit only if ones >= 3
+
+                        // if have two ones i.e.pattern 011
+                        // using simple bit approach: we need one double, two adds
+                        // using RLE bit approach: we need two doubles and one sub
+
+                        // if have three ones i.e.pattern 0111
+                        // using simple bit approach: we need two double, three adds
+                        // using RLE bit approach: we need four doubles and one sub
+
+                        if (ones >= 3) {
+                            result -= acc;
+                            acc = acc.ShiftLeft(ones);
+                            ones = 0;
+                            result += acc;
+                            zeroes = 1;
+                        } else {
+                            while (ones > 0) {
+                                result += acc;
+                                acc = acc.Double();
+                                ones--;
+                            }
+                            zeroes = 1;
+                        }
+
                     }
-                    add += add;
                 }
             }
-            return acc;
+            return result;
         }
 
         public readonly int GetBytesCount(bool compress = true) {

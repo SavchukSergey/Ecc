@@ -14,8 +14,10 @@ namespace Ecc.Math {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void DivRem(in BigInteger128 dividend, ulong divisor, out BigInteger128 quotient, out ulong remainder) {
             if (System.Runtime.Intrinsics.X86.X86Base.X64.IsSupported) {
+#pragma warning disable SYSLIB5004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
                 var (q1, r1) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.HighUInt64, 0, divisor);
                 (var q0, remainder) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.LowUInt64, r1, divisor);
+#pragma warning restore SYSLIB5004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
                 quotient = new BigInteger128(q0, q1);
             } else {
                 var (q, r) = UInt128.DivRem(dividend.UInt128, divisor);
@@ -27,8 +29,10 @@ namespace Ecc.Math {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void DivRem(in BigInteger128 dividend, uint divisor, out BigInteger128 quotient, out uint remainder) {
             if (System.Runtime.Intrinsics.X86.X86Base.X64.IsSupported) {
+#pragma warning disable SYSLIB5004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
                 var (q1, r1) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.HighUInt64, 0, (ulong)divisor);
                 var (q0, r0) = System.Runtime.Intrinsics.X86.X86Base.X64.DivRem(dividend.LowUInt64, r1, divisor);
+#pragma warning restore SYSLIB5004 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
                 quotient = new BigInteger128(q0, q1);
                 remainder = (uint)r0;
             } else {
