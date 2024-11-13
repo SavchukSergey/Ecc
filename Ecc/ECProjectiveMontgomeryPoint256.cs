@@ -30,6 +30,14 @@ namespace Ecc {
             Curve = curve;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ECProjectiveMontgomeryPoint256(in ECPoint256 point) {
+            X = point.Curve.MontgomeryContext.ToMontgomery(point.X);
+            Y = point.Curve.MontgomeryContext.ToMontgomery(point.Y);
+            Z = point.Curve.MontgomeryContext.One;
+            Curve = point.Curve;
+        }
+
         public readonly ECProjectiveMontgomeryPoint256 Double() {
             ref readonly MontgomeryContext256 ctx = ref Curve.MontgomeryContext;
 
@@ -134,7 +142,7 @@ namespace Ecc {
             );
         }
 
-        public ECProjectivePoint256 Reduce() {
+        public ECProjectivePoint256 ToProjective() {
             return new ECProjectivePoint256(
                 Curve.MontgomeryContext.Reduce(X),
                 Curve.MontgomeryContext.Reduce(Y),
@@ -143,8 +151,12 @@ namespace Ecc {
             );
         }
 
+        public ECPoint256 ToAffinePoint() {
+            return ToProjective().ToAffinePoint();
+        }
+
         public ECProjectiveMontgomeryPoint256 Normalize() {
-            var reduced = Reduce();
+            var reduced = ToProjective();
             var norm = reduced.Normalize();
             return new ECProjectiveMontgomeryPoint256(
                 norm.X,

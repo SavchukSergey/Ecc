@@ -26,5 +26,17 @@ namespace Ecc.Tests {
             Assert.That(actual.Y.ToHexUnsigned(), Is.EqualTo(expected.Y.ToHexUnsigned()), $"{path}.Y");
         }
 
+        public static void AssertEquals(in ECProjectivePoint256 expected, in ECProjectivePoint256 actual, string? path = null) {
+            Assert.That(actual.X.ToHexUnsigned(), Is.EqualTo(expected.X.ToHexUnsigned()), $"{path}.X");
+            Assert.That(actual.Y.ToHexUnsigned(), Is.EqualTo(expected.Y.ToHexUnsigned()), $"{path}.Y");
+            Assert.That(actual.Z.ToHexUnsigned(), Is.EqualTo(expected.Z.ToHexUnsigned()), $"{path}.Z");
+        }
+
+        public static void AssertEquals(in ECProjectiveMontgomeryPoint256 expected, in ECProjectiveMontgomeryPoint256 actual, string? path = null) {
+            Assert.That(actual.X.ToHexUnsigned(), Is.EqualTo(expected.X.ToHexUnsigned()), $"{path}.X");
+            Assert.That(actual.Y.ToHexUnsigned(), Is.EqualTo(expected.Y.ToHexUnsigned()), $"{path}.Y");
+            Assert.That(actual.Z.ToHexUnsigned(), Is.EqualTo(expected.Z.ToHexUnsigned()), $"{path}.Z");
+        }
+
     }
 }

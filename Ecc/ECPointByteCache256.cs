@@ -69,7 +69,7 @@ namespace Ecc {
         public static ECPointByteCache256 ReadFrom(Stream stream, ECCurve256 curve) {
             var data = new byte[TOTAL_POINTS_BYTES];
             var points = new ECPoint256[TOTAL_POINTS_COUNT];
-            stream.Read(data);
+            var _ = stream.Read(data);
             var ptr = 0;
             var pi = 0;
             for (var i = 0; i < 256 / 8; i++) {

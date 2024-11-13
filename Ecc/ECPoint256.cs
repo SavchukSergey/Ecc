@@ -73,6 +73,10 @@ namespace Ecc {
             return new ECProjectivePoint256(this);
         }
 
+        public readonly ECProjectiveMontgomeryPoint256 ToMontgomery() {
+            return new ECProjectiveMontgomeryPoint256(this);
+        }
+
         public static ECPoint256 operator -(in ECPoint256 left, in ECPoint256 right) {
             return left + right.Negate();
         }

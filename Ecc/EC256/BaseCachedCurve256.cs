@@ -16,7 +16,7 @@ namespace Ecc.EC256 {
                 var bt = k.GetByte(i);
                 acc += Cache.Get(i, bt);
             }
-            result = acc.Reduce().ToAffinePoint();
+            result = acc.ToAffinePoint();
         }
 
         protected abstract ECProjectiveMontgomeryPointByteCache256 Cache { get; }

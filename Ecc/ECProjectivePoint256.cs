@@ -130,6 +130,7 @@ namespace Ecc {
             return new ECProjectiveMontgomeryPoint256(
                 x: Curve.MontgomeryContext.ToMontgomery(X),
                 y: Curve.MontgomeryContext.ToMontgomery(Y),
+                z: Curve.MontgomeryContext.ToMontgomery(Z),
                 Curve
             );
         }

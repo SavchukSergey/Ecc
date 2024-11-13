@@ -134,5 +134,22 @@ namespace Ecc.Tests {
             ClassicAssert.AreEqual("00", ECCurve256.Secp256k1.Infinity.GetHex());
         }
 
+        [Test]
+        public void ToMontgomeryPointTest() {
+            var curve = ECCurve256.Secp256k1;
+            var affinePoint = new ECPoint256(
+                BigInteger256.ParseHexUnsigned("262331267d5dc527a9b4225337671f75228e97ea7137ea78a3fa7314bd1cedae"),
+                BigInteger256.ParseHexUnsigned("cd35a5325fb802543006d5891056c9bde2b3683a58c945ec80d74b180baf78ee"),
+                curve
+            );
+            var montPoint = affinePoint.ToMontgomery();
+            AssertExt.AssertEquals(new ECProjectiveMontgomeryPoint256(
+                BigInteger256.ParseHexUnsigned("09ac590c1c918eb1dfde1f0b931da5f35369b032ba60497eb211521d47b7d446"),
+                BigInteger256.ParseHexUnsigned("897377937d47b8d45a6bb9d53deb55e8877a0c9958fb26b08e8abb02c273a45f"),
+                BigInteger256.ParseHexUnsigned("00000000000000000000000000000000000000000000000000000001000003d1"),
+                curve
+            ), montPoint);
+        }
+
     }
 }
