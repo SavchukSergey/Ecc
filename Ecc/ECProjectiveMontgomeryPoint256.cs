@@ -79,9 +79,12 @@ namespace Ecc {
 
             ctx.ModMul(left.Y, right.Z, out var lyz);
             ctx.ModMul(right.Y, left.Z, out var ryz);
-            if (lxz == rxz) {
 
-                if (lyz == ryz) {
+            ctx.ModSub(lxz, rxz, out var dx);
+            ctx.ModSub(lyz, ryz, out var dy);
+
+            if (dx.IsZero) {
+                if (dy.IsZero) {
                     return left.Double();
                 }
                 return new ECProjectiveMontgomeryPoint256(
@@ -92,21 +95,17 @@ namespace Ecc {
                 );
             }
 
-            ctx.ModSub(lyz, ryz, out var t);
+            ctx.ModSquare(dx, out var dx2);
+            ctx.ModMul(dx2, dx, out var dx3);
 
-            ctx.ModSub(lxz, rxz, out var u);
+            ctx.ModSquare(dy, out var dy2);
 
-            ctx.ModSquare(u, out var u2);
-            ctx.ModMul(u2, u, out var u3);
-
-            ctx.ModMul(left.Z, right.Z, out var v);
-
-            ctx.ModSquare(t, out var t2);
+            ctx.ModMul(left.Z, right.Z, out var z2);
 
             var w = ctx.ModSub(
-                ctx.ModMul(t2, v),
+                ctx.ModMul(dy2, z2),
                 ctx.ModMul(
-                    u2,
+                    dx2,
                     ctx.ModAdd(
                         lxz,
                         rxz
@@ -114,18 +113,18 @@ namespace Ecc {
                 )
             );
 
-            ctx.ModMul(u, w, out var resX);
+            ctx.ModMul(dx, w, out var resX);
             var resY = ctx.ModSub(
                 ctx.ModMul(
-                    t,
+                    dy,
                     ctx.ModSub(
-                        ctx.ModMul(lxz, u2),
+                        ctx.ModMul(lxz, dx2),
                         w
                     )
                 ),
-                ctx.ModMul(lyz, u3)
+                ctx.ModMul(lyz, dx3)
             );
-            ctx.ModMul(u3, v, out var resZ);
+            ctx.ModMul(dx3, z2, out var resZ);
 
             return new ECProjectiveMontgomeryPoint256(
                 resX,

@@ -80,35 +80,36 @@ namespace Ecc {
             var lyz = left.Y.ModMul(right.Z, curve.Modulus);
             var ryz = right.Y.ModMul(left.Z, curve.Modulus);
 
-            if (lxz == rxz) {
-                if (lyz == ryz) {
+            var dx = lxz.ModSub(rxz, curve.Modulus);
+            var dy = lyz.ModSub(ryz, curve.Modulus);
+
+            if (dx.IsZero) {
+                if (dy.IsZero) {
                     return left.Double();
                 }
                 return new ECProjectivePoint256(curve.Infinity);
             }
 
-            var t = lyz.ModSub(ryz, curve.Modulus);
+            var dx2 = dx.ModSquare(curve.Modulus);
+            var dx3 = dx2.ModMul(dx, curve.Modulus);
 
-            var u = lxz.ModSub(rxz, curve.Modulus);
-
-            var u2 = u.ModSquare(curve.Modulus);
-            var u3 = u2.ModMul(u, curve.Modulus);
-
-            var v = left.Z.ModMul(right.Z, curve.Modulus);
-            var t2 = t.ModSquare(curve.Modulus);
-            var w = t2.ModMul(v, curve.Modulus).ModSub(
-                u2.ModMul(lxz.ModAdd(rxz, curve.Modulus), curve.Modulus),
+            var dy2 = dy.ModSquare(curve.Modulus);
+            
+            var z2 = left.Z.ModMul(right.Z, curve.Modulus);
+            
+            var w = dy2.ModMul(z2, curve.Modulus).ModSub(
+                dx2.ModMul(lxz.ModAdd(rxz, curve.Modulus), curve.Modulus),
                 curve.Modulus
             );
-            var resX = u.ModMul(w, curve.Modulus);
-            var resY = t.ModMul(
-                lxz.ModMul(u2, curve.Modulus).ModSub(w, curve.Modulus),
+            var resX = dx.ModMul(w, curve.Modulus);
+            var resY = dy.ModMul(
+                lxz.ModMul(dx2, curve.Modulus).ModSub(w, curve.Modulus),
                 curve.Modulus
             ).ModSub(
-                lyz.ModMul(u3, curve.Modulus),
+                lyz.ModMul(dx3, curve.Modulus),
                 curve.Modulus
             );
-            var resZ = u3.ModMul(v, curve.Modulus);
+            var resZ = dx3.ModMul(z2, curve.Modulus);
 
             return new ECProjectivePoint256(
                 resX,
