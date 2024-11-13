@@ -38,6 +38,13 @@ namespace Ecc {
             Curve = curve;
         }
 
+        public readonly ECProjectivePoint256 Negate() {
+            if (IsInfinity) {
+                return this;
+            }
+            return new ECProjectivePoint256(X, Curve.Modulus - Y, Z, Curve);
+        }
+
         public readonly ECProjectivePoint256 Double() {
             var x2 = X.ModSquare(Curve.Modulus);
             var z2 = Z.ModSquare(Curve.Modulus);

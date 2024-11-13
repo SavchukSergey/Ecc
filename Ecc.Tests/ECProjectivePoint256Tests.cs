@@ -22,7 +22,7 @@ namespace Ecc.Tests {
                 BigInteger256.ParseHexUnsigned(leftY),
                 BigInteger256.ParseHexUnsigned(leftZ),
                 curve);
-            var projectivePointB =new ECProjectivePoint256(
+            var projectivePointB = new ECProjectivePoint256(
                 BigInteger256.ParseHexUnsigned(rightX),
                 BigInteger256.ParseHexUnsigned(rightY),
                 BigInteger256.ParseHexUnsigned(rightZ),
@@ -46,7 +46,6 @@ namespace Ecc.Tests {
         public void DoubleTest(string sourceX, string sourceY, string sourceZ) {
             var curve = ECCurve256.Secp256k1;
 
-
             var projectivePointA = new ECProjectivePoint256(
                 BigInteger256.ParseHexUnsigned(sourceX),
                 BigInteger256.ParseHexUnsigned(sourceY),
@@ -57,10 +56,20 @@ namespace Ecc.Tests {
             var expectedAffineResult = affinePoint.Double();
 
             var projectiveSumResult = projectivePointA.Double();
-            
+
             var actualAffineSumResult = projectiveSumResult.ToAffinePoint();
 
             AssertExt.AssertEquals(expectedAffineResult, actualAffineSumResult);
+        }
+
+        [Test]
+        public void NegateTest() {
+            var curve = ECCurve256.Secp256k1;
+            var pub1 = curve.CreateKeyPair().PublicKey.Point;
+            var pub2 = pub1.Negate();
+
+            var sum = pub1 + pub2;
+            Assert.That(sum.IsInfinity, Is.True);
         }
 
         [Test]
