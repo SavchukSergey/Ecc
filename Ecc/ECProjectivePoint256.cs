@@ -74,25 +74,22 @@ namespace Ecc {
 
             var curve = left.Curve;
 
-            var lxz = left.X.ModMul(left.Z, curve.Modulus);
-            var rxz = right.X.ModMul(right.Z, curve.Modulus);
+            var lxz = left.X.ModMul(right.Z, curve.Modulus);
+            var rxz = right.X.ModMul(left.Z, curve.Modulus);
+
+            var lyz = left.Y.ModMul(right.Z, curve.Modulus);
+            var ryz = right.Y.ModMul(left.Z, curve.Modulus);
 
             if (lxz == rxz) {
-                var lyz = left.Y.ModMul(left.Z, curve.Modulus);
-                var ryz = right.Y.ModMul(right.Z, curve.Modulus);
                 if (lyz == ryz) {
                     return left.Double();
                 }
                 return new ECProjectivePoint256(curve.Infinity);
             }
 
-            var t0 = left.Y.ModMul(right.Z, curve.Modulus);
-            var t1 = right.Y.ModMul(left.Z, curve.Modulus);
-            var t = t0.ModSub(t1, curve.Modulus);
+            var t = lyz.ModSub(ryz, curve.Modulus);
 
-            var u0 = left.X.ModMul(right.Z, curve.Modulus);
-            var u1 = right.X.ModMul(left.Z, curve.Modulus);
-            var u = u0.ModSub(u1, curve.Modulus);
+            var u = lxz.ModSub(rxz, curve.Modulus);
 
             var u2 = u.ModSquare(curve.Modulus);
             var u3 = u2.ModMul(u, curve.Modulus);
@@ -100,15 +97,15 @@ namespace Ecc {
             var v = left.Z.ModMul(right.Z, curve.Modulus);
             var t2 = t.ModSquare(curve.Modulus);
             var w = t2.ModMul(v, curve.Modulus).ModSub(
-                u2.ModMul(u0.ModAdd(u1, curve.Modulus), curve.Modulus),
+                u2.ModMul(lxz.ModAdd(rxz, curve.Modulus), curve.Modulus),
                 curve.Modulus
             );
             var resX = u.ModMul(w, curve.Modulus);
             var resY = t.ModMul(
-                u0.ModMul(u2, curve.Modulus).ModSub(w, curve.Modulus),
+                lxz.ModMul(u2, curve.Modulus).ModSub(w, curve.Modulus),
                 curve.Modulus
             ).ModSub(
-                t0.ModMul(u3, curve.Modulus),
+                lyz.ModMul(u3, curve.Modulus),
                 curve.Modulus
             );
             var resZ = u3.ModMul(v, curve.Modulus);

@@ -74,12 +74,12 @@ namespace Ecc {
 
             ref readonly MontgomeryContext256 ctx = ref left.Curve.MontgomeryContext;
 
-            ctx.ModMul(left.X, left.Z, out var lxz);
-            ctx.ModMul(right.X, right.Z, out var rxz);
+            ctx.ModMul(left.X, right.Z, out var lxz);
+            ctx.ModMul(right.X, left.Z, out var rxz);
 
+            ctx.ModMul(left.Y, right.Z, out var lyz);
+            ctx.ModMul(right.Y, left.Z, out var ryz);
             if (lxz == rxz) {
-                ctx.ModMul(left.Y, left.Z, out var lyz);
-                ctx.ModMul(right.Y, right.Z, out var ryz);
 
                 if (lyz == ryz) {
                     return left.Double();
@@ -92,13 +92,9 @@ namespace Ecc {
                 );
             }
 
-            ctx.ModMul(left.Y, right.Z, out var t0);
-            ctx.ModMul(right.Y, left.Z, out var t1);
-            ctx.ModSub(t0, t1, out var t);
+            ctx.ModSub(lyz, ryz, out var t);
 
-            ctx.ModMul(left.X, right.Z, out var u0);
-            ctx.ModMul(right.X, left.Z, out var u1);
-            ctx.ModSub(u0, u1, out var u);
+            ctx.ModSub(lxz, rxz, out var u);
 
             ctx.ModSquare(u, out var u2);
             ctx.ModMul(u2, u, out var u3);
@@ -112,8 +108,8 @@ namespace Ecc {
                 ctx.ModMul(
                     u2,
                     ctx.ModAdd(
-                        u0,
-                        u1
+                        lxz,
+                        rxz
                     )
                 )
             );
@@ -123,11 +119,11 @@ namespace Ecc {
                 ctx.ModMul(
                     t,
                     ctx.ModSub(
-                        ctx.ModMul(u0, u2),
+                        ctx.ModMul(lxz, u2),
                         w
                     )
                 ),
-                ctx.ModMul(t0, u3)
+                ctx.ModMul(lyz, u3)
             );
             ctx.ModMul(u3, v, out var resZ);
 
