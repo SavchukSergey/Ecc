@@ -38,6 +38,26 @@ namespace Ecc {
             Curve = point.Curve;
         }
 
+        public readonly ECProjectiveMontgomeryPoint256 ShiftLeft(int count) {
+            var walker = this;
+            while (count > 0) {
+                walker = walker.Double();
+                count--;
+            }
+            return walker;
+        }
+
+        public readonly ECProjectiveMontgomeryPoint256 Negate() {
+            if (IsInfinity) {
+                return this;
+            }
+            return new ECProjectiveMontgomeryPoint256(
+                X,
+                Curve.Modulus - Y,
+                Z,
+                Curve);
+        }
+
         public readonly ECProjectiveMontgomeryPoint256 Double() {
             ref readonly MontgomeryContext256 ctx = ref Curve.MontgomeryContext;
 
@@ -74,6 +94,10 @@ namespace Ecc {
                 resZ,
                 Curve
             );
+        }
+
+        public static ECProjectiveMontgomeryPoint256 operator -(in ECProjectiveMontgomeryPoint256 left, in ECProjectiveMontgomeryPoint256 right) {
+            return left + right.Negate();
         }
 
         public static ECProjectiveMontgomeryPoint256 operator +(in ECProjectiveMontgomeryPoint256 left, in ECProjectiveMontgomeryPoint256 right) {
@@ -140,6 +164,54 @@ namespace Ecc {
                 resZ,
                 left.Curve
             );
+        }
+
+        public static ECProjectiveMontgomeryPoint256 operator *(in ECProjectiveMontgomeryPoint256 p, in BigInteger256 k) {
+            var result = new ECProjectiveMontgomeryPoint256(
+                new BigInteger256(),
+                new BigInteger256(),
+                p.Curve
+            );
+            var acc = p;
+            var zeroes = 0;
+            var ones = 0;
+            for (var i = 0; i < BigInteger256.BITS_SIZE + 1; i++) {
+                if (i < BigInteger256.BITS_SIZE && k.GetBit(i)) {
+                    ones++;
+                } else {
+                    zeroes++;
+                    if (ones > 0) {
+                        acc = acc.ShiftLeft(zeroes - 1);
+
+                        // we start getting profit only if ones >= 3
+
+                        // if have two ones i.e.pattern 011
+                        // using simple bit approach: we need one double, two adds
+                        // using RLE bit approach: we need two doubles and one sub
+
+                        // if have three ones i.e.pattern 0111
+                        // using simple bit approach: we need two double, three adds
+                        // using RLE bit approach: we need four doubles and one sub
+
+                        if (ones >= 3) {
+                            result -= acc;
+                            acc = acc.ShiftLeft(ones);
+                            ones = 0;
+                            result += acc;
+                            zeroes = 1;
+                        } else {
+                            while (ones > 0) {
+                                result += acc;
+                                acc = acc.Double();
+                                ones--;
+                            }
+                            zeroes = 1;
+                        }
+
+                    }
+                }
+            }
+            return result;
         }
 
         public ECProjectivePoint256 ToProjective() {

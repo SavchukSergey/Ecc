@@ -34,7 +34,7 @@ namespace Ecc.Tests {
         [TestCase(5, int.MaxValue, int.MaxValue)]
         [TestCase(6, 3, 6)]
         public void MulTest(int mul, int x, int y) {
-            var curve = new ECCurve(name: null, a: 2, b: 3, modulus: 97, order: default, cofactor: default, gx: default, gy: default);
+            var curve = new ECCurve(name: "null", a: 2, b: 3, modulus: 97, order: default, cofactor: default, gx: default, gy: default);
             var p1 = curve.CreatePoint(3, 6);
             var p2 = p1 * mul;
             if (p2.IsInfinity) {

@@ -3,8 +3,7 @@ using System;
 namespace Ecc.Math {
     public unsafe partial struct BigInteger1024 {
 
-        [Obsolete]
-        public void AssignLeftShiftQuarter() {
+        public void AssignLeftShift256() {
             UInt64[15] = UInt64[11];
             UInt64[14] = UInt64[10];
             UInt64[13] = UInt64[9];

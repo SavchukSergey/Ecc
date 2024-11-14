@@ -13,7 +13,7 @@ namespace Ecc.Math {
             BigInteger256.Mul(left.BiLow256, right, out result.BiLow512);
             var zero = new BigInteger512(0);
             var x1 = new BigInteger1024(ah * bl, zero);
-            x1.AssignLeftShiftQuarter();
+            x1.AssignLeftShift256();
 
             return result + x1;
         }
@@ -27,7 +27,7 @@ namespace Ecc.Math {
             var zero = new BigInteger512(0);
             var x0 = new BigInteger1024(al * bl, zero);
             var x1 = new BigInteger1024(al * bh, zero) + new BigInteger1024(ah * bl, zero);
-            x1.AssignLeftShiftQuarter();
+            x1.AssignLeftShift256();
             var x2 = new BigInteger1024(zero, ah * bh);
 
             return x0 + x1 + x2;

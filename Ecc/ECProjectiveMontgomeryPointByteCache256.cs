@@ -64,7 +64,7 @@ namespace Ecc {
         public static ECProjectiveMontgomeryPointByteCache256 ReadFrom(Stream stream, ECCurve256 curve) {
             var data = new byte[TOTAL_POINTS_BYTES];
             var points = new ECProjectiveMontgomeryPoint256[TOTAL_POINTS_COUNT];
-            stream.Read(data);
+            var _ = stream.Read(data);
             var ptr = 0;
             var pi = 0;
             for (var i = 0; i < 256 / 8; i++) {
