@@ -122,6 +122,15 @@ namespace Ecc.Math {
             }
         }
 
+        public BigInteger256(ReadOnlySpan<byte> data, bool bigEndian = false) {
+            var srcIndex = bigEndian ? BYTES_SIZE - 1 : 0;
+            var srcDelta = bigEndian ? -1 : 1;
+            for (var destIndex = 0; destIndex < BYTES_SIZE; destIndex++) {
+                Bytes[destIndex] = srcIndex < data.Length ? data[srcIndex] : (byte)0;
+                srcIndex += srcDelta;
+            }
+        }
+
         public static readonly BigInteger256 Zero = new();
     }
 }

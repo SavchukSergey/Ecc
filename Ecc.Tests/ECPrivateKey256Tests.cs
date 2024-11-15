@@ -21,9 +21,9 @@ namespace Ecc.Tests {
         public void SignIntTest() {
             var curve = ECCurve256.Secp256k1;
             var privateKey = curve.CreatePrivateKey("8ce00ada2dffcfe03bd4775e90588f3f039bd83d56026fafd6f33080ebff72e8");
-            var msg = BigIntegerExt.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            var msg = BigInteger256.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
             var random = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
-            var signature = privateKey.Sign(msg, random)!;
+            var signature = privateKey.SignHash(msg, random)!;
             ClassicAssert.IsNotNull(signature, "signature must not be null");
             var rhex = signature.Value.R.ToHexUnsigned();
             var shex = signature.Value.S.ToHexUnsigned();
@@ -52,40 +52,43 @@ namespace Ecc.Tests {
         public void SignVerifyTest() {
             foreach (var curve in ECCurve256.GetNamedCurves()) {
                 var privateKey = curve.CreateKeyPair();
-                var msg = BigIntegerExt.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
-                var signature = privateKey.Sign(msg);
+                var msg = BigInteger256.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+                var signature = privateKey.SignHash(msg);
                 var valid = privateKey.PublicKey.VerifySignature(msg, signature);
-                ClassicAssert.IsTrue(valid, $"curve {curve.Name}, r and s are valid");
-                signature = new ECSignature256(
+                Assert.That(valid, Is.True, $"curve {curve.Name}, r and s are valid");
+                var badSignature = new ECSignature256(
                     signature.R.ModAdd(new BigInteger256(5), signature.Curve.Modulus),
                     signature.S,
                     signature.Curve
                 );
-                valid = privateKey.PublicKey.VerifySignature(msg, signature);
-                ClassicAssert.IsFalse(valid, $"curve {curve.Name}, r is invalid");
-                signature = new ECSignature256(
+                valid = privateKey.PublicKey.VerifySignature(msg, badSignature);
+                Assert.That(valid, Is.False, $"curve {curve.Name}, r is invalid");
+                badSignature = new ECSignature256(
                     signature.R,
                     signature.S.ModAdd(new BigInteger256(5), signature.Curve.Modulus),
                     signature.Curve
                 );
-                valid = privateKey.PublicKey.VerifySignature(msg, signature);
-                ClassicAssert.IsFalse(valid, $"curve {curve.Name}, s is invalid");
+                valid = privateKey.PublicKey.VerifySignature(msg, badSignature);
+                Assert.That(valid, Is.False, $"curve {curve.Name}, s is invalid");
+
+                var badHash = msg + msg;
+                valid = privateKey.PublicKey.VerifySignature(badHash, signature);
+                Assert.That(valid, Is.False, $"curve {curve.Name}, s is invalid");
             }
         }
 
-        [Conditional("DEBUG")]
         [Test]
         public void SignaturePerformanceTest() {
             const int count = 10;
             var curve = ECCurve256.Secp256k1;
             var privateKey = curve.CreatePrivateKey("8ce00ada2dffcfe03bd4775e90588f3f039bd83d56026fafd6f33080ebff72e8");
             var random = BigInteger256.ParseHexUnsigned("cd6f06360fa5af8415f7a678ab45d8c1d435f8cf054b0f5902237e8cb9ee5fe5");
-            var msg = BigIntegerExt.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
+            var msg = BigInteger256.ParseHexUnsigned("7846e3be8abd2e089ed812475be9b51c3cfcc1a04fafa2ddb6ca6869bf272715");
 
             var watch = new Stopwatch();
             watch.Start();
             for (var i = 0; i < count; i++) {
-                var signature = privateKey.Sign(msg, random);
+                var _ = privateKey.SignHash(msg, random);
             }
             watch.Stop();
             var performance = System.Math.Round(1000 * count / watch.Elapsed.TotalMilliseconds, 3);

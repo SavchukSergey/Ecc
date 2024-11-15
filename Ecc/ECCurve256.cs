@@ -20,7 +20,7 @@ namespace Ecc {
 
         public readonly int KeySize8;
 
-        public readonly long OrderSize;
+        public readonly int OrderSize;
 
         public readonly MontgomeryContext256 MontgomeryContext;
 
@@ -121,24 +121,7 @@ namespace Ecc {
         }
 
         public BigInteger256 TruncateHash(ReadOnlySpan<byte> hash) {
-            return TruncateHash(hash, BigIntegerExt.FromBigEndianBytes(hash));
-        }
-
-        public BigInteger256 TruncateHash(in BigInteger hash) {
-            var bytesCount = hash.GetBigEndianBytesCount();
-            Span<byte> data = stackalloc byte[bytesCount];
-            hash.ToBigEndianBytes(data);
-            return TruncateHash(data, hash);
-        }
-
-        private BigInteger256 TruncateHash(ReadOnlySpan<byte> data, BigInteger num) {
-            var maxLength = OrderSize;
-            var len = data.Length * 8;
-            var extra = maxLength - len;
-            if (extra > 0) {
-                num >>= (int)extra;
-            }
-            return new BigInteger256(num);
+            return new BigInteger256(hash[..(OrderSize >> 3)], bigEndian: true);
         }
 
         public static readonly ECCurve256 Secp256k1 = new Secp256k1Curve();

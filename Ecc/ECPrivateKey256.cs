@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 using Ecc.Math;
 
 namespace Ecc {
@@ -16,35 +15,33 @@ namespace Ecc {
             Curve = curve;
         }
 
-        public readonly ECSignature256 Sign(ReadOnlySpan<byte> hash) {
-            var num = BigIntegerExt.FromBigEndianBytes(hash);
-            return Sign(num);
+        public readonly ECSignature256 SignHash(ReadOnlySpan<byte> hash) {
+            var truncated = Curve.TruncateHash(hash);
+            return SignHash(truncated);
         }
 
         public readonly ECSignature256? Sign(ReadOnlySpan<byte> hash, in BigInteger256 random) {
-            var num = BigIntegerExt.FromBigEndianBytes(hash);
-            return Sign(num, random);
+            var truncated = Curve.TruncateHash(hash);
+            return SignHash(truncated, random);
         }
 
-        public readonly ECSignature256 Sign(in BigInteger message) {
-            var truncated = Curve.TruncateHash(message);
+        public readonly ECSignature256 SignHash(in BigInteger256 hash) {
             ECSignature256? signature;
             do {
                 var random = BigInteger256Ext.ModRandom(Curve.Order);
-                signature = SignTruncated(truncated, random);
+                signature = SignHash(hash, random);
             } while (signature == null);
             return signature.Value;
         }
 
-        public readonly ECSignature256? Sign(in BigInteger message, in BigInteger256 random) {
-            var truncated = Curve.TruncateHash(message);
-            return SignTruncated(truncated, random);
+        public readonly ECSignature256? SignHash(in BigInteger256 hash, in BigInteger256 random) {
+            return SignHashCore(hash, random);
         }
 
-        private readonly ECSignature256? SignTruncated(in BigInteger256 message, in BigInteger256 random) {
+        private readonly ECSignature256? SignHashCore(in BigInteger256 message, in BigInteger256 random) {
             Curve.MulG(random, out var p);
             if (p.X.IsZero) return null;
-            var a = p.X.ModMul(D, Curve.Order);
+            p.X.ModMul(D, Curve.Order, out var a);
             a.AssignModAdd(message, Curve.Order);
             var s = a.ModDiv(random, Curve.Order);
             if (s.IsZero) return null;

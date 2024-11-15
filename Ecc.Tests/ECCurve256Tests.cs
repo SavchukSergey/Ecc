@@ -83,12 +83,12 @@ namespace Ecc.Tests {
             ClassicAssert.AreEqual(privateKey.PublicKey.Point.GetHex(), publicKey.Point.GetHex());
         }
 
-        public void DocSample() {
+        public static void DocSample() {
             var curve = ECCurve256.Secp256k1;
             var keyPair = curve.CreateKeyPair();
-            var msg = new BigInteger(4579485729345);
-            var signature = keyPair.Sign(msg);
-            var valid = keyPair.PublicKey.VerifySignature(msg, signature);
+            var msg = new BigInteger256(4579485729345);
+            var signature = keyPair.SignHash(msg);
+            var _ = keyPair.PublicKey.VerifySignature(msg, signature);
         }
 
         [Test]

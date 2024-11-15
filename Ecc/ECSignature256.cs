@@ -6,7 +6,7 @@ namespace Ecc {
     public readonly struct ECSignature256 {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ECSignature256(BigInteger256 r, BigInteger256 s, ECCurve256 curve) {
+        public ECSignature256(in BigInteger256 r, in BigInteger256 s, in ECCurve256 curve) {
             R = r;
             S = s;
             Curve = curve;
